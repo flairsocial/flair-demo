@@ -25,10 +25,17 @@ export default function MasonryProductGrid({ products, onProductClick }: Masonry
   }, [])
 
   useEffect(() => {
+    // Ensure products is an array before filtering
+    if (!Array.isArray(products)) {
+      console.warn('Products prop is not an array:', products)
+      setUniqueProducts([])
+      return
+    }
+
     // Filter out duplicate products by ID
     const seenIds = new Set()
     const filtered = products.filter((product) => {
-      if (seenIds.has(product.id)) {
+      if (!product || !product.id || seenIds.has(product.id)) {
         return false
       }
       seenIds.add(product.id)

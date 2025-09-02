@@ -7,6 +7,7 @@ import { Send, ArrowLeft, Sparkles, Settings, Clock, Loader2, AlertTriangle, Lin
 import Link from "next/link"
 import Image from "next/image"
 import ChatMessage from "@/components/ChatMessage"
+import ProductSettingsPopup from "@/components/ProductSettingsPopup"
 import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
 
@@ -36,6 +37,10 @@ export default function ChatPage() {
   const [showSettings, setShowSettings] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showProductSettings, setShowProductSettings] = useState(false)
+  const [productCount, setProductCount] = useState(6)
+  const [isChatCollapsed, setIsChatCollapsed] = useState(false)
+  const [lastProductQuery, setLastProductQuery] = useState<string | null>(null)
   const isMobile = useMobile()
 
   const chatHistory = [
@@ -80,6 +85,28 @@ export default function ChatPage() {
     console.log(`[Chat UI] Sending message: "${messageText}"`)
     setError(null)
 
+    // Check if this might be a product query and store it
+    const messageTextLower = messageText.toLowerCase()
+    const productKeywords = [
+      'show me', 'find me', 'where can i get', 'i want to buy', 'looking for',
+      'need some', 'recommend', 'suggest', 'shopping for', 'buy', 'purchase',
+      'where to buy', 'help me find', 'i need a', 'i need some'
+    ]
+    
+    const fashionItems = [
+      'dress', 'shirt', 'pants', 'shoes', 'jacket', 'blazer', 'jeans',
+      'top', 'skirt', 'sweater', 'coat', 'boots', 'sneakers', 'heels',
+      'bag', 'purse', 'accessories', 'jewelry', 'watch', 'scarf'
+    ]
+    
+    const hasProductRequest = productKeywords.some(keyword => 
+      messageTextLower.includes(keyword)
+    ) || fashionItems.some(item => messageTextLower.includes(item))
+    
+    if (hasProductRequest) {
+      setLastProductQuery(messageText)
+    }
+
     // Add user message immediately
     const userMessage: ChatMessageWithProducts = {
       id: `user-${Date.now()}`,
@@ -99,6 +126,7 @@ export default function ChatPage() {
         body: JSON.stringify({
           message: messageText,
           history: messages.slice(-8), // Send recent history for context
+          productLimit: productCount, // Include the product limit
         }),
       })
 
@@ -157,6 +185,59 @@ export default function ChatPage() {
     setShowSettings(false)
   }
 
+  const handleProductSettingsOpen = () => {
+    setShowProductSettings(true)
+  }
+
+  const handleProductCountChange = (count: number) => {
+    setProductCount(count)
+  }
+
+  const handleRefetchProducts = async () => {
+    if (!lastProductQuery) return
+
+    setIsLoading(true)
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: lastProductQuery,
+          history: messages.slice(-8),
+          productLimit: productCount, // Send the new product limit
+        }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch products")
+      }
+
+      const data = await response.json()
+
+      // Update the last AI message with new products
+      setMessages((prev) => {
+        const newMessages = [...prev]
+        const lastAiMessageIndex = newMessages.map(m => m.sender).lastIndexOf("ai")
+        if (lastAiMessageIndex !== -1) {
+          newMessages[lastAiMessageIndex] = {
+            ...newMessages[lastAiMessageIndex],
+            products: data.products || [],
+          }
+        }
+        return newMessages
+      })
+    } catch (err: any) {
+      console.error("[Chat] Refetch error:", err)
+      setError("Failed to update products")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleToggleChat = () => {
+    setIsChatCollapsed(!isChatCollapsed)
+  }
+
   return (
     <div className="flex flex-col h-screen w-full bg-black">
       {/* Header */}
@@ -204,7 +285,7 @@ export default function ChatPage() {
       )}
 
       {/* Chat Messages Area */}
-      <div className="flex-1 overflow-y-auto">
+      <div className={`flex-1 overflow-y-auto transition-all duration-300 ${isChatCollapsed ? 'max-h-0 opacity-0' : ''}`}>
         <div className="max-w-4xl mx-auto p-4 space-y-4">
           <AnimatePresence initial={false}>
             {messages.map((message) => (
@@ -220,9 +301,14 @@ export default function ChatPage() {
                 {/* Product recommendations */}
                 {message.sender === "ai" && message.products && message.products.length > 0 && (
                   <div className="mt-3 ml-10">
-                    <p className="text-xs text-zinc-400 mb-2">Here are some options:</p>
+                    <button
+                      onClick={handleProductSettingsOpen}
+                      className="text-xs text-zinc-400 mb-2 hover:text-white transition-colors cursor-pointer underline decoration-dotted"
+                    >
+                      Here are some options: (Click to customize)
+                    </button>
                     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                      {message.products.slice(0, 4).map((product) => (
+                      {message.products.slice(0, productCount).map((product) => (
                         <a
                           key={product.id}
                           href={product.link || "#"}
@@ -278,10 +364,22 @@ export default function ChatPage() {
       </div>
 
       {/* Input Area */}
-      <div className="sticky bottom-0 left-0 right-0 bg-black border-t border-zinc-800/50">
+      <div className={`sticky bottom-0 left-0 right-0 bg-black border-t border-zinc-800/50 transition-all duration-300 ${isChatCollapsed ? 'opacity-50 pointer-events-none' : ''}`}>
         <div className="max-w-4xl mx-auto px-4 pt-3 pb-4 sm:pb-6">
+          {/* Collapse/Expand Button */}
+          {isChatCollapsed && (
+            <div className="mb-3 text-center">
+              <button
+                onClick={handleToggleChat}
+                className="px-4 py-2 bg-white text-black rounded-full text-sm font-medium hover:bg-zinc-200 transition-colors"
+              >
+                Expand Chat
+              </button>
+            </div>
+          )}
+          
           {/* Suggestions */}
-          {suggestions.length > 0 && !isLoading && (
+          {suggestions.length > 0 && !isLoading && !isChatCollapsed && (
             <div className="mb-3">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {suggestions.slice(0, isMobile ? 2 : 4).map((suggestion, index) => (
@@ -298,26 +396,39 @@ export default function ChatPage() {
           )}
 
           {/* Input form */}
-          <form onSubmit={handleSendMessage} className="relative">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about styles, outfits, trends..."
-              className="w-full py-3.5 px-4 pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm"
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
-              aria-label="Send message"
-            >
-              <Send className="w-5 h-5" strokeWidth={2} />
-            </button>
-          </form>
+          {!isChatCollapsed && (
+            <form onSubmit={handleSendMessage} className="relative">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask about styles, outfits, trends..."
+                className="w-full py-3.5 px-4 pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={!input.trim() || isLoading}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
+                aria-label="Send message"
+              >
+                <Send className="w-5 h-5" strokeWidth={2} />
+              </button>
+            </form>
+          )}
         </div>
       </div>
+
+      {/* Product Settings Popup */}
+      <ProductSettingsPopup
+        isOpen={showProductSettings}
+        onClose={() => setShowProductSettings(false)}
+        productCount={productCount}
+        onProductCountChange={handleProductCountChange}
+        onRefetchProducts={handleRefetchProducts}
+        onToggleChat={handleToggleChat}
+        isChatCollapsed={isChatCollapsed}
+      />
 
       {/* Settings Panel */}
       {showSettings && (

@@ -1,14 +1,7 @@
 import { NextResponse } from "next/server"
-import { generateText, tool } from "ai"
-import { createOpenAI } from "@ai-sdk/openai"
-import { z } from "zod"
+import { generateText } from "ai"
+import { model } from "@/lib/ai-model"
 import type { Product } from "@/lib/types"
-
-// Initialize Groq provider
-const groq = createOpenAI({
-  baseURL: "https://api.groq.com/openai/v1",
-  apiKey: process.env.GROQ_API_KEY,
-})
 
 const serperApiKey = process.env.SERPER_API_KEY
 
@@ -19,87 +12,79 @@ function parsePrice(priceString: string | null | undefined): number {
   return isNaN(price) ? 0 : price
 }
 
-const searchShoppingTool = tool({
-  description:
-    "Search for fashion products when users want to see specific items, need shopping recommendations, or when showing examples would enhance your fashion advice.",
-  parameters: z.object({
-    query: z
-      .string()
-      .describe("Search query for fashion items (e.g., 'black blazer men', 'summer dresses', 'luxury sneakers')"),
-    limit: z.number().optional().default(3).describe("Number of products to show (1-4)"),
-  }),
-  execute: async ({ query, limit = 3 }) => {
-    if (!serperApiKey) {
-      return { error: "Product search is currently unavailable" }
+async function searchForProducts(query: string, limit = 3): Promise<Product[]> {
+  if (!serperApiKey) {
+    console.log("[Chat] No Serper API key available")
+    return []
+  }
+
+  try {
+    console.log(`[Chat] Searching for: "${query}"`)
+
+    const response = await fetch("https://google.serper.dev/shopping", {
+      method: "POST",
+      headers: {
+        "X-API-KEY": serperApiKey,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        q: `${query} premium quality`,
+        num: Math.min(limit, 20) * 2, // Request more to filter better results
+        gl: "us",
+        hl: "en",
+      }),
+    })
+
+    if (!response.ok) {
+      console.log("[Chat] Search temporarily unavailable")
+      return []
     }
 
-    try {
-      console.log(`[Chat] Searching for: "${query}"`)
+    const data = await response.json()
+    const results = data.shopping || []
 
-      const response = await fetch("https://google.serper.dev/shopping", {
-        method: "POST",
-        headers: {
-          "X-API-KEY": serperApiKey,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          q: `${query} premium quality`,
-          num: Math.min(limit, 4) * 2,
-          gl: "us",
-          hl: "en",
-        }),
+    const products = results
+      .filter((item: any) => {
+        const price = parsePrice(item.price)
+        return (
+          item.title &&
+          item.link &&
+          item.imageUrl &&
+          price >= 25 &&
+          !item.title.toLowerCase().includes("shein") &&
+          !item.title.toLowerCase().includes("wish") &&
+          !item.title.toLowerCase().includes("aliexpress")
+        )
       })
+      .slice(0, Math.min(limit, 20))
+      .map((item: any) => ({
+        id: item.productId || item.link,
+        title: item.title,
+        price: parsePrice(item.price),
+        brand: item.source || "Brand",
+        image: item.imageUrl,
+        link: item.link,
+      }))
 
-      if (!response.ok) {
-        return { error: "Search temporarily unavailable" }
-      }
-
-      const data = await response.json()
-      const results = data.shopping || []
-
-      const products = results
-        .filter((item: any) => {
-          const price = parsePrice(item.price)
-          return (
-            item.title &&
-            item.link &&
-            item.imageUrl &&
-            price >= 25 &&
-            !item.title.toLowerCase().includes("shein") &&
-            !item.title.toLowerCase().includes("wish") &&
-            !item.title.toLowerCase().includes("aliexpress")
-          )
-        })
-        .slice(0, Math.min(limit, 4))
-        .map((item: any) => ({
-          id: item.productId || item.link,
-          title: item.title,
-          price: parsePrice(item.price),
-          brand: item.source || "Brand",
-          image: item.imageUrl,
-          link: item.link,
-        }))
-
-      console.log(`[Chat] Found ${products.length} products`)
-      return products
-    } catch (error) {
-      console.error("[Chat] Search error:", error)
-      return { error: "Search failed" }
-    }
-  },
-})
+    console.log(`[Chat] Found ${products.length} products`)
+    return products
+  } catch (error) {
+    console.error("[Chat] Search error:", error)
+    return []
+  }
+}
 
 export async function POST(request: Request) {
   try {
-    const { message, history = [] } = await request.json()
+    const { message, history = [], productLimit = 6 } = await request.json()
 
-    if (!process.env.GROQ_API_KEY) {
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ error: "AI service unavailable" }, { status: 500 })
     }
 
-    console.log(`[Chat] Processing message: "${message}"`)
+    console.log(`[Chat] Processing message: "${message}" with product limit: ${productLimit}`)
 
-    // Build conversation history for Groq
+    // Build conversation history for Google AI
     const conversationHistory = history
       .slice(-12) // Keep more history for better conversation flow
       .map((msg: any) => ({
@@ -145,35 +130,48 @@ WHEN TO JUST CHAT:
 
 Keep the conversation flowing naturally. Ask questions, share insights, and be genuinely helpful while maintaining a friendly, approachable tone.`
 
-    // Generate response using Groq
-    const { text, toolResults } = await generateText({
-      model: groq("llama-3.3-70b-versatile"),
+    // Generate response using Google AI
+    const { text } = await generateText({
+      model: model,
       system: systemPrompt,
       messages: conversationHistory,
-      tools: {
-        searchShopping: searchShoppingTool,
-      },
-      maxTokens: 1000,
-      temperature: 0.8, // Higher temperature for more natural, varied responses
     })
 
     console.log(`[Chat] Generated response length: ${text.length}`)
 
-    // Process any product results from tool calls
+    // Check if the user is asking for product recommendations
     let products: Product[] = []
-    if (toolResults && toolResults.length > 0) {
-      for (const result of toolResults) {
-        if (result.toolName === "searchShopping" && Array.isArray(result.result)) {
-          products = result.result.map((p: any) => ({
-            id: p.id,
-            title: p.title,
-            price: p.price,
-            brand: p.brand,
-            image: p.image,
-            link: p.link,
-          }))
-          console.log(`[Chat] Returning ${products.length} products`)
-        }
+    const userMessage = message.toLowerCase()
+    const aiResponse = text.toLowerCase()
+    
+    // Enhanced keyword detection for product search
+    const productKeywords = [
+      'show me', 'find me', 'where can i get', 'i want to buy', 'looking for',
+      'need some', 'recommend', 'suggest', 'shopping for', 'buy', 'purchase',
+      'where to buy', 'help me find', 'i need a', 'i need some'
+    ]
+    
+    const fashionItems = [
+      'dress', 'shirt', 'pants', 'shoes', 'jacket', 'blazer', 'jeans',
+      'top', 'skirt', 'sweater', 'coat', 'boots', 'sneakers', 'heels',
+      'bag', 'purse', 'accessories', 'jewelry', 'watch', 'scarf'
+    ]
+    
+    const hasProductRequest = productKeywords.some(keyword => 
+      userMessage.includes(keyword)
+    ) || fashionItems.some(item => userMessage.includes(item))
+    
+    if (hasProductRequest && serperApiKey) {
+      // Extract search terms from the user message
+      let searchQuery = message
+      
+      // Remove common question words to get better search terms
+      searchQuery = searchQuery.replace(/\b(show me|find me|where can i get|i want to buy|looking for|need some|recommend|suggest|shopping for|buy|purchase|what|how|where|when|why|can you|could you|please|help me|i need)\b/gi, '')
+      searchQuery = searchQuery.trim()
+      
+      if (searchQuery.length > 2) {
+        console.log(`[Chat] Searching for products with query: "${searchQuery}"`)
+        products = await searchForProducts(searchQuery, productLimit)
       }
     }
 

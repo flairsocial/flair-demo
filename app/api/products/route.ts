@@ -142,10 +142,7 @@ export async function GET(request: Request) {
   const serperApiKey = process.env.SERPER_API_KEY
   if (!serperApiKey) {
     console.error("CRITICAL: SERPER_API_KEY environment variable is not set.")
-    return NextResponse.json(
-      { error: "API key for search is not configured. Please set SERPER_API_KEY." },
-      { status: 500 },
-    )
+    return NextResponse.json([], { status: 200 })
   }
   console.log("LOG: SERPER_API_KEY is present.")
 
@@ -193,10 +190,7 @@ export async function GET(request: Request) {
       console.error(
         `CRITICAL: Serper API error: ${response.status} for query "${serperSearchQuery}". Response: ${errorData}`,
       )
-      return NextResponse.json(
-        { error: `Serper API request failed with status ${response.status}. Check logs for details.` },
-        { status: response.status },
-      )
+      return NextResponse.json([], { status: 200 })
     }
 
     const data = await response.json()
@@ -264,7 +258,7 @@ export async function GET(request: Request) {
           saved: false,
         }
       })
-      .filter((product): product is Product => product !== null && product.price > 0 && product.image !== null)
+      .filter((product: Product | null): product is Product => product !== null && product.price > 0 && product.image !== null)
 
     console.log(`LOG: Items filtered out by price (< $${minPrice}): ${priceFilteredCount}`)
     console.log(`LOG: Items filtered out by image URL: ${imageFilteredCount}`)
@@ -285,6 +279,6 @@ export async function GET(request: Request) {
       error.message,
       error.stack,
     )
-    return NextResponse.json({ error: `Failed to fetch products. Error: ${error.message}` }, { status: 500 })
+    return NextResponse.json([], { status: 200 })
   }
 }

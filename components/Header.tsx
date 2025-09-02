@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Info } from "lucide-react"
+import { Info, Settings } from "lucide-react"
 import { usePathname } from "next/navigation"
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { useMobile } from "@/hooks/use-mobile"
 import InfoPopup from "./InfoPopup"
-import Image from "next/image" // Import Image
-import Link from "next/link" // Import Link
+import Image from "next/image"
+import Link from "next/link"
 
 export default function Header() {
   const [showInfo, setShowInfo] = useState(false)
@@ -25,6 +26,8 @@ export default function Header() {
         return "Saved"
       case "/profile":
         return "Profile"
+      case "/settings":
+        return "Settings"
       default:
         if (pathname.startsWith("/products/")) {
           return "Product Details"
@@ -50,8 +53,42 @@ export default function Header() {
           <h1 className="text-lg font-medium tracking-tight">{getTitle()}</h1>
         </div>
 
-        {/* Right side: Info Icon */}
-        <div className="w-8 flex justify-end">
+        {/* Right side: Settings, Auth, and Info Icons */}
+        <div className="w-auto flex items-center justify-end gap-2">
+          {/* Settings button only on discover page */}
+          {pathname === "/" && (
+            <SignedIn>
+              <Link
+                href="/settings"
+                className="p-1 rounded-full hover:bg-zinc-800 transition-colors"
+                aria-label="User Settings"
+              >
+                <Settings className="w-5 h-5 text-white" strokeWidth={1.5} />
+              </Link>
+            </SignedIn>
+          )}
+          
+          {/* Clerk Authentication */}
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="px-3 py-1.5 bg-white text-black text-sm rounded-full hover:bg-zinc-200 transition-colors font-medium">
+                Sign In
+              </button>
+            </SignInButton>
+          </SignedOut>
+          
+          <SignedIn>
+            <UserButton 
+              appearance={{
+                elements: {
+                  avatarBox: "w-8 h-8",
+                  userButtonPopoverCard: "bg-zinc-900 border border-zinc-800",
+                  userButtonPopoverActionButton: "text-white hover:bg-zinc-800",
+                },
+              }}
+            />
+          </SignedIn>
+
           {isMobile && (
             <button
               onClick={() => setShowInfo(true)}
