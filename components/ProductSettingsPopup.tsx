@@ -59,7 +59,7 @@ export default function ProductSettingsPopup({
       />
       
       {/* Draggable Popup */}
-      <div ref={constraintsRef} className="fixed inset-0 z-50 pointer-events-none">
+      <div ref={constraintsRef} className="fixed inset-0 z-50 pointer-events-none overflow-hidden">
         <motion.div
           drag
           dragConstraints={constraintsRef}
@@ -68,7 +68,7 @@ export default function ProductSettingsPopup({
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-auto max-h-[80vh] overflow-y-auto"
           style={{
             x: position.x,
             y: position.y,

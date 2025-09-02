@@ -4,8 +4,9 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { Heart } from "lucide-react"
+import { Heart, Plus, Share2 } from "lucide-react"
 import type { Product } from "@/lib/types"
+import CollectionModal from "./CollectionModal"
 
 interface ProductCardProps {
   product: Product
@@ -13,9 +14,10 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
-  const [liked, setLiked] = useState(false)
+  const [isSaved, setIsSaved] = useState(false)
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
+  const [showCollectionModal, setShowCollectionModal] = useState(false)
 
   const placeholderImage = "/placeholder.svg?height=600&width=400"
   const initialImageSrc = product.image || placeholderImage
@@ -24,66 +26,66 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
   useEffect(() => {
     // Reset image state when product prop changes
     setCurrentImageSrc(product.image || placeholderImage)
-    setIsImageLoading(true)
+    setIsImageLoading(false) // No automatic scraping, so loading is false
+    
+    // Check if this product is already saved
+    checkIfSaved()
+  }, [product.image, product.id]) // Re-run if product image or ID changes
 
-    let isMounted = true
-
-    const fetchHighResImage = async () => {
-      if (product.link) {
-        try {
-          const response = await fetch(`/api/scrape-image?url=${encodeURIComponent(product.link)}`)
-          if (!response.ok) {
-            console.warn(
-              `Failed to fetch high-res image for ${product.title}: Server responded with ${response.status}`,
-            )
-            // Fallback to original image is implicitly handled as currentImageSrc is already set to it.
-            if (isMounted) setIsImageLoading(false) // Stop loading if API fails early
-            return
-          }
-          const data = await response.json()
-          if (isMounted && data.image && typeof data.image === "string") {
-            // Preload the new image before setting it, to ensure onLoad fires correctly
-            const img = new window.Image()
-            img.src = data.image
-            img.onload = () => {
-              if (isMounted) {
-                setCurrentImageSrc(data.image)
-                setIsImageLoading(false) // Will be set by Image's onLoad, but good for safety
-              }
-            }
-            img.onerror = () => {
-              if (isMounted) {
-                console.warn(`High-res image URL failed to load: ${data.image} for ${product.title}`)
-                // Fallback to original image
-                setCurrentImageSrc(product.image || placeholderImage)
-                setIsImageLoading(false)
-              }
-            }
-          } else {
-            if (isMounted) setIsImageLoading(false) // No high-res image found or invalid
-          }
-        } catch (error) {
-          if (isMounted) {
-            console.error(`Error fetching high-res image for ${product.title}:`, error)
-            // Fallback to original image is implicitly handled.
-            setIsImageLoading(false)
-          }
-        }
-      } else {
-        if (isMounted) setIsImageLoading(false) // No link provided, cannot fetch high-res
+  const checkIfSaved = async () => {
+    try {
+      const response = await fetch('/api/saved')
+      if (response.ok) {
+        const savedItems = await response.json()
+        const isProductSaved = savedItems.some((item: Product) => item.id === product.id)
+        setIsSaved(isProductSaved)
       }
+    } catch (error) {
+      console.error('Error checking saved status:', error)
     }
+  }
 
-    fetchHighResImage()
-
-    return () => {
-      isMounted = false
-    }
-  }, [product.link, product.image, product.title]) // Re-run if product link or initial image changes
-
-  const handleLike = (e: React.MouseEvent) => {
+  const handleSaveToSaved = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    setLiked(!liked)
+    
+    try {
+      const action = isSaved ? 'remove' : 'add'
+      const response = await fetch('/api/saved', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          item: product
+        })
+      })
+
+      if (response.ok) {
+        setIsSaved(!isSaved)
+        console.log(`Product ${action}ed successfully`)
+      } else {
+        console.error('Failed to update saved status')
+      }
+    } catch (error) {
+      console.error('Error updating saved status:', error)
+    }
+  }
+
+  const handleAddToCollection = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowCollectionModal(true)
+  }
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    
+    if (product.link) {
+      // Open the product link in a new tab
+      window.open(product.link, '_blank', 'noopener,noreferrer')
+    } else {
+      console.log('No link available for this product')
+    }
   }
 
   return (
@@ -94,7 +96,6 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative h-full bg-zinc-900">
-        {isImageLoading && <div className="absolute inset-0 bg-zinc-900 animate-pulse rounded-xl" />}
         <Image
           key={currentImageSrc} // Force re-render if src changes, especially on error fallback
           src={currentImageSrc || "/placeholder.svg"}
@@ -106,11 +107,11 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
             setIsImageLoading(false)
           }}
           onError={() => {
-            // If the currentImageSrc (attempted high-res) fails, fallback to the original product.image
-            if (currentImageSrc !== (product.image || placeholderImage)) {
-              setCurrentImageSrc(product.image || placeholderImage)
+            // If the current image fails, fallback to placeholder
+            if (currentImageSrc !== placeholderImage) {
+              setCurrentImageSrc(placeholderImage)
             }
-            setIsImageLoading(false) // Ensure loading animation stops
+            setIsImageLoading(false)
           }}
         />
 
@@ -134,13 +135,33 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         <div className="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
             className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"
-            onClick={handleLike}
-            aria-label={liked ? "Unlike" : "Like"}
+            onClick={handleSaveToSaved}
+            aria-label={isSaved ? "Remove from saved" : "Save item"}
           >
-            <Heart className="w-4 h-4" fill={liked ? "currentColor" : "none"} strokeWidth={2} />
+            <Heart className="w-4 h-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2} />
+          </button>
+          <button
+            className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"
+            onClick={handleAddToCollection}
+            aria-label="Add to collection"
+          >
+            <Plus className="w-4 h-4" strokeWidth={2} />
+          </button>
+          <button
+            className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"
+            onClick={handleShare}
+            aria-label="Share product"
+          >
+            <Share2 className="w-4 h-4" strokeWidth={2} />
           </button>
         </div>
       </div>
+      
+      <CollectionModal
+        isOpen={showCollectionModal}
+        onClose={() => setShowCollectionModal(false)}
+        product={product}
+      />
     </div>
   )
 }

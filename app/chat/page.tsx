@@ -15,6 +15,7 @@ import { useFiles, type ChatFile } from "@/lib/file-context"
 import { useAITone } from "@/lib/ai-tone-context"
 import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
+import type { ChatHistory, ChatMessage as ChatHistoryMessage } from "@/lib/profile-storage"
 
 interface ChatMessageWithProducts extends Message {
   products?: Product[]
@@ -47,25 +48,110 @@ export default function ChatPage() {
   const [productCount, setProductCount] = useState(6)
   const [isChatCollapsed, setIsChatCollapsed] = useState(false)
   const [lastProductQuery, setLastProductQuery] = useState<string | null>(null)
+  const [currentChatId, setCurrentChatId] = useState<string | null>(null)
+  const [chatHistories, setChatHistories] = useState<ChatHistory[]>([])
+  const [loadingHistory, setLoadingHistory] = useState(false)
   const isMobile = useMobile()
   const { attachedFiles, removeFile, clearFiles } = useFiles()
   const { tone } = useAITone()
   const autoMessageSentRef = useRef(false) // Track if auto-message has been sent
 
-  const chatHistory = [
-    {
-      id: "1",
-      title: "Summer Wedding Outfit Ideas",
-      date: "Today, 2:30 PM",
-      preview: "What should I wear to a summer wedding?",
-    },
-    {
-      id: "2",
-      title: "Business Casual Recommendations",
-      date: "Yesterday",
-      preview: "Help me find a business casual outfit",
-    },
-  ]
+  // Load chat history on component mount
+  useEffect(() => {
+    loadChatHistory()
+  }, [])
+
+  const loadChatHistory = async () => {
+    try {
+      setLoadingHistory(true)
+      const response = await fetch('/api/chat-history')
+      if (response.ok) {
+        const history = await response.json()
+        setChatHistories(history)
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error)
+    } finally {
+      setLoadingHistory(false)
+    }
+  }
+
+  const saveChatHistory = async () => {
+    if (messages.length <= 1) return // Don't save if only welcome message
+
+    try {
+      const chatMessages: ChatHistoryMessage[] = messages.map(msg => ({
+        id: msg.id,
+        content: msg.content,
+        sender: msg.sender === 'ai' ? 'assistant' : 'user',
+        timestamp: msg.timestamp,
+        attachedFiles: msg.attachedFiles,
+        products: msg.products
+      }))
+
+      if (currentChatId) {
+        // Update existing chat
+        await fetch('/api/chat-history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'update',
+            chatId: currentChatId,
+            messages: chatMessages
+          })
+        })
+      } else {
+        // Create new chat
+        const response = await fetch('/api/chat-history', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'create',
+            messages: chatMessages
+          })
+        })
+        
+        if (response.ok) {
+          const result = await response.json()
+          if (result.chat) {
+            setCurrentChatId(result.chat.id)
+          }
+        }
+      }
+      
+      // Reload chat history to update the list
+      loadChatHistory()
+    } catch (error) {
+      console.error('Error saving chat history:', error)
+    }
+  }
+
+  const loadChatFromHistory = (chatHistory: ChatHistory) => {
+    const chatMessages: ChatMessageWithProducts[] = chatHistory.messages.map(msg => ({
+      id: msg.id,
+      content: msg.content,
+      sender: msg.sender === 'assistant' ? 'ai' : 'user',
+      timestamp: msg.timestamp,
+      attachedFiles: msg.attachedFiles,
+      products: msg.products
+    }))
+    
+    setMessages(chatMessages)
+    setCurrentChatId(chatHistory.id)
+    setShowHistory(false)
+  }
+
+  const startNewChat = () => {
+    setMessages([{
+      id: "welcome",
+      content:
+        "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+      sender: "ai",
+      timestamp: new Date().toISOString(),
+    }])
+    setCurrentChatId(null)
+    setShowHistory(false)
+  }
 
   useEffect(() => {
     scrollToBottom()
@@ -189,6 +275,11 @@ export default function ChatPage() {
 
       // Clear attached files after successful message
       clearFiles()
+      
+      // Save chat history after successful message exchange
+      setTimeout(() => {
+        saveChatHistory()
+      }, 100) // Small delay to ensure state is updated
     } catch (err: any) {
       console.error("[Chat UI] Error:", err)
       setError(err.message || "Connection issue")
@@ -342,16 +433,18 @@ export default function ChatPage() {
                     >
                       Here are some options: (Click to customize)
                     </button>
-                    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800">
                       {message.products.slice(0, productCount).map((product) => (
-                        <a
+                        <div
                           key={product.id}
-                          href={product.link || "#"}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex-shrink-0 w-24 bg-zinc-800 p-2 rounded-lg hover:bg-zinc-700 transition-colors group"
+                          className="bg-zinc-800 p-2 rounded-lg hover:bg-zinc-700 transition-colors group cursor-pointer"
+                          onClick={() => {
+                            if (product.link) {
+                              window.open(product.link, '_blank', 'noopener,noreferrer')
+                            }
+                          }}
                         >
-                          <div className="w-full h-20 bg-zinc-700 rounded overflow-hidden relative mb-1.5">
+                          <div className="w-full aspect-square bg-zinc-700 rounded overflow-hidden relative mb-1.5">
                             <Image
                               src={product.image || "/placeholder.svg?width=96&height=80&query=fashion+item"}
                               alt={product.title}
@@ -368,10 +461,12 @@ export default function ChatPage() {
                             )}
                             <div className="flex items-center justify-between mt-1">
                               <LinkIcon className="w-2.5 h-2.5 text-zinc-500 group-hover:text-white" />
-                              <span className="text-[8px] text-zinc-500 group-hover:text-white">View</span>
+                              <span className="text-[8px] text-zinc-500 group-hover:text-white">
+                                {product.link ? 'View' : 'No Link'}
+                              </span>
                             </div>
                           </div>
-                        </a>
+                        </div>
                       ))}
                     </div>
                   </div>
@@ -500,19 +595,53 @@ export default function ChatPage() {
           >
             <div className="flex justify-between items-center pb-3 border-b border-zinc-800 mb-3">
               <h3 className="font-medium text-lg">Chat History</h3>
-              <button onClick={toggleHistory} className="p-1 rounded-full hover:bg-zinc-800">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            {chatHistory.map((chat) => (
-              <div
-                key={chat.id}
-                className="p-2 border-b border-zinc-800/50 hover:bg-zinc-800/70 cursor-pointer rounded-md"
-              >
-                <h4 className="text-sm font-medium truncate">{chat.title}</h4>
-                <p className="text-xs text-zinc-400 mt-0.5">{chat.date}</p>
+              <div className="flex items-center space-x-2">
+                <button 
+                  onClick={startNewChat}
+                  className="text-xs bg-white text-black px-3 py-1 rounded-full hover:bg-zinc-200 transition-colors"
+                >
+                  New Chat
+                </button>
+                <button onClick={toggleHistory} className="p-1 rounded-full hover:bg-zinc-800">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            ))}
+            </div>
+            
+            {loadingHistory ? (
+              <div className="flex justify-center py-4">
+                <div className="w-6 h-6 border-2 border-zinc-700 border-t-white rounded-full animate-spin"></div>
+              </div>
+            ) : chatHistories.length > 0 ? (
+              <div className="space-y-2">
+                {chatHistories.map((chat) => (
+                  <div
+                    key={chat.id}
+                    className="p-3 border border-zinc-800/50 hover:bg-zinc-800/70 cursor-pointer rounded-lg transition-colors"
+                    onClick={() => loadChatFromHistory(chat)}
+                  >
+                    <h4 className="text-sm font-medium truncate">{chat.title}</h4>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      {new Date(chat.updatedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </p>
+                    <p className="text-xs text-zinc-500 mt-1 truncate">
+                      {chat.messages.length} messages
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <Clock className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+                <p className="text-zinc-400 text-sm">No chat history yet</p>
+                <p className="text-zinc-500 text-xs mt-1">Start a conversation to see it here</p>
+              </div>
+            )}
           </div>
         </div>
       )}

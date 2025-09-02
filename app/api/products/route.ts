@@ -438,6 +438,7 @@ export async function GET(request: Request) {
             `A notable ${productCategory.toLowerCase()} from ${brandName}. ${getRandomElement(descriptionsForMocking)}`,
           hasAiInsights: Math.random() > 0.4,
           saved: false,
+          link: item.link || undefined, // Add the actual product link for external navigation
         }
       })
       .filter((product: Product | null): product is Product => product !== null && product.image !== null)
