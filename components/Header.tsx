@@ -1,16 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import { Info, Settings } from "lucide-react"
+import { Info, Settings, Crown } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { useMobile } from "@/hooks/use-mobile"
 import InfoPopup from "./InfoPopup"
+import PricingModal from "./PricingModal"
 import Image from "next/image"
 import Link from "next/link"
 
 export default function Header() {
   const [showInfo, setShowInfo] = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
   const pathname = usePathname()
   const isMobile = useMobile()
 
@@ -53,8 +55,26 @@ export default function Header() {
           <h1 className="text-lg font-medium tracking-tight">{getTitle()}</h1>
         </div>
 
-        {/* Right side: Settings, Auth, and Info Icons */}
+        {/* Right side: Upgrade Plan, Settings, Auth, and Info Icons */}
         <div className="w-auto flex items-center justify-end gap-2">
+          {/* Upgrade Plan Button */}
+          <button
+            onClick={() => setShowPricing(true)}
+            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+            aria-label="Upgrade your plan"
+          >
+            <Crown className="w-4 h-4" />
+            Upgrade your plan
+          </button>
+
+          {/* Mobile Upgrade Plan Button */}
+          <button
+            onClick={() => setShowPricing(true)}
+            className="sm:hidden p-1 rounded-full hover:bg-zinc-800 transition-colors"
+            aria-label="Upgrade your plan"
+          >
+            <Crown className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+          </button>
           {/* Settings button available on all pages except settings itself */}
           {pathname !== "/settings" && (
             <SignedIn>
@@ -101,6 +121,7 @@ export default function Header() {
         </div>
       </div>
       {showInfo && <InfoPopup onClose={() => setShowInfo(false)} />}
+      {showPricing && <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />}
     </>
   )
 }

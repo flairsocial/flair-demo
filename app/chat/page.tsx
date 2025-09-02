@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, ArrowLeft, Sparkles, Settings, Clock, Loader2, AlertTriangle, LinkIcon, X } from "lucide-react"
+import { Send, ArrowLeft, Sparkles, Settings, Clock, Loader2, AlertTriangle, LinkIcon, X, Crown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import ChatMessage from "@/components/ChatMessage"
@@ -11,6 +11,7 @@ import ProductSettingsPopup from "@/components/ProductSettingsPopup"
 import FileUpload from "@/components/FileUpload"
 import AIToneToggle from "@/components/AIToneToggle"
 import { FileAttachmentList } from "@/components/FileAttachment"
+import PricingModal from "@/components/PricingModal"
 import { useFiles, type ChatFile } from "@/lib/file-context"
 import { useAITone } from "@/lib/ai-tone-context"
 import type { Message, Product } from "@/lib/types"
@@ -51,6 +52,7 @@ export default function ChatPage() {
   const [currentChatId, setCurrentChatId] = useState<string | null>(null)
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([])
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [showPricing, setShowPricing] = useState(false)
   const isMobile = useMobile()
   const { attachedFiles, removeFile, clearFiles } = useFiles()
   const { tone } = useAITone()
@@ -413,6 +415,25 @@ export default function ChatPage() {
       {/* Chat Messages Area */}
       <div className={`flex-1 overflow-y-auto transition-all duration-300 ${isChatCollapsed ? 'max-h-0 opacity-0' : ''}`}>
         <div className="max-w-4xl mx-auto p-4 space-y-4">
+          {/* Upgrade Plan Button - Prominently displayed */}
+          {messages.length <= 1 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex justify-center py-8"
+            >
+              <button
+                onClick={() => setShowPricing(true)}
+                className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-2xl text-white font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+              >
+                <Crown className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
+                Upgrade your Plan
+                <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
+              </button>
+            </motion.div>
+          )}
+
           <AnimatePresence initial={false}>
             {messages.map((message) => (
               <motion.div
@@ -543,6 +564,19 @@ export default function ChatPage() {
                   </button>
                 ))}
               </div>
+              
+              {/* Upgrade Plan Button - Smaller version in suggestions area */}
+              {messages.length > 2 && (
+                <div className="mt-3 flex justify-center">
+                  <button
+                    onClick={() => setShowPricing(true)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-blue-400/50 rounded-lg text-blue-400 hover:text-blue-300 font-medium text-sm transition-all duration-300 group"
+                  >
+                    <Crown className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+                    Upgrade for Unlimited AI
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -677,6 +711,9 @@ export default function ChatPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Pricing Modal */}
+      <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
     </div>
   )
 }
