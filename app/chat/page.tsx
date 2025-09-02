@@ -34,7 +34,6 @@ export default function ChatPage() {
     "I need a black dress for a wedding",
   ])
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [showSettings, setShowSettings] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showProductSettings, setShowProductSettings] = useState(false)
@@ -175,14 +174,8 @@ export default function ChatPage() {
     handleSendMessage(undefined, suggestion)
   }
 
-  const toggleSettings = () => {
-    setShowSettings(!showSettings)
-    setShowHistory(false)
-  }
-
   const toggleHistory = () => {
     setShowHistory(!showHistory)
-    setShowSettings(false)
   }
 
   const handleProductSettingsOpen = () => {
@@ -265,13 +258,13 @@ export default function ChatPage() {
             >
               <Clock className="w-5 h-5" strokeWidth={1.5} />
             </button>
-            <button
-              onClick={toggleSettings}
-              className={`p-2 rounded-full ${showSettings ? "bg-white text-black" : "bg-zinc-900 text-white hover:bg-zinc-800"}`}
-              aria-label="Settings"
+            <Link
+              href="/settings"
+              className="p-2 rounded-full bg-zinc-900 text-white hover:bg-zinc-800"
+              aria-label="User Settings"
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} />
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -429,26 +422,6 @@ export default function ChatPage() {
         onToggleChat={handleToggleChat}
         isChatCollapsed={isChatCollapsed}
       />
-
-      {/* Settings Panel */}
-      {showSettings && (
-        <div className="fixed inset-0 z-40 bg-black/50" onClick={toggleSettings}>
-          <div
-            className={`bg-zinc-900 ${isMobile ? "fixed bottom-0 left-0 right-0 rounded-t-2xl p-4 max-h-[70vh] overflow-y-auto" : "fixed right-0 top-0 w-72 h-full p-4 border-l border-zinc-800"}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center pb-3 border-b border-zinc-800 mb-3">
-              <h3 className="font-medium text-lg">Settings</h3>
-              <button onClick={toggleSettings} className="p-1 rounded-full hover:bg-zinc-800">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <p className="text-sm text-zinc-400">
-              Appearance, AI Preferences, Notifications, Data settings would go here.
-            </p>
-          </div>
-        </div>
-      )}
 
       {/* History Panel */}
       {showHistory && (

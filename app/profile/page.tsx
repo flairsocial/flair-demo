@@ -49,7 +49,6 @@ export default function ProfilePage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [sortOption, setSortOption] = useState("recent")
   const [showFilterOptions, setShowFilterOptions] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
@@ -318,6 +317,7 @@ export default function ProfilePage() {
     { id: "saved", label: "Saved", icon: Heart },
     { id: "purchases", label: "Purchases", icon: Package },
     { id: "collections", label: "Collections", icon: Grid },
+    { id: "personal", label: "Personal", icon: User },
   ]
 
   // Filter saved items based on category and search query
@@ -341,10 +341,6 @@ export default function ProfilePage() {
     }
     return 0
   })
-
-  const toggleSettings = () => {
-    setShowSettings(!showSettings)
-  }
 
   // Get status color based on order status
   const getStatusColor = (status: string) => {
@@ -436,13 +432,13 @@ export default function ProfilePage() {
             <p className="text-zinc-400 text-xs sm:text-sm">@flairdev</p>
             <p className="text-xs sm:text-sm mt-1 truncate">Fashion enthusiast and style curator</p>
           </div>
-          <button
+          <Link
+            href="/settings"
             className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-2 touch-manipulation"
             aria-label="Settings"
-            onClick={toggleSettings}
           >
             <Settings className="w-5 h-5 text-white" strokeWidth={1.5} />
-          </button>
+          </Link>
         </div>
 
         <div className="flex space-x-6 mb-6">
@@ -956,95 +952,85 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
-        </div>
-      )}
 
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowSettings(false)}
-          >
-            <motion.div
-              className={`bg-zinc-900 ${isMobile ? "w-[90%] max-h-[80vh] overflow-y-auto" : "w-full max-w-md"} rounded-xl overflow-hidden`}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-3 sm:p-4 border-b border-zinc-800 flex justify-between items-center">
-                <h2 className="text-base sm:text-lg font-medium">Settings</h2>
-                <button
-                  onClick={() => setShowSettings(false)}
-                  className="p-1 rounded-full hover:bg-zinc-800 touch-manipulation"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+          {activeTab === "personal" && (
+            <div className="p-4">
+              <div className="mb-4">
+                <h3 className="text-lg font-medium mb-2">Personal Settings</h3>
+                <p className="text-xs sm:text-sm text-zinc-400">Customize your style profile and preferences</p>
               </div>
 
-              <div className="p-3 sm:p-4">
-                <div className="space-y-3 sm:space-y-4">
-                  <div className="flex items-center p-2 sm:p-3 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer touch-manipulation">
-                    <User className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 text-zinc-400" />
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-medium">Account</h3>
-                      <p className="text-[10px] sm:text-xs text-zinc-400">Manage your account details</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center p-2 sm:p-3 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer touch-manipulation">
-                    <Lock className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 text-zinc-400" />
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-medium">Privacy & Security</h3>
-                      <p className="text-[10px] sm:text-xs text-zinc-400">Control your privacy settings</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center p-2 sm:p-3 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer touch-manipulation">
-                    <Bell className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 text-zinc-400" />
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-medium">Notifications</h3>
-                      <p className="text-[10px] sm:text-xs text-zinc-400">Manage notification preferences</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between p-2 sm:p-3 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer touch-manipulation">
+              <div className="max-w-2xl">
+                <Link
+                  href="/settings"
+                  className="block bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 transition-colors touch-manipulation"
+                >
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center">
-                      <Moon className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 text-zinc-400" />
+                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mr-3">
+                        <User className="w-5 h-5 text-white" />
+                      </div>
                       <div>
-                        <h3 className="text-xs sm:text-sm font-medium">Dark Mode</h3>
-                        <p className="text-[10px] sm:text-xs text-zinc-400">Toggle dark mode</p>
+                        <h4 className="text-sm font-medium">Style Profile</h4>
+                        <p className="text-xs text-zinc-400">Age, body type, style preferences, and more</p>
                       </div>
                     </div>
-                    <div className="w-8 sm:w-10 h-5 sm:h-6 bg-white rounded-full relative">
-                      <span className="absolute top-1 right-1 w-3 sm:w-4 h-3 sm:h-4 bg-black rounded-full"></span>
+                    <div className="text-zinc-400">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
                     </div>
                   </div>
+                </Link>
 
-                  <div className="flex items-center p-2 sm:p-3 rounded-lg hover:bg-zinc-800 transition-colors cursor-pointer touch-manipulation">
-                    <HelpCircle className="w-4 sm:w-5 h-4 sm:h-5 mr-2 sm:mr-3 text-zinc-400" />
-                    <div>
-                      <h3 className="text-xs sm:text-sm font-medium">Help & Support</h3>
-                      <p className="text-[10px] sm:text-xs text-zinc-400">Get help with Flair</p>
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
+                    <div className="flex items-center mb-2">
+                      <Sparkles className="w-4 h-4 text-indigo-400 mr-2" />
+                      <h4 className="text-sm font-medium">AI Personalization</h4>
                     </div>
+                    <p className="text-xs text-zinc-400 mb-3">
+                      Complete your style profile to get more personalized recommendations from our AI stylist.
+                    </p>
+                    <Link
+                      href="/settings"
+                      className="text-xs text-indigo-400 hover:text-indigo-300 underline"
+                    >
+                      Update Profile →
+                    </Link>
+                  </div>
+
+                  <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
+                    <div className="flex items-center mb-2">
+                      <Heart className="w-4 h-4 text-pink-400 mr-2" />
+                      <h4 className="text-sm font-medium">Style Goals</h4>
+                    </div>
+                    <p className="text-xs text-zinc-400 mb-3">
+                      Set your fashion goals to help our AI understand what you're looking to achieve.
+                    </p>
+                    <Link
+                      href="/settings"
+                      className="text-xs text-pink-400 hover:text-pink-300 underline"
+                    >
+                      Set Goals →
+                    </Link>
                   </div>
                 </div>
-              </div>
 
-              <div className="p-3 sm:p-4 border-t border-zinc-800">
-                <button className="flex items-center text-red-400 p-2 hover:text-red-300 transition-colors touch-manipulation">
-                  <LogOut className="w-4 sm:w-5 h-4 sm:h-5 mr-2" />
-                  <span className="text-xs sm:text-sm">Log Out</span>
-                </button>
+                <div className="mt-4 bg-zinc-900/30 border border-zinc-800/30 rounded-xl p-4">
+                  <div className="flex items-center mb-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                    <h4 className="text-sm font-medium text-green-400">Profile Status</h4>
+                  </div>
+                  <p className="text-xs text-zinc-400">
+                    Your style profile helps personalize product searches and AI recommendations across the entire app.
+                  </p>
+                </div>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          )}
+        </div>
+      )}
 
       {selectedProduct && <ProductDetail product={selectedProduct} onClose={handleCloseDetail} />}
     </div>

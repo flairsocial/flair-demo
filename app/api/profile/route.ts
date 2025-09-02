@@ -1,19 +1,28 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
 
+// In-memory storage for demo purposes (in production, use a database)
+const profileStorage = new Map<string, any>()
+
 export async function GET() {
   try {
     const { userId } = await auth()
     
-    // Allow unauthenticated access for demo purposes
-    // if (!userId) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    // }
-
-    // For now, return empty profile for demo purposes
-    // Later this will fetch from database using userId
+    const profileKey = userId || 'anonymous'
+    
+    // Get saved profile or return default
+    const savedProfile = profileStorage.get(profileKey)
+    
     const defaultProfile = {
+      age: "",
       gender: "",
+      bodyType: "",
+      style: "",
+      favoriteColors: [],
+      budgetRange: [],
+      shoppingSources: [],
+      lifestyle: "",
+      goals: [],
       height: "",
       heightUnit: "feet",
       weight: "",
@@ -23,15 +32,15 @@ export async function GET() {
       waistSize: "",
       chestSize: "",
       hipSize: "",
-      bodyType: "",
-      preferredStyle: [],
-      budget: "",
       allergies: "",
       notes: "",
     }
 
-    console.log(`[Profile API] GET request - User ID: ${userId || 'anonymous'}`)
-    return NextResponse.json(defaultProfile)
+    const profile = savedProfile ? { ...defaultProfile, ...savedProfile } : defaultProfile
+
+    console.log(`[Profile API] GET request - User ID: ${profileKey}`)
+    console.log(`[Profile API] Returning profile:`, profile)
+    return NextResponse.json(profile)
   } catch (error) {
     console.error("[Profile API] Error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
@@ -42,23 +51,19 @@ export async function POST(request: Request) {
   try {
     const { userId } = await auth()
     
-    // Allow unauthenticated access for demo purposes
-    // if (!userId) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-    // }
-
     const profileData = await request.json()
+    const profileKey = userId || 'anonymous'
     
-    // TODO: Validate profileData schema here
+    // Save profile data
+    profileStorage.set(profileKey, profileData)
     
-    // For now, just return success
-    // Later this will save to database with userId
-    console.log(`[Profile API] POST request - User ID: ${userId || 'anonymous'}`)
-    console.log("[Profile API] Profile data received:", profileData)
+    console.log(`[Profile API] POST request - User ID: ${profileKey}`)
+    console.log("[Profile API] Profile data saved:", profileData)
     
     return NextResponse.json({ 
       success: true, 
-      message: `Profile saved successfully${userId ? ' to your account' : ' (guest mode)'}` 
+      message: `Profile saved successfully${userId ? ' to your account' : ' (guest mode)'}`,
+      data: profileData
     })
   } catch (error) {
     console.error("[Profile API] Error saving profile:", error)

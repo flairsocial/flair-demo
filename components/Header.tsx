@@ -55,8 +55,8 @@ export default function Header() {
 
         {/* Right side: Settings, Auth, and Info Icons */}
         <div className="w-auto flex items-center justify-end gap-2">
-          {/* Settings button only on discover page */}
-          {pathname === "/" && (
+          {/* Settings button available on all pages except settings itself */}
+          {pathname !== "/settings" && (
             <SignedIn>
               <Link
                 href="/settings"

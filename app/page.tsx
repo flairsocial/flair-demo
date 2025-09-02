@@ -6,6 +6,7 @@ import MasonryProductGrid from "@/components/MasonryProductGrid"
 import CategoryFilter from "@/components/CategoryFilter"
 import SearchBar from "@/components/SearchBar"
 import ProductDetail from "@/components/ProductDetail"
+import { useProfile } from "@/lib/profile-context"
 import type { Product } from "@/lib/types"
 
 export default function Home() {
@@ -16,6 +17,9 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [hasInitialLoad, setHasInitialLoad] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // Get profile context for personalized product search
+  const { getSearchContext } = useProfile()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -46,6 +50,8 @@ export default function Home() {
       let url = "/api/products"
       const params = new URLSearchParams()
 
+      // Use original query without profile enhancement to avoid double filtering
+      // The API will now handle profile-based filtering on the server side
       if (query) params.append("query", query)
       if (category !== "All") params.append("category", category)
       params.append("limit", "50")

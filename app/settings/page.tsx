@@ -8,6 +8,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 
 interface UserProfile {
+  age: string
   gender: string
   height: string
   heightUnit: string
@@ -19,8 +20,11 @@ interface UserProfile {
   chestSize: string
   hipSize: string
   bodyType: string
-  preferredStyle: string[]
-  budget: string
+  style: string[]
+  budgetRange: string[]
+  shoppingSources: string[]
+  lifestyle: string
+  goals: string[]
   allergies: string
   notes: string
 }
@@ -29,6 +33,7 @@ export default function SettingsPage() {
   const { isLoaded, isSignedIn, user } = useUser()
   
   const [profile, setProfile] = useState<UserProfile>({
+    age: "",
     gender: "",
     height: "",
     heightUnit: "feet",
@@ -40,8 +45,11 @@ export default function SettingsPage() {
     chestSize: "",
     hipSize: "",
     bodyType: "",
-    preferredStyle: [],
-    budget: "",
+    style: [],
+    budgetRange: [],
+    shoppingSources: [],
+    lifestyle: "",
+    goals: [],
     allergies: "",
     notes: "",
   })
@@ -98,9 +106,27 @@ export default function SettingsPage() {
   const handleStyleToggle = (style: string) => {
     setProfile(prev => ({
       ...prev,
-      preferredStyle: prev.preferredStyle.includes(style)
-        ? prev.preferredStyle.filter(s => s !== style)
-        : [...prev.preferredStyle, style]
+      style: prev.style.includes(style)
+        ? prev.style.filter((s: string) => s !== style)
+        : [...prev.style, style]
+    }))
+  }
+
+  const handleBudgetToggle = (budget: string) => {
+    setProfile(prev => ({
+      ...prev,
+      budgetRange: prev.budgetRange.includes(budget)
+        ? prev.budgetRange.filter((b: string) => b !== budget)
+        : [...prev.budgetRange, budget]
+    }))
+  }
+
+  const handleSourceToggle = (source: string) => {
+    setProfile(prev => ({
+      ...prev,
+      shoppingSources: prev.shoppingSources.includes(source)
+        ? prev.shoppingSources.filter((s: string) => s !== source)
+        : [...prev.shoppingSources, source]
     }))
   }
 
@@ -248,6 +274,99 @@ export default function SettingsPage() {
               ))}
             </div>
           </div>
+
+          {/* Age */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Age</label>
+            <input
+              type="number"
+              value={profile.age}
+              onChange={(e) => handleInputChange("age", e.target.value)}
+              placeholder="Enter your age"
+              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20"
+            />
+          </div>
+        </div>
+
+        {/* Style Preferences */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Package className="w-5 h-5 text-white" />
+            <h2 className="text-xl font-semibold">Style Preferences</h2>
+          </div>
+
+          {/* Preferred Style */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Preferred Style (Select multiple)</label>
+            <div className="grid grid-cols-3 gap-2">
+              {styleOptions.map(style => (
+                <button
+                  key={style}
+                  onClick={() => handleStyleToggle(style)}
+                  className={`p-2 rounded-lg border text-xs transition-colors ${
+                    profile.style.includes(style)
+                      ? "bg-white text-black border-white"
+                      : "bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700"
+                  }`}
+                >
+                  {style}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Budget Range */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Budget Range</label>
+            <div className="grid grid-cols-3 gap-2">
+              {budgetOptions.map(option => (
+                <button
+                  key={option}
+                  onClick={() => handleBudgetToggle(option)}
+                  className={`p-3 rounded-lg border text-sm transition-colors ${
+                    profile.budgetRange.includes(option)
+                      ? "bg-white text-black border-white"
+                      : "bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700"
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Shopping Sources */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Preferred Shopping Sources</label>
+            <div className="grid grid-cols-2 gap-2">
+              {["Online retailers", "Department stores", "Boutiques", "Thrift stores", "Luxury brands", "Fast fashion", "Sustainable brands", "Local designers"].map(source => (
+                <button
+                  key={source}
+                  onClick={() => handleSourceToggle(source)}
+                  className={`p-2 rounded-lg border text-xs transition-colors ${
+                    profile.shoppingSources.includes(source)
+                      ? "bg-white text-black border-white"
+                      : "bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700"
+                  }`}
+                >
+                  {source}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Lifestyle */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Lifestyle</label>
+            <input
+              type="text"
+              value={profile.lifestyle}
+              onChange={(e) => handleInputChange("lifestyle", e.target.value)}
+              placeholder="e.g., office worker, student, traveler, parent"
+              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20"
+            />
+          </div>
+
         </div>
 
         {/* Measurements */}
@@ -368,84 +487,12 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Style Preferences */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Package className="w-5 h-5 text-white" />
-            <h2 className="text-xl font-semibold">Style Preferences</h2>
-          </div>
-
-          {/* Preferred Styles */}
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Preferred Styles (Select multiple)</label>
-            <div className="grid grid-cols-3 gap-2">
-              {styleOptions.map(style => (
-                <button
-                  key={style}
-                  onClick={() => handleStyleToggle(style)}
-                  className={`p-2 rounded-lg border text-xs transition-colors ${
-                    profile.preferredStyle.includes(style)
-                      ? "bg-white text-black border-white"
-                      : "bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700"
-                  }`}
-                >
-                  {style}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Budget */}
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Typical Budget per Item</label>
-            <div className="grid grid-cols-3 gap-2">
-              {budgetOptions.map(option => (
-                <button
-                  key={option}
-                  onClick={() => handleInputChange("budget", option)}
-                  className={`p-3 rounded-lg border text-sm transition-colors ${
-                    profile.budget === option
-                      ? "bg-white text-black border-white"
-                      : "bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700"
-                  }`}
-                >
-                  {option}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Allergies */}
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Allergies/Materials to Avoid</label>
-            <input
-              type="text"
-              value={profile.allergies}
-              onChange={(e) => handleInputChange("allergies", e.target.value)}
-              placeholder="e.g., wool, latex, certain dyes"
-              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20"
-            />
-          </div>
-
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-medium text-white mb-2">Additional Notes</label>
-            <textarea
-              value={profile.notes}
-              onChange={(e) => handleInputChange("notes", e.target.value)}
-              placeholder="Any additional style preferences, fit concerns, or special considerations..."
-              rows={4}
-              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 resize-none"
-            />
-          </div>
-        </div>
-
         {/* Save Button */}
-        <div className="sticky bottom-4 bg-black/80 backdrop-blur-md p-4 -mx-4 border-t border-zinc-800">
+        <div className="pb-8">
           <button
             onClick={handleSave}
             disabled={isLoading}
-            className="w-full flex items-center justify-center gap-2 py-3 bg-white text-black rounded-lg font-medium hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="w-full bg-white text-black p-4 rounded-lg font-medium hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <Save className="w-5 h-5" />
             {isLoading ? "Saving..." : "Save Profile"}

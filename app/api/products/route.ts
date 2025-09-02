@@ -1,5 +1,54 @@
 import { NextResponse } from "next/server"
 import type { Product } from "@/lib/types"
+import { auth } from '@clerk/nextjs/server'
+
+// Function to get user profile for budget filtering
+async function getUserProfile(userId?: string) {
+  if (!userId) return null;
+  
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/profile`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userId}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.log('Could not fetch user profile for budget filtering');
+  }
+  return null;
+}
+
+// Parse budget ranges from user profile
+function getBudgetRange(userProfile: any): { min: number, max: number } {
+  if (!userProfile?.budgetRange?.length) {
+    return { min: 0, max: Infinity }
+  }
+  
+  const budgets = userProfile.budgetRange
+  let budgetRanges: number[] = []
+  
+  budgets.forEach((budget: string) => {
+    if (budget === "Under $50") budgetRanges.push(0, 50)
+    else if (budget === "$50-$100") budgetRanges.push(50, 100)
+    else if (budget === "$100-$250") budgetRanges.push(100, 250)
+    else if (budget === "$250-$500") budgetRanges.push(250, 500)
+    else if (budget === "$500+") budgetRanges.push(500, 2000)
+    else if (budget === "No limit") budgetRanges.push(0, Infinity)
+  })
+  
+  if (budgetRanges.length === 0) {
+    return { min: 0, max: Infinity }
+  }
+  
+  const min = Math.min(...budgetRanges.filter((_, i) => i % 2 === 0))
+  const max = Math.max(...budgetRanges.filter((_, i) => i % 2 === 1))
+  
+  return { min, max }
+}
 
 // Default search query for luxury men's business casual clothing
 const DEFAULT_SEARCH_QUERY = "luxury mens business casual clothing premium designer"
@@ -146,6 +195,13 @@ export async function GET(request: Request) {
   }
   console.log("LOG: SERPER_API_KEY is present.")
 
+  // Get user authentication and profile for budget filtering
+  const { userId } = await auth()
+  const userProfile = await getUserProfile(userId || undefined)
+  const budgetRange = getBudgetRange(userProfile)
+  
+  console.log(`LOG: Budget range for filtering: $${budgetRange.min}-${budgetRange.max === Infinity ? '∞' : budgetRange.max}`)
+
   const { searchParams } = new URL(request.url)
   const userQuery = searchParams.get("query")
   const categoryParam = searchParams.get("category")
@@ -208,15 +264,26 @@ export async function GET(request: Request) {
       "Features a contemporary design and is made from quality materials.",
     ]
 
-    const minPrice = 75
+    const minPrice = Math.max(75, budgetRange.min) // Use user budget minimum or $75, whichever is higher
+    const maxPrice = budgetRange.max
     let priceFilteredCount = 0
+    let budgetFilteredCount = 0
     let imageFilteredCount = 0
 
     const products: Product[] = rawShoppingResults
       .map((item: any, index: number) => {
         const price = parsePrice(item.price)
-        if (price < minPrice && !preconfiguredFashionQueries.some((q) => q.toLowerCase().includes("uniqlo"))) {
+        
+        // Basic price filter (minimum $75 for quality)
+        if (price < 75 && !preconfiguredFashionQueries.some((q) => q.toLowerCase().includes("uniqlo"))) {
           priceFilteredCount++
+          return null
+        }
+        
+        // STRICT budget filtering based on user preferences
+        if (userProfile?.budgetRange?.length > 0 && (price < budgetRange.min || price > budgetRange.max)) {
+          budgetFilteredCount++
+          console.log(`LOG: Filtered item "${item.title}" ($${price}) - outside budget range $${budgetRange.min}-${budgetRange.max === Infinity ? '∞' : budgetRange.max}`)
           return null
         }
 
@@ -260,13 +327,14 @@ export async function GET(request: Request) {
       })
       .filter((product: Product | null): product is Product => product !== null && product.price > 0 && product.image !== null)
 
-    console.log(`LOG: Items filtered out by price (< $${minPrice}): ${priceFilteredCount}`)
+    console.log(`LOG: Items filtered out by basic price (< $75): ${priceFilteredCount}`)
+    console.log(`LOG: Items filtered out by user budget range: ${budgetFilteredCount}`)
     console.log(`LOG: Items filtered out by image URL: ${imageFilteredCount}`)
     console.log(`LOG: Final product count after all filtering: ${products.length}`)
 
     if (products.length === 0 && rawShoppingResults.length > 0) {
       console.warn(
-        `WARN: All ${rawShoppingResults.length} Serper results were filtered out. Check price/image filters and Serper response details. Query: "${serperSearchQuery}"`,
+        `WARN: All ${rawShoppingResults.length} Serper results were filtered out. Check price/image filters and Serper response details. Query: "${serperSearchQuery}". Budget range: $${budgetRange.min}-${budgetRange.max === Infinity ? '∞' : budgetRange.max}`,
       )
     } else if (rawShoppingResults.length === 0) {
       console.warn(`WARN: No shopping results from Serper for query: "${serperSearchQuery}"`)

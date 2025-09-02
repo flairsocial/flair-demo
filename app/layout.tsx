@@ -4,6 +4,7 @@ import { Mona_Sans as FontSans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth-provider"
+import { ProfileProvider } from "@/lib/profile-context"
 import Sidebar from "@/components/Sidebar"
 import Header from "@/components/Header"
 
@@ -28,21 +29,23 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} font-sans bg-black text-white antialiased`} suppressHydrationWarning>
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem={false}
-            forcedTheme="dark"
-            disableTransitionOnChange
-          >
-            <div className="flex min-h-screen">
-              <Sidebar />
-              <div className="flex-1 md:ml-16 transition-all duration-300 pb-16 md:pb-0">
-                <Header />
-                <main className="flex-1 overflow-y-auto">{children}</main>
+          <ProfileProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem={false}
+              forcedTheme="dark"
+              disableTransitionOnChange
+            >
+              <div className="flex min-h-screen">
+                <Sidebar />
+                <div className="flex-1 md:ml-16 transition-all duration-300 pb-16 md:pb-0">
+                  <Header />
+                  <main className="flex-1 overflow-y-auto">{children}</main>
+                </div>
               </div>
-            </div>
-          </ThemeProvider>
+            </ThemeProvider>
+          </ProfileProvider>
         </AuthProvider>
       </body>
     </html>

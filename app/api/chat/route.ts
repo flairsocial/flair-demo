@@ -2,8 +2,29 @@ import { NextResponse } from "next/server"
 import { generateText } from "ai"
 import { model } from "@/lib/ai-model"
 import type { Product } from "@/lib/types"
+import { auth } from '@clerk/nextjs/server'
 
 const serperApiKey = process.env.SERPER_API_KEY
+
+// Function to get user profile for search context
+async function getUserProfile(userId?: string) {
+  if (!userId) return null;
+  
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/profile`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userId}`,
+      },
+    });
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (error) {
+    console.log('Could not fetch user profile for search context');
+  }
+  return null;
+}
 
 function parsePrice(priceString: string | null | undefined): number {
   if (!priceString) return 0
@@ -12,7 +33,7 @@ function parsePrice(priceString: string | null | undefined): number {
   return isNaN(price) ? 0 : price
 }
 
-async function searchForProducts(query: string, limit = 3): Promise<Product[]> {
+async function searchForProducts(query: string, limit = 3, userProfile?: any): Promise<Product[]> {
   if (!serperApiKey) {
     console.log("[Chat] No Serper API key available")
     return []
@@ -43,18 +64,46 @@ async function searchForProducts(query: string, limit = 3): Promise<Product[]> {
     const data = await response.json()
     const results = data.shopping || []
 
+    // Parse budget ranges from user profile
+    let minBudget = 0
+    let maxBudget = Infinity
+    
+    if (userProfile?.budgetRange?.length > 0) {
+      const budgets = userProfile.budgetRange
+      let budgetRanges: number[] = []
+      
+      budgets.forEach((budget: string) => {
+        if (budget === "Under $50") budgetRanges.push(0, 50)
+        else if (budget === "$50-$100") budgetRanges.push(50, 100)
+        else if (budget === "$100-$250") budgetRanges.push(100, 250)
+        else if (budget === "$250-$500") budgetRanges.push(250, 500)
+        else if (budget === "$500+") budgetRanges.push(500, 2000)
+        else if (budget === "No limit") budgetRanges.push(0, Infinity)
+      })
+      
+      if (budgetRanges.length > 0) {
+        minBudget = Math.min(...budgetRanges.filter((_, i) => i % 2 === 0))
+        maxBudget = Math.max(...budgetRanges.filter((_, i) => i % 2 === 1))
+      }
+    }
+
     const products = results
       .filter((item: any) => {
         const price = parsePrice(item.price)
-        return (
-          item.title &&
-          item.link &&
-          item.imageUrl &&
-          price >= 25 &&
-          !item.title.toLowerCase().includes("shein") &&
-          !item.title.toLowerCase().includes("wish") &&
-          !item.title.toLowerCase().includes("aliexpress")
-        )
+        
+        // Basic quality filters
+        const hasBasicInfo = item.title && item.link && item.imageUrl
+        const isQualityBrand = !item.title.toLowerCase().includes("shein") &&
+                              !item.title.toLowerCase().includes("wish") &&
+                              !item.title.toLowerCase().includes("aliexpress")
+        const meetsMinPrice = price >= 25
+        
+        // STRICT budget filtering based on user preferences
+        const withinBudget = userProfile?.budgetRange?.length > 0 
+          ? (price >= minBudget && price <= maxBudget)
+          : true // If no budget set, don't filter by price
+        
+        return hasBasicInfo && isQualityBrand && meetsMinPrice && withinBudget
       })
       .slice(0, Math.min(limit, 20))
       .map((item: any) => ({
@@ -66,7 +115,7 @@ async function searchForProducts(query: string, limit = 3): Promise<Product[]> {
         link: item.link,
       }))
 
-    console.log(`[Chat] Found ${products.length} products`)
+    console.log(`[Chat] Found ${products.length} products within budget range $${minBudget}-$${maxBudget === Infinity ? '∞' : maxBudget}`)
     return products
   } catch (error) {
     console.error("[Chat] Search error:", error)
@@ -77,6 +126,12 @@ async function searchForProducts(query: string, limit = 3): Promise<Product[]> {
 export async function POST(request: Request) {
   try {
     const { message, history = [], productLimit = 6 } = await request.json()
+
+    // Get user authentication
+    const { userId } = await auth()
+    
+    // Get user profile for personalized recommendations
+    const userProfile = await getUserProfile(userId || undefined)
 
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ error: "AI service unavailable" }, { status: 500 })
@@ -97,6 +152,24 @@ export async function POST(request: Request) {
       role: "user",
       content: message,
     })
+
+    // Build profile context for AI if available
+    let profileContext = ""
+    if (userProfile) {
+      const context = []
+      if (userProfile.age) context.push(`Age: ${userProfile.age}`)
+      if (userProfile.gender) context.push(`Gender: ${userProfile.gender}`)
+      if (userProfile.bodyType) context.push(`Body type: ${userProfile.bodyType}`)
+      if (userProfile.style?.length > 0) context.push(`Style preference: ${userProfile.style.join(', ')}`)
+      if (userProfile.budgetRange?.length > 0) context.push(`Budget range: ${userProfile.budgetRange.join(', ')}`)
+      if (userProfile.shoppingSources?.length > 0) context.push(`Preferred stores: ${userProfile.shoppingSources.join(', ')}`)
+      if (userProfile.lifestyle) context.push(`Lifestyle: ${userProfile.lifestyle}`)
+      if (userProfile.goals?.length > 0) context.push(`Style goals: ${userProfile.goals.join(', ')}`)
+      
+      if (context.length > 0) {
+        profileContext = `\n\nUSER PROFILE CONTEXT:\n${context.join('\n')}\n\nIMPORTANT: STRICTLY adhere to the user's budget range and style preferences when making recommendations. Do not suggest items outside their specified budget ranges or that don't match their selected style preferences.`
+      }
+    }
 
     const systemPrompt = `You are Flair, a friendly and knowledgeable AI fashion stylist. You're like having a conversation with a stylish friend who happens to be a fashion expert.
 
@@ -128,7 +201,7 @@ WHEN TO JUST CHAT:
 - Getting to know their style preferences
 - Follow-up questions about previous topics
 
-Keep the conversation flowing naturally. Ask questions, share insights, and be genuinely helpful while maintaining a friendly, approachable tone.`
+Keep the conversation flowing naturally. Ask questions, share insights, and be genuinely helpful while maintaining a friendly, approachable tone.${profileContext}`
 
     // Generate response using Google AI
     const { text } = await generateText({
@@ -169,9 +242,19 @@ Keep the conversation flowing naturally. Ask questions, share insights, and be g
       searchQuery = searchQuery.replace(/\b(show me|find me|where can i get|i want to buy|looking for|need some|recommend|suggest|shopping for|buy|purchase|what|how|where|when|why|can you|could you|please|help me|i need)\b/gi, '')
       searchQuery = searchQuery.trim()
       
+      // Enhance search query with user profile context
+      if (userProfile && searchQuery.length > 2) {
+        const profileEnhancements = []
+        if (userProfile.style?.length > 0) profileEnhancements.push(...userProfile.style)
+        
+        if (profileEnhancements.length > 0) {
+          searchQuery = `${searchQuery} ${profileEnhancements.join(' ')}`
+        }
+      }
+      
       if (searchQuery.length > 2) {
         console.log(`[Chat] Searching for products with query: "${searchQuery}"`)
-        products = await searchForProducts(searchQuery, productLimit)
+        products = await searchForProducts(searchQuery, productLimit, userProfile)
       }
     }
 
