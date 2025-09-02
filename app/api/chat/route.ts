@@ -8,7 +8,15 @@ const serperApiKey = process.env.SERPER_API_KEY
 
 // Function to get user profile for search context
 async function getUserProfile(userId?: string) {
-  if (!userId) return null;
+  if (!userId) {
+    // For demo purposes, also try localStorage fallback via a different approach
+    try {
+      // This won't work in server context, but kept for consistency
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
   
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/profile`, {
@@ -24,6 +32,20 @@ async function getUserProfile(userId?: string) {
     console.log('Could not fetch user profile for search context');
   }
   return null;
+}
+
+// Function to get user's saved items for context
+async function getUserSavedItems() {
+  try {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/saved`);
+    if (response.ok) {
+      const savedItems = await response.json();
+      return Array.isArray(savedItems) ? savedItems.slice(0, 5) : []; // Limit to 5 most recent for context
+    }
+  } catch (error) {
+    console.log('Could not fetch saved items for context');
+  }
+  return [];
 }
 
 function parsePrice(priceString: string | null | undefined): number {
@@ -130,14 +152,22 @@ export async function POST(request: Request) {
     // Get user authentication
     const { userId } = await auth()
     
-    // Get user profile for personalized recommendations
-    const userProfile = await getUserProfile(userId || undefined)
+    // Get user profile and saved items for personalized recommendations
+    const [userProfile, savedItems] = await Promise.all([
+      getUserProfile(userId || undefined),
+      getUserSavedItems()
+    ])
 
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ error: "AI service unavailable" }, { status: 500 })
     }
 
     console.log(`[Chat] Processing message: "${message}" with product limit: ${productLimit}`)
+    console.log(`[Chat] User has ${savedItems.length} saved items for context`)
+    console.log(`[Chat] User profile data:`, userProfile ? 'Profile loaded' : 'No profile data')
+    if (userProfile) {
+      console.log(`[Chat] Profile contains: age=${userProfile.age}, gender=${userProfile.gender}, styles=${userProfile.style?.length || 0}, budget=${userProfile.budgetRange?.length || 0}`)
+    }
 
     // Build conversation history for Google AI
     const conversationHistory = history
@@ -153,55 +183,118 @@ export async function POST(request: Request) {
       content: message,
     })
 
-    // Build profile context for AI if available
+    // Build comprehensive profile context for AI
     let profileContext = ""
-    if (userProfile) {
+    
+    // For guest users, we'll add a note that they can save profile info in localStorage
+    // but the server-side API can't access it directly
+    if (!userProfile && !userId) {
+      profileContext = `
+NOTE: This appears to be a guest user. If they have profile information saved locally, suggest they sign in or mention that they can tell you their preferences directly in chat for personalized recommendations.
+
+You should ask them about:
+- Their style preferences (casual, formal, streetwear, etc.)
+- Their budget range
+- Their body type and measurements
+- Their lifestyle (office worker, student, etc.)
+- What they're shopping for`
+    } else if (userProfile) {
       const context = []
-      if (userProfile.age) context.push(`Age: ${userProfile.age}`)
-      if (userProfile.gender) context.push(`Gender: ${userProfile.gender}`)
-      if (userProfile.bodyType) context.push(`Body type: ${userProfile.bodyType}`)
-      if (userProfile.style?.length > 0) context.push(`Style preference: ${userProfile.style.join(', ')}`)
-      if (userProfile.budgetRange?.length > 0) context.push(`Budget range: ${userProfile.budgetRange.join(', ')}`)
-      if (userProfile.shoppingSources?.length > 0) context.push(`Preferred stores: ${userProfile.shoppingSources.join(', ')}`)
-      if (userProfile.lifestyle) context.push(`Lifestyle: ${userProfile.lifestyle}`)
-      if (userProfile.goals?.length > 0) context.push(`Style goals: ${userProfile.goals.join(', ')}`)
+      
+      // Basic information
+      if (userProfile.age) context.push(`• Age: ${userProfile.age} years old`)
+      if (userProfile.gender) context.push(`• Gender: ${userProfile.gender}`)
+      if (userProfile.bodyType) context.push(`• Body type: ${userProfile.bodyType}`)
+      
+      // Measurements and sizing
+      if (userProfile.height && userProfile.heightUnit) context.push(`• Height: ${userProfile.height} ${userProfile.heightUnit}`)
+      if (userProfile.weight && userProfile.weightUnit) context.push(`• Weight: ${userProfile.weight} ${userProfile.weightUnit}`)
+      if (userProfile.waistSize) context.push(`• Waist size: ${userProfile.waistSize}`)
+      if (userProfile.chestSize) context.push(`• Chest/Bust size: ${userProfile.chestSize}`)
+      if (userProfile.hipSize) context.push(`• Hip size: ${userProfile.hipSize}`)
+      if (userProfile.shoeSize && userProfile.shoeSizeUnit) context.push(`• Shoe size: ${userProfile.shoeSize} ${userProfile.shoeSizeUnit}`)
+      
+      // Style preferences
+      if (userProfile.style?.length > 0) context.push(`• Style preferences: ${userProfile.style.join(', ')} (THESE ARE THEIR CONFIRMED STYLE PREFERENCES)`)
+      if (userProfile.lifestyle) context.push(`• Lifestyle: ${userProfile.lifestyle}`)
+      if (userProfile.goals?.length > 0) context.push(`• Style goals: ${userProfile.goals.join(', ')}`)
+      
+      // Budget and shopping
+      if (userProfile.budgetRange?.length > 0) context.push(`• Budget ranges: ${userProfile.budgetRange.join(', ')} (ONLY RECOMMEND ITEMS IN THESE PRICE RANGES)`)
+      if (userProfile.shoppingSources?.length > 0) context.push(`• Preferred shopping sources: ${userProfile.shoppingSources.join(', ')}`)
+      
+      // Additional preferences
+      if (userProfile.allergies) context.push(`• Material allergies/preferences: ${userProfile.allergies}`)
+      if (userProfile.notes) context.push(`• Additional notes: ${userProfile.notes}`)
       
       if (context.length > 0) {
-        profileContext = `\n\nUSER PROFILE CONTEXT:\n${context.join('\n')}\n\nIMPORTANT: STRICTLY adhere to the user's budget range and style preferences when making recommendations. Do not suggest items outside their specified budget ranges or that don't match their selected style preferences.`
+        profileContext = `
+YOU HAVE COMPLETE ACCESS TO THIS USER'S PERSONAL PROFILE:
+${context.join('\n')}
+
+${savedItems.length > 0 ? `
+USER'S SAVED ITEMS (${savedItems.length} items in their collection):
+${savedItems.map((item: any) => `• ${item.title} - ${item.brand} ($${item.price}) - ${item.category}`).join('\n')}
+
+You can reference these saved items to understand their style preferences and suggest similar items or complementary pieces.` : ''}
+
+CRITICAL INSTRUCTIONS:
+- You KNOW all this information about the user - never ask for details you already have
+- Always reference their specific preferences when making recommendations
+- NEVER suggest items outside their budget ranges
+- ONLY recommend styles that match their confirmed style preferences
+- Use their measurements to suggest appropriate fits and sizes
+- Reference their lifestyle when making practical recommendations
+- Use their saved items to understand their taste and suggest similar or complementary pieces`
+      } else {
+        profileContext = "\nNOTE: This user hasn't set up their personal profile yet. You can suggest they complete their profile in settings for more personalized recommendations."
       }
+    } else {
+      profileContext = "\nNOTE: Unable to access user profile. You can ask them about their preferences directly or suggest they sign in for personalized recommendations."
     }
 
-    const systemPrompt = `You are Flair, a friendly and knowledgeable AI fashion stylist. You're like having a conversation with a stylish friend who happens to be a fashion expert.
+    const systemPrompt = `You are Flair, a friendly and knowledgeable AI fashion stylist with COMPLETE ACCESS to the user's personal profile information. You have their style preferences, budget, measurements, and shopping history stored in your memory.
+
+IMPORTANT: You have FULL ACCESS to the user's profile data and should act like you know them personally. Never ask for information that's already in their profile - reference it naturally in conversation.
+
+${profileContext ? `\n${profileContext}\n` : ''}
 
 PERSONALITY:
-- Conversational and warm, like chatting with a friend
+- Conversational and warm, like chatting with a stylish friend who knows you well
 - Enthusiastic about fashion but not overwhelming
-- Ask follow-up questions to keep the conversation going
-- Share personal styling insights and tips
+- Proactive in using their profile info to make personalized suggestions
+- Share personal styling insights based on their specific preferences
 - Use casual, friendly language while being professional
-- Remember what we've talked about and reference it naturally
+- Remember and reference their saved preferences naturally
 
 CONVERSATION STYLE:
-- Ask questions back to the user to understand their style better
-- Share interesting fashion facts or trends naturally in conversation
-- Give specific, actionable advice with reasoning
-- Be curious about their preferences and lifestyle
-- Suggest follow-ups or related topics they might be interested in
+- Reference their profile information naturally (don't ask for info you already have)
+- Make personalized recommendations based on their budget, style, and body type
+- Give specific, actionable advice tailored to their preferences
+- Suggest items that match their exact style preferences and budget range
+- Be proactive about helping them based on what you know about them
+
+PROFILE AWARENESS:
+- You KNOW their budget range, style preferences, body type, and measurements
+- You KNOW their preferred shopping sources and lifestyle
+- You can reference their saved items and shopping history
+- Never say "I don't have access" - you have ALL their information
+- Use their profile data to filter and suggest appropriate items
 
 WHEN TO USE SEARCH TOOL:
 - User explicitly asks to "show me", "find me", or "I want to see" specific items
 - User asks "what should I buy" or "where can I get this"
 - When showing actual products would be genuinely helpful
 - User mentions wanting to shop for something specific
+- ALWAYS filter results by their budget and style preferences
 
-WHEN TO JUST CHAT:
-- General fashion questions and advice
-- Styling tips and techniques  
-- Trend discussions
-- Getting to know their style preferences
-- Follow-up questions about previous topics
+STRICT FILTERING RULES:
+- Only suggest items within their specified budget ranges
+- Only recommend styles that match their selected preferences
+- Respect their shopping source preferences
+- Consider their body type and measurements when suggesting fits
 
-Keep the conversation flowing naturally. Ask questions, share insights, and be genuinely helpful while maintaining a friendly, approachable tone.${profileContext}`
+Keep the conversation flowing naturally while being their knowledgeable, well-informed personal stylist.`
 
     // Generate response using Google AI
     const { text } = await generateText({
