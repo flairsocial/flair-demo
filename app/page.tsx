@@ -19,7 +19,7 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   // Get profile context for personalized product search
-  const { getSearchContext } = useProfile()
+  const { getSearchContext, profile, isLoaded: profileLoaded } = useProfile()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -32,6 +32,14 @@ export default function Home() {
       fetchProductById(productId)
     }
   }, [])
+
+  // Refresh products when profile changes (for better personalization)
+  useEffect(() => {
+    if (profileLoaded && hasInitialLoad && selectedCategory === "All" && !searchQuery) {
+      console.log('[Discover] Profile changed, refreshing products for better personalization')
+      fetchProducts("", "All")
+    }
+  }, [profile, profileLoaded, hasInitialLoad])
 
   useEffect(() => {
     if (hasInitialLoad && (searchQuery || selectedCategory !== "All")) {
@@ -50,9 +58,26 @@ export default function Home() {
       let url = "/api/products"
       const params = new URLSearchParams()
 
-      // Use original query without profile enhancement to avoid double filtering
-      // The API will now handle profile-based filtering on the server side
-      if (query) params.append("query", query)
+      // Enhanced query building with profile context
+      let enhancedQuery = query
+      
+      // For "All" category with no search query, use profile preferences to enhance search
+      if (!query && category === "All") {
+        const profileContext = getSearchContext()
+        if (profileContext) {
+          // Extract style preferences from profile context
+          const styleMatch = profileContext.match(/Style preferences: ([^.]+)/)
+          const budgetMatch = profileContext.match(/Budget: ([^.]+)/)
+          
+          if (styleMatch && styleMatch[1]) {
+            enhancedQuery = styleMatch[1].split(',')[0].trim() + " fashion clothing"
+          }
+          
+          console.log('[Discover] Enhanced query for "All" tab with profile:', enhancedQuery)
+        }
+      }
+
+      if (enhancedQuery) params.append("query", enhancedQuery)
       if (category !== "All") params.append("category", category)
       params.append("limit", "50")
       

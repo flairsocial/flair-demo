@@ -1,14 +1,17 @@
 import { formatDistanceToNow } from "date-fns"
-import { Sparkles, User } from "lucide-react" // Added User icon
-import type { Product } from "@/lib/types" // Ensure Product includes 'link'
+import { Sparkles, User } from "lucide-react"
+import { FileAttachmentList } from "./FileAttachment"
+import type { Product } from "@/lib/types"
+import type { ChatFile } from "@/lib/file-context"
 
-// Update Message interface to potentially include products
+// Update Message interface to potentially include products and files
 interface MessageWithProducts {
   id: string
   content: string
   sender: "user" | "ai"
   timestamp: string
   products?: Product[] // Optional array of products
+  attachedFiles?: ChatFile[] // Optional array of attached files
 }
 
 interface ChatMessageProps {
@@ -29,6 +32,21 @@ export default function ChatMessage({ message }: ChatMessageProps) {
       <div
         className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-3.5 ${isAi ? "bg-zinc-800 text-white" : "bg-white text-black"}`}
       >
+        {/* Display attached files if present */}
+        {message.attachedFiles && message.attachedFiles.length > 0 && (
+          <div className="mb-3">
+            <p className={`text-xs mb-2 ${isAi ? "text-zinc-400" : "text-zinc-600"}`}>
+              Attached files:
+            </p>
+            <FileAttachmentList
+              files={message.attachedFiles}
+              showRemove={false}
+              size="sm"
+              maxDisplay={4}
+            />
+          </div>
+        )}
+        
         {/* Render message content as paragraphs for better readability */}
         {message.content.split("\n").map((paragraph, index) => (
           <p key={index} className="text-sm leading-relaxed mb-1 last:mb-0">

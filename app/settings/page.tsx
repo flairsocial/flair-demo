@@ -6,128 +6,46 @@ import { useUser } from "@clerk/nextjs"
 import { RedirectToSignIn } from "@clerk/nextjs"
 import Link from "next/link"
 import { motion } from "framer-motion"
-
-interface UserProfile {
-  age: string
-  gender: string
-  height: string
-  heightUnit: string
-  weight: string
-  weightUnit: string
-  shoeSize: string
-  shoeSizeUnit: string
-  waistSize: string
-  chestSize: string
-  hipSize: string
-  bodyType: string
-  style: string[]
-  budgetRange: string[]
-  shoppingSources: string[]
-  lifestyle: string
-  goals: string[]
-  allergies: string
-  notes: string
-}
+import { useProfile } from "@/lib/profile-context"
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn, user } = useUser()
   
-  const [profile, setProfile] = useState<UserProfile>({
-    age: "",
-    gender: "",
-    height: "",
-    heightUnit: "feet",
-    weight: "",
-    weightUnit: "lbs",
-    shoeSize: "",
-    shoeSizeUnit: "US",
-    waistSize: "",
-    chestSize: "",
-    hipSize: "",
-    bodyType: "",
-    style: [],
-    budgetRange: [],
-    shoppingSources: [],
-    lifestyle: "",
-    goals: [],
-    allergies: "",
-    notes: "",
-  })
-
+  // Use global profile context instead of local state
+  const { profile, updateProfile, saveProfile, isLoading: profileLoading, isLoaded: profileLoaded } = useProfile()
+  
   const [isLoading, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
 
-  // Load saved profile from API or localStorage
+  // Debug logging to track profile state
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      // Try to load from API first when user is authenticated
-      loadUserProfile()
-    } else if (isLoaded && !isSignedIn) {
-      // Fallback to localStorage for demo purposes when not signed in
-      const savedProfile = localStorage.getItem("flairUserProfile")
-      if (savedProfile) {
-        try {
-          setProfile(JSON.parse(savedProfile))
-        } catch (error) {
-          console.error("Error loading saved profile:", error)
-        }
-      }
-    }
-  }, [isLoaded, isSignedIn])
+    console.log('[SettingsPage] Profile loaded:', profileLoaded)
+    console.log('[SettingsPage] Profile data:', profile)
+  }, [profileLoaded, profile])
 
-  const loadUserProfile = async () => {
-    try {
-      const response = await fetch("/api/profile")
-      if (response.ok) {
-        const profileData = await response.json()
-        setProfile(profileData)
-      }
-    } catch (error) {
-      console.error("Error loading user profile:", error)
-      // Fallback to localStorage
-      const savedProfile = localStorage.getItem("flairUserProfile")
-      if (savedProfile) {
-        try {
-          setProfile(JSON.parse(savedProfile))
-        } catch (error) {
-          console.error("Error loading saved profile:", error)
-        }
-      }
-    }
-  }
-
-  const handleInputChange = (field: keyof UserProfile, value: string | string[]) => {
-    setProfile(prev => ({
-      ...prev,
-      [field]: value
-    }))
+  const handleInputChange = (field: keyof typeof profile, value: string | string[]) => {
+    updateProfile({ [field]: value })
   }
 
   const handleStyleToggle = (style: string) => {
-    setProfile(prev => ({
-      ...prev,
-      style: prev.style.includes(style)
-        ? prev.style.filter((s: string) => s !== style)
-        : [...prev.style, style]
-    }))
+    const newStyles = profile.style.includes(style)
+      ? profile.style.filter((s: string) => s !== style)
+      : [...profile.style, style]
+    updateProfile({ style: newStyles })
   }
 
   const handleBudgetToggle = (budget: string) => {
-    setProfile(prev => ({
-      ...prev,
-      budgetRange: prev.budgetRange.includes(budget)
-        ? prev.budgetRange.filter((b: string) => b !== budget)
-        : [...prev.budgetRange, budget]
-    }))
+    const newBudgets = profile.budgetRange.includes(budget)
+      ? profile.budgetRange.filter((b: string) => b !== budget)
+      : [...profile.budgetRange, budget]
+    updateProfile({ budgetRange: newBudgets })
   }
 
   const handleSourceToggle = (source: string) => {
-    setProfile(prev => ({
-      ...prev,
-      shoppingSources: prev.shoppingSources.includes(source)
-        ? prev.shoppingSources.filter((s: string) => s !== source)
-        : [...prev.shoppingSources, source]
-    }))
+    const newSources = profile.shoppingSources.includes(source)
+      ? profile.shoppingSources.filter((s: string) => s !== source)
+      : [...profile.shoppingSources, source]
+    updateProfile({ shoppingSources: newSources })
   }
 
   const handleSave = async () => {
@@ -135,26 +53,8 @@ export default function SettingsPage() {
     setSaveMessage("")
 
     try {
-      if (isSignedIn) {
-        // Save via API when authenticated
-        const response = await fetch("/api/profile", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(profile),
-        })
-
-        if (response.ok) {
-          setSaveMessage("Profile saved to your account!")
-        } else {
-          throw new Error("API save failed")
-        }
-      } else {
-        // Fallback to localStorage for demo purposes
-        localStorage.setItem("flairUserProfile", JSON.stringify(profile))
-        setSaveMessage("Profile saved locally (sign in to save to your account)")
-      }
+      await saveProfile()
+      setSaveMessage("Profile saved successfully!")
       
       // Simulate save delay for better UX
       await new Promise(resolve => setTimeout(resolve, 500))
@@ -162,8 +62,6 @@ export default function SettingsPage() {
       setTimeout(() => setSaveMessage(""), 3000)
     } catch (error) {
       console.error("Error saving profile:", error)
-      // Fallback to localStorage
-      localStorage.setItem("flairUserProfile", JSON.stringify(profile))
       setSaveMessage("Profile saved locally")
       setTimeout(() => setSaveMessage(""), 3000)
     } finally {
@@ -179,8 +77,8 @@ export default function SettingsPage() {
   ]
   const budgetOptions = ["Under $50", "$50-$100", "$100-$250", "$250-$500", "$500+", "No limit"]
 
-  // Show loading while Clerk is initializing
-  if (!isLoaded) {
+  // Show loading while Clerk is initializing or profile is loading
+  if (!isLoaded || !profileLoaded) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-zinc-800 border-t-white rounded-full animate-spin"></div>

@@ -8,11 +8,17 @@ import Link from "next/link"
 import Image from "next/image"
 import ChatMessage from "@/components/ChatMessage"
 import ProductSettingsPopup from "@/components/ProductSettingsPopup"
+import FileUpload from "@/components/FileUpload"
+import AIToneToggle from "@/components/AIToneToggle"
+import { FileAttachmentList } from "@/components/FileAttachment"
+import { useFiles, type ChatFile } from "@/lib/file-context"
+import { useAITone } from "@/lib/ai-tone-context"
 import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
 
 interface ChatMessageWithProducts extends Message {
   products?: Product[]
+  attachedFiles?: ChatFile[]
 }
 
 export default function ChatPage() {
@@ -20,7 +26,7 @@ export default function ChatPage() {
     {
       id: "welcome",
       content:
-        "Hi! I'm your Flair AI stylist. I'm here to help you discover your perfect style, find amazing pieces, and answer any fashion questions you have. What can I help you with today?",
+        "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
       sender: "ai",
       timestamp: new Date().toISOString(),
     },
@@ -35,12 +41,16 @@ export default function ChatPage() {
   ])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const [showHistory, setShowHistory] = useState(false)
+  const [showPersonalityPopup, setShowPersonalityPopup] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showProductSettings, setShowProductSettings] = useState(false)
   const [productCount, setProductCount] = useState(6)
   const [isChatCollapsed, setIsChatCollapsed] = useState(false)
   const [lastProductQuery, setLastProductQuery] = useState<string | null>(null)
   const isMobile = useMobile()
+  const { attachedFiles, removeFile, clearFiles } = useFiles()
+  const { tone } = useAITone()
+  const autoMessageSentRef = useRef(false) // Track if auto-message has been sent
 
   const chatHistory = [
     {
@@ -60,13 +70,34 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom()
 
-    // Check for product query parameter
+    // Only run auto-message logic once
+    if (autoMessageSentRef.current) return
+
+    // Check for automatic message parameter
     const urlParams = new URLSearchParams(window.location.search)
+    const autoMessage = urlParams.get("autoMessage")
     const productQuery = urlParams.get("product_query")
-    if (productQuery) {
+    
+    console.log('[Chat] URL params check - autoMessage:', autoMessage, 'productQuery:', productQuery)
+    console.log('[Chat] Attached files count:', attachedFiles.length)
+    
+    if (autoMessage) {
+      console.log('[Chat] Auto-sending message:', autoMessage)
+      autoMessageSentRef.current = true // Mark as sent
+      // Small delay to ensure file context is loaded
+      setTimeout(() => {
+        handleSendMessage(undefined, autoMessage)
+        // Clear the URL parameter to prevent re-sending
+        window.history.replaceState({}, '', '/chat')
+      }, 200)
+    } else if (productQuery) {
+      console.log('[Chat] Auto-sending product query:', productQuery)
+      autoMessageSentRef.current = true // Mark as sent
       handleSendMessage(undefined, productQuery)
+      // Clear the URL parameter to prevent re-sending
+      window.history.replaceState({}, '', '/chat')
     }
-  }, [])
+  }, []) // Keep empty dependency array
 
   useEffect(() => {
     scrollToBottom()
@@ -112,6 +143,7 @@ export default function ChatPage() {
       content: messageText,
       sender: "user",
       timestamp: new Date().toISOString(),
+      attachedFiles: attachedFiles.length > 0 ? [...attachedFiles] : undefined,
     }
 
     setMessages((prev) => [...prev, userMessage])
@@ -126,6 +158,8 @@ export default function ChatPage() {
           message: messageText,
           history: messages.slice(-8), // Send recent history for context
           productLimit: productCount, // Include the product limit
+          attachedFiles: attachedFiles, // Include attached files
+          aiTone: tone, // Send just the tone preference
         }),
       })
 
@@ -152,6 +186,9 @@ export default function ChatPage() {
       if (data.suggestions && data.suggestions.length > 0) {
         setSuggestions(data.suggestions)
       }
+
+      // Clear attached files after successful message
+      clearFiles()
     } catch (err: any) {
       console.error("[Chat UI] Error:", err)
       setError(err.message || "Connection issue")
@@ -246,7 +283,12 @@ export default function ChatPage() {
               </div>
               <div>
                 <h1 className="text-lg font-medium text-white">Flair AI Stylist</h1>
-                <p className="text-xs text-zinc-400">Your personal fashion expert</p>
+                <button
+                  onClick={() => setShowPersonalityPopup(true)}
+                  className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                >
+                  Your Personal Shopping Expert
+                </button>
               </div>
             </div>
           </div>
@@ -371,6 +413,27 @@ export default function ChatPage() {
             </div>
           )}
           
+          {/* Attached Files Display */}
+          {attachedFiles.length > 0 && !isChatCollapsed && (
+            <div className="mb-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs text-zinc-400">Attached Files ({attachedFiles.length})</span>
+                <button
+                  onClick={clearFiles}
+                  className="text-xs text-zinc-500 hover:text-white transition-colors"
+                >
+                  Clear All
+                </button>
+              </div>
+              <FileAttachmentList
+                files={attachedFiles}
+                onRemove={removeFile}
+                size="sm"
+                maxDisplay={6}
+              />
+            </div>
+          )}
+          
           {/* Suggestions */}
           {suggestions.length > 0 && !isLoading && !isChatCollapsed && (
             <div className="mb-3">
@@ -391,22 +454,27 @@ export default function ChatPage() {
           {/* Input form */}
           {!isChatCollapsed && (
             <form onSubmit={handleSendMessage} className="relative">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask about styles, outfits, trends..."
-                className="w-full py-3.5 px-4 pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm"
-                disabled={isLoading}
-              />
-              <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
-                aria-label="Send message"
-              >
-                <Send className="w-5 h-5" strokeWidth={2} />
-              </button>
+              <div className="flex items-end space-x-2">
+                <FileUpload />
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Ask about styles, outfits, trends..."
+                    className="w-full py-3.5 px-4 pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="submit"
+                    disabled={(!input.trim() && attachedFiles.length === 0) || isLoading}
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
+                    aria-label="Send message"
+                  >
+                    <Send className="w-5 h-5" strokeWidth={2} />
+                  </button>
+                </div>
+              </div>
             </form>
           )}
         </div>
@@ -448,6 +516,38 @@ export default function ChatPage() {
           </div>
         </div>
       )}
+
+      {/* AI Personality Popup */}
+      <AnimatePresence>
+        {showPersonalityPopup && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setShowPersonalityPopup(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-zinc-900 rounded-xl p-6 mx-4 max-w-md w-full border border-zinc-800"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white">AI Personality</h3>
+                <button
+                  onClick={() => setShowPersonalityPopup(false)}
+                  className="p-1 rounded-full hover:bg-zinc-800 text-zinc-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <AIToneToggle />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

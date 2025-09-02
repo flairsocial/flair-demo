@@ -1,24 +1,19 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
-
-// In-memory storage for demo purposes (in production, use a database)
-const profileStorage = new Map<string, any>()
+import { getProfile, setProfile } from "@/lib/profile-storage"
 
 export async function GET() {
   try {
     const { userId } = await auth()
     
-    const profileKey = userId || 'anonymous'
-    
     // Get saved profile or return default
-    const savedProfile = profileStorage.get(profileKey)
+    const savedProfile = getProfile(userId || undefined)
     
     const defaultProfile = {
       age: "",
       gender: "",
       bodyType: "",
-      style: "",
-      favoriteColors: [],
+      style: [],
       budgetRange: [],
       shoppingSources: [],
       lifestyle: "",
@@ -38,8 +33,8 @@ export async function GET() {
 
     const profile = savedProfile ? { ...defaultProfile, ...savedProfile } : defaultProfile
 
-    console.log(`[Profile API] GET request - User ID: ${profileKey}`)
-    console.log(`[Profile API] Returning profile:`, profile)
+    console.log(`[Profile API] GET request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Profile API] Profile found:`, !!savedProfile)
     return NextResponse.json(profile)
   } catch (error) {
     console.error("[Profile API] Error:", error)
@@ -50,16 +45,13 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { userId } = await auth()
-    
     const profileData = await request.json()
-    const profileKey = userId || 'anonymous'
     
-    // Save profile data
-    profileStorage.set(profileKey, profileData)
-    
-    console.log(`[Profile API] POST request - User ID: ${profileKey}`)
-    console.log("[Profile API] Profile data saved:", profileData)
-    
+    console.log(`[Profile API] POST request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Profile API] Saving profile data:`, profileData)
+
+    setProfile(profileData, userId || undefined)
+
     return NextResponse.json({ 
       success: true, 
       message: `Profile saved successfully${userId ? ' to your account' : ' (guest mode)'}`,

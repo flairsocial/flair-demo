@@ -5,6 +5,8 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AuthProvider } from "@/lib/auth-provider"
 import { ProfileProvider } from "@/lib/profile-context"
+import { FileProvider } from "@/lib/file-context"
+import { AIToneProvider } from "@/lib/ai-tone-context"
 import Sidebar from "@/components/Sidebar"
 import Header from "@/components/Header"
 
@@ -30,21 +32,25 @@ export default function RootLayout({
       <body className={`${fontSans.variable} font-sans bg-black text-white antialiased`} suppressHydrationWarning>
         <AuthProvider>
           <ProfileProvider>
-            <ThemeProvider
-              attribute="class"
-              defaultTheme="dark"
-              enableSystem={false}
-              forcedTheme="dark"
-              disableTransitionOnChange
-            >
-              <div className="flex min-h-screen">
-                <Sidebar />
-                <div className="flex-1 md:ml-16 transition-all duration-300 pb-16 md:pb-0">
-                  <Header />
-                  <main className="flex-1 overflow-y-auto">{children}</main>
-                </div>
-              </div>
-            </ThemeProvider>
+            <FileProvider>
+              <AIToneProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="dark"
+                  enableSystem={false}
+                  forcedTheme="dark"
+                  disableTransitionOnChange
+                >
+                  <div className="flex min-h-screen">
+                    <Sidebar />
+                    <div className="flex-1 md:ml-16 transition-all duration-300 pb-16 md:pb-0">
+                      <Header />
+                      <main className="flex-1 overflow-y-auto">{children}</main>
+                    </div>
+                  </div>
+                </ThemeProvider>
+              </AIToneProvider>
+            </FileProvider>
           </ProfileProvider>
         </AuthProvider>
       </body>

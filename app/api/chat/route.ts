@@ -3,151 +3,92 @@ import { generateText } from "ai"
 import { model } from "@/lib/ai-model"
 import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
+import { getProfile, getSavedItems } from "@/lib/profile-storage"
 
 const serperApiKey = process.env.SERPER_API_KEY
 
-// Function to get user profile for search context
+// Function to get user profile directly from shared storage
 async function getUserProfile(userId?: string) {
-  if (!userId) {
-    // For demo purposes, also try localStorage fallback via a different approach
-    try {
-      // This won't work in server context, but kept for consistency
-      return null;
-    } catch (error) {
-      return null;
-    }
-  }
-  
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/profile`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userId}`,
-      },
-    });
-    if (response.ok) {
-      return await response.json();
+    const savedProfile = getProfile(userId || undefined)
+    
+    if (savedProfile && Object.keys(savedProfile).length > 0) {
+      console.log('[Chat] Found user profile in storage:', userId || 'anonymous')
+      return savedProfile
     }
+    
+    console.log('[Chat] No profile found in storage for:', userId || 'anonymous')
+    return null
   } catch (error) {
-    console.log('Could not fetch user profile for search context');
+    console.error('[Chat] Error accessing profile storage:', error)
+    return null
   }
-  return null;
 }
 
 // Function to get user's saved items for context
-async function getUserSavedItems() {
+async function getUserSavedItems(userId?: string) {
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/saved`);
-    if (response.ok) {
-      const savedItems = await response.json();
-      return Array.isArray(savedItems) ? savedItems.slice(0, 5) : []; // Limit to 5 most recent for context
-    }
+    const savedItems = getSavedItems(userId || undefined)
+    return Array.isArray(savedItems) ? savedItems.slice(0, 5) : [] // Limit to 5 most recent for context
   } catch (error) {
-    console.log('Could not fetch saved items for context');
-  }
-  return [];
-}
-
-function parsePrice(priceString: string | null | undefined): number {
-  if (!priceString) return 0
-  const numberString = priceString.replace(/[^0-9.]/g, "")
-  const price = Number.parseFloat(numberString)
-  return isNaN(price) ? 0 : price
-}
-
-async function searchForProducts(query: string, limit = 3, userProfile?: any): Promise<Product[]> {
-  if (!serperApiKey) {
-    console.log("[Chat] No Serper API key available")
+    console.log('Could not fetch saved items for context')
     return []
   }
+}
 
+async function searchForProducts(query: string, limit = 3, userProfile?: any, isImageAnalysis = false): Promise<Product[]> {
   try {
-    console.log(`[Chat] Searching for: "${query}"`)
-
-    const response = await fetch("https://google.serper.dev/shopping", {
-      method: "POST",
+    console.log(`[Chat] Searching for products via products API: "${query}"`)
+    
+    // Use the products API which now has adaptive profile-based search
+    const baseUrl = process.env.NODE_ENV === 'production' ? 'https://your-domain.com' : 'http://localhost:3000'
+    const searchParams = new URLSearchParams({
+      limit: Math.min(limit, 20).toString()
+    })
+    
+    // If this is image analysis, pass it specifically, otherwise use chat context
+    if (isImageAnalysis) {
+      searchParams.append('imageAnalysis', query)
+    } else {
+      searchParams.append('chatContext', query)
+    }
+    
+    const response = await fetch(`${baseUrl}/api/products?${searchParams}`, {
+      method: "GET",
       headers: {
-        "X-API-KEY": serperApiKey,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        q: `${query} premium quality`,
-        num: Math.min(limit, 20) * 2, // Request more to filter better results
-        gl: "us",
-        hl: "en",
-      }),
     })
 
     if (!response.ok) {
-      console.log("[Chat] Search temporarily unavailable")
+      console.log("[Chat] Products API temporarily unavailable")
       return []
     }
 
-    const data = await response.json()
-    const results = data.shopping || []
-
-    // Parse budget ranges from user profile
-    let minBudget = 0
-    let maxBudget = Infinity
-    
-    if (userProfile?.budgetRange?.length > 0) {
-      const budgets = userProfile.budgetRange
-      let budgetRanges: number[] = []
-      
-      budgets.forEach((budget: string) => {
-        if (budget === "Under $50") budgetRanges.push(0, 50)
-        else if (budget === "$50-$100") budgetRanges.push(50, 100)
-        else if (budget === "$100-$250") budgetRanges.push(100, 250)
-        else if (budget === "$250-$500") budgetRanges.push(250, 500)
-        else if (budget === "$500+") budgetRanges.push(500, 2000)
-        else if (budget === "No limit") budgetRanges.push(0, Infinity)
-      })
-      
-      if (budgetRanges.length > 0) {
-        minBudget = Math.min(...budgetRanges.filter((_, i) => i % 2 === 0))
-        maxBudget = Math.max(...budgetRanges.filter((_, i) => i % 2 === 1))
-      }
-    }
-
-    const products = results
-      .filter((item: any) => {
-        const price = parsePrice(item.price)
-        
-        // Basic quality filters
-        const hasBasicInfo = item.title && item.link && item.imageUrl
-        const isQualityBrand = !item.title.toLowerCase().includes("shein") &&
-                              !item.title.toLowerCase().includes("wish") &&
-                              !item.title.toLowerCase().includes("aliexpress")
-        const meetsMinPrice = price >= 25
-        
-        // STRICT budget filtering based on user preferences
-        const withinBudget = userProfile?.budgetRange?.length > 0 
-          ? (price >= minBudget && price <= maxBudget)
-          : true // If no budget set, don't filter by price
-        
-        return hasBasicInfo && isQualityBrand && meetsMinPrice && withinBudget
-      })
-      .slice(0, Math.min(limit, 20))
-      .map((item: any) => ({
-        id: item.productId || item.link,
-        title: item.title,
-        price: parsePrice(item.price),
-        brand: item.source || "Brand",
-        image: item.imageUrl,
-        link: item.link,
-      }))
-
-    console.log(`[Chat] Found ${products.length} products within budget range $${minBudget}-$${maxBudget === Infinity ? '∞' : maxBudget}`)
-    return products
+    const products = await response.json()
+    console.log(`[Chat] Found ${products.length} products via adaptive search`)
+    return products.slice(0, limit)
   } catch (error) {
-    console.error("[Chat] Search error:", error)
+    console.error("[Chat] Error calling products API:", error)
     return []
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { message, history = [], productLimit = 6 } = await request.json()
+    const { message, history = [], productLimit = 6, attachedFiles = [], aiTone = "casual" } = await request.json()
+
+    console.log(`[Chat API] Processing message: "${message}"`)
+    console.log(`[Chat API] Attached files: ${attachedFiles.length}`)
+
+    // Check if API key is available
+    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      return NextResponse.json({ 
+        message: "I'm temporarily unavailable due to API configuration. Please try again later!",
+        products: [],
+        suggestions: ["What's your style goal?", "Tell me about your preferences", "How can I help you today?"]
+      }, { status: 200 })
+    }
 
     // Get user authentication
     const { userId } = await auth()
@@ -155,7 +96,7 @@ export async function POST(request: Request) {
     // Get user profile and saved items for personalized recommendations
     const [userProfile, savedItems] = await Promise.all([
       getUserProfile(userId || undefined),
-      getUserSavedItems()
+      getUserSavedItems(userId || undefined)
     ])
 
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
@@ -169,18 +110,78 @@ export async function POST(request: Request) {
       console.log(`[Chat] Profile contains: age=${userProfile.age}, gender=${userProfile.gender}, styles=${userProfile.style?.length || 0}, budget=${userProfile.budgetRange?.length || 0}`)
     }
 
-    // Build conversation history for Google AI
+    // Build conversation history for Google AI (reduced for efficiency)
     const conversationHistory = history
-      .slice(-12) // Keep more history for better conversation flow
+      .slice(-6) // Reduced from -12 to -6 to save tokens
       .map((msg: any) => ({
         role: msg.sender === "user" ? "user" : "assistant",
         content: msg.content,
       }))
 
-    // Add current user message
+    // Process attached files and add to conversation context
+    let fileContext = ""
+    let imageAnalysisQuery = ""
+    
+    if (attachedFiles.length > 0) {
+      const fileDescriptions = []
+      
+      for (const file of attachedFiles) {
+        if (file.type === 'product' && file.metadata) {
+          fileDescriptions.push(`Product: ${file.metadata.title} by ${file.metadata.brand || 'Unknown'} - $${file.metadata.price || 'N/A'} (${file.metadata.category || 'Fashion item'}). Description: ${file.metadata.description || 'No description available'}`)
+        } else if (file.type === 'image') {
+          fileDescriptions.push(`Image: ${file.name} - User uploaded an image for styling advice`)
+          
+          // For image files, generate an analysis query for product search
+          if (file.content || file.url) {
+            try {
+              console.log(`[Chat] Analyzing uploaded image for product search`)
+              
+              // Use Gemini Vision to analyze the image
+              const imageAnalysisResult = await generateText({
+                model,
+                messages: [
+                  {
+                    role: "user",
+                    content: [
+                      {
+                        type: "text",
+                        text: "Analyze this fashion image and describe the specific clothing items, colors, style, and materials you see. Be very specific about what type of clothing this is (e.g., 'puff sleeve midi dress', 'cable knit sweater', 'leather ankle boots'). Focus on searchable keywords that would help find similar items. Respond with just the item description keywords."
+                      },
+                      {
+                        type: "image",
+                        image: file.content || file.url
+                      }
+                    ]
+                  }
+                ]
+              })
+              
+              if (imageAnalysisResult?.text) {
+                imageAnalysisQuery = imageAnalysisResult.text.trim()
+                console.log(`[Chat] Image analysis result: "${imageAnalysisQuery}"`)
+                fileDescriptions[fileDescriptions.length - 1] = `Image Analysis: ${imageAnalysisQuery} - Analyzed from uploaded image`
+              }
+            } catch (error) {
+              console.error('[Chat] Failed to analyze image:', error)
+              // Fallback to generic description
+              fileDescriptions[fileDescriptions.length - 1] = `Image: ${file.name} - Fashion item image (analysis failed)`
+            }
+          }
+        } else if (file.type === 'url') {
+          fileDescriptions.push(`URL: ${file.url} - User wants to discuss this link`)
+        } else {
+          fileDescriptions.push(`File: ${file.name} (${file.type})`)
+        }
+      }
+      
+      fileContext = `\n\nUSER HAS ATTACHED ${attachedFiles.length} FILE(S):\n${fileDescriptions.join('\n')}\n\nThe user is specifically asking about these attached items. Please reference them directly in your response and provide relevant styling advice, opinions, or recommendations based on what they've shared.`
+    }
+
+    // Add current user message with file context
+    const userMessageWithContext = message + fileContext
     conversationHistory.push({
       role: "user",
-      content: message,
+      content: userMessageWithContext,
     })
 
     // Build comprehensive profile context for AI
@@ -253,19 +254,44 @@ CRITICAL INSTRUCTIONS:
       profileContext = "\nNOTE: Unable to access user profile. You can ask them about their preferences directly or suggest they sign in for personalized recommendations."
     }
 
-    const systemPrompt = `You are Flair, a friendly and knowledgeable AI fashion stylist with COMPLETE ACCESS to the user's personal profile information. You have their style preferences, budget, measurements, and shopping history stored in your memory.
+    // Build personality based on tone preference (strong directives)
+    const getPersonality = (tone: string) => {
+      switch (tone) {
+        case "professional":
+          return `You are Flair, a professional AI fashion stylist. CRITICAL: Keep ALL responses to maximum 3 sentences. Be extremely concise, direct, and efficient. No casual language or emojis.`
+        case "friendly":
+          return `You are Flair, a humorous assistant who cracks gen-z jokes. CRITICAL: Keep ALL responses to maximum 3 sentences. You can poke fun at the user, pretend to be the user's friend, and talk shit about their purchasing decisions. Friendly, not judgmental.`
+        default: // casual
+          return "You are Flair, a conversational AI fashion stylist. CRITICAL: Keep ALL responses to maximum 3 sentences. Use a balanced, helpful tone."
+      }
+    }
+
+    console.log(`[Chat] Using AI tone: ${aiTone}`)
+    console.log(`[Chat] Personality applied: ${getPersonality(aiTone)}`)
+
+    const systemPrompt = `${getPersonality(aiTone)} You have COMPLETE ACCESS to the user's personal profile information. You have their style preferences, budget, measurements, and shopping history stored in your memory.
+
+CRITICAL RESPONSE LENGTH RULE: ALL responses must be maximum 3 sentences. No exceptions. Be concise and impactful.
 
 IMPORTANT: You have FULL ACCESS to the user's profile data and should act like you know them personally. Never ask for information that's already in their profile - reference it naturally in conversation.
 
 ${profileContext ? `\n${profileContext}\n` : ''}
 
+FILE HANDLING CAPABILITIES:
+- You can analyze product images and provide styling advice
+- You can review product details from attached items and give opinions
+- You can suggest outfit combinations based on attached products
+- You can analyze URLs and provide feedback on items users are considering
+- When users attach files, they want specific advice about those items
+- Always reference attached files directly in your response
+
 PERSONALITY:
 - Conversational and warm, like chatting with a stylish friend who knows you well
-- Enthusiastic about fashion but not overwhelming
 - Proactive in using their profile info to make personalized suggestions
 - Share personal styling insights based on their specific preferences
-- Use casual, friendly language while being professional
+- casual professional
 - Remember and reference their saved preferences naturally
+- When files are attached, focus on giving specific advice about those items
 
 CONVERSATION STYLE:
 - Reference their profile information naturally (don't ask for info you already have)
@@ -273,6 +299,7 @@ CONVERSATION STYLE:
 - Give specific, actionable advice tailored to their preferences
 - Suggest items that match their exact style preferences and budget range
 - Be proactive about helping them based on what you know about them
+- When users attach products/images, provide detailed styling advice and opinions
 
 PROFILE AWARENESS:
 - You KNOW their budget range, style preferences, body type, and measurements
@@ -287,6 +314,7 @@ WHEN TO USE SEARCH TOOL:
 - When showing actual products would be genuinely helpful
 - User mentions wanting to shop for something specific
 - ALWAYS filter results by their budget and style preferences
+- Consider attached products when suggesting similar or complementary items
 
 STRICT FILTERING RULES:
 - Only suggest items within their specified budget ranges
@@ -294,7 +322,7 @@ STRICT FILTERING RULES:
 - Respect their shopping source preferences
 - Consider their body type and measurements when suggesting fits
 
-Keep the conversation flowing naturally while being their knowledgeable, well-informed personal stylist.`
+Keep the conversation flowing naturally while being their knowledgeable, well-informed personal stylist who can also analyze and discuss any fashion items they share with you.`
 
     // Generate response using Google AI
     const { text } = await generateText({
@@ -305,38 +333,74 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
 
     console.log(`[Chat] Generated response length: ${text.length}`)
 
-    // Check if the user is asking for product recommendations
+    // Check if the user is asking for product recommendations or competitor analysis
     let products: Product[] = []
     const userMessage = message.toLowerCase()
     const aiResponse = text.toLowerCase()
     
-    // Enhanced keyword detection for product search
+    // AGGRESSIVE product search - show products for almost any fashion conversation
     const productKeywords = [
       'show me', 'find me', 'where can i get', 'i want to buy', 'looking for',
       'need some', 'recommend', 'suggest', 'shopping for', 'buy', 'purchase',
-      'where to buy', 'help me find', 'i need a', 'i need some'
+      'where to buy', 'help me find', 'i need a', 'i need some', 'what should i wear',
+      'outfit', 'style', 'fashion', 'clothing', 'wear', 'get', 'shop', 'store'
+    ]
+    
+    // Add competitor analysis keywords
+    const competitorKeywords = [
+      'competitor', 'alternatives', 'similar', 'compare', 'worth it', 
+      'better option', 'cheaper option', 'substitute', 'other options', 'different'
     ]
     
     const fashionItems = [
       'dress', 'shirt', 'pants', 'shoes', 'jacket', 'blazer', 'jeans',
       'top', 'skirt', 'sweater', 'coat', 'boots', 'sneakers', 'heels',
-      'bag', 'purse', 'accessories', 'jewelry', 'watch', 'scarf'
+      'bag', 'purse', 'accessories', 'jewelry', 'watch', 'scarf', 'tank',
+      'blouse', 'cardigan', 'hoodie', 'tee', 't-shirt', 'outfit', 'clothing',
+      'fashion', 'style', 'clothes'
     ]
     
+    // Make it VERY aggressive - trigger on almost anything fashion-related
     const hasProductRequest = productKeywords.some(keyword => 
       userMessage.includes(keyword)
-    ) || fashionItems.some(item => userMessage.includes(item))
+    ) || fashionItems.some(item => userMessage.includes(item)) || 
+       userMessage.includes('what') || userMessage.includes('how') || 
+       attachedFiles.length > 0 // Always search if there are attached files
     
-    if (hasProductRequest && serperApiKey) {
-      // Extract search terms from the user message
+    const hasCompetitorRequest = competitorKeywords.some(keyword => 
+      userMessage.includes(keyword)
+    ) || attachedFiles.some((file: any) => file.type === 'product') // Always search for competitors if product attached
+    
+    // If there are attached product files and they're asking about competitors/worth it
+    const attachedProduct = attachedFiles.find((file: any) => file.type === 'product')
+    
+    if ((hasProductRequest || hasCompetitorRequest) && serperApiKey) {
       let searchQuery = message
       
-      // Remove common question words to get better search terms
-      searchQuery = searchQuery.replace(/\b(show me|find me|where can i get|i want to buy|looking for|need some|recommend|suggest|shopping for|buy|purchase|what|how|where|when|why|can you|could you|please|help me|i need)\b/gi, '')
-      searchQuery = searchQuery.trim()
+      // Priority 1: Use image analysis if available
+      if (imageAnalysisQuery) {
+        searchQuery = imageAnalysisQuery
+        console.log(`[Chat] Using image analysis for product search: "${searchQuery}"`)
+      }
+      // Priority 2: If asking about competitors and there's an attached product, search for similar items
+      else if (hasCompetitorRequest && attachedProduct?.metadata) {
+        const product = attachedProduct.metadata
+        searchQuery = `${product.category || 'fashion'} ${product.title?.split(' ').slice(0, 3).join(' ') || ''} similar alternatives`
+        console.log(`[Chat] Using attached product for search: "${searchQuery}"`)
+      } else {
+        // Remove common question words but keep fashion terms
+        searchQuery = searchQuery.replace(/\b(show me|find me|where can i get|i want to buy|looking for|need some|recommend|suggest|shopping for|buy|purchase|what|how|where|when|why|can you|could you|please|help me|i need|is this worth it|competitors|alternatives)\b/gi, '')
+        searchQuery = searchQuery.trim()
+        
+        // If query is too short or empty, use a default fashion search
+        if (searchQuery.length < 3) {
+          searchQuery = "fashion clothing trendy"
+        }
+        console.log(`[Chat] Using processed user message for search: "${searchQuery}"`)
+      }
       
-      // Enhance search query with user profile context
-      if (userProfile && searchQuery.length > 2) {
+      // Don't add profile enhancements to image analysis queries
+      if (!imageAnalysisQuery && userProfile && searchQuery.length > 2) {
         const profileEnhancements = []
         if (userProfile.style?.length > 0) profileEnhancements.push(...userProfile.style)
         
@@ -345,10 +409,9 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
         }
       }
       
-      if (searchQuery.length > 2) {
-        console.log(`[Chat] Searching for products with query: "${searchQuery}"`)
-        products = await searchForProducts(searchQuery, productLimit, userProfile)
-      }
+      console.log(`[Chat] Final search query: "${searchQuery}"`)
+      const searchLimit = hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit // Get more results for competitor analysis
+      products = await searchForProducts(searchQuery, searchLimit, userProfile, !!imageAnalysisQuery)
     }
 
     // Generate more conversational suggestions
@@ -360,7 +423,7 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
       if (msgLower.includes("trend") || responseLower.includes("trend")) {
         return [
           "What trends should I avoid?",
-          "How do I make trends work for my age?",
+          "How do I make trends work for my age?", 
           "Show me some trending pieces",
           "What's coming next season?",
         ]
@@ -412,13 +475,27 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
   } catch (error: any) {
     console.error("[Chat] Error:", error)
 
+    // Check if it's a quota exceeded error
+    if (error.message?.includes("quota") || error.message?.includes("RESOURCE_EXHAUSTED")) {
+      return NextResponse.json({
+        message: "I've reached my daily chat limit! ✨ Please try again tomorrow, or in the meantime, feel free to browse our fashion collections and save items you like!",
+        products: [],
+        suggestions: [
+          "Browse trending fashion items",
+          "Check out our style collections", 
+          "Save items for later discussion",
+          "Return tomorrow for more chat!"
+        ],
+      })
+    }
+
     return NextResponse.json({
       message:
         "Oh no, I'm having a little technical hiccup! But I'm still here and excited to chat about fashion with you. What's on your style mind today? I love talking about everything from everyday outfits to special occasion looks!",
       products: [],
       suggestions: [
         "What's your biggest style challenge?",
-        "Tell me about your personal style",
+        "Tell me about your personal style", 
         "What's in your dream closet?",
         "How can I help you feel more confident?",
       ],

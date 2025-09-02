@@ -6,8 +6,10 @@ import { motion } from "framer-motion"
 import { Heart, Share2, Sparkles, MessageCircle, X } from "lucide-react"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import AnalyzeWithAIButton from "./AnalyzeWithAIButton"
 import AIAnalysis from "./AIAnalysis"
+import { useFiles } from "@/lib/file-context"
 
 interface ProductDetailProps {
   product: Product
@@ -20,6 +22,8 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   const [showAiInsights, setShowAiInsights] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showAIAnalysis, setShowAIAnalysis] = useState(false)
+  const router = useRouter()
+  const { addProductAsFile } = useFiles()
 
   const additionalImages = [
     product.image,
@@ -44,6 +48,36 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
   const handleAnalyzeWithAI = () => {
     setShowAIAnalysis(true)
+  }
+
+  const handleAskAIAboutItem = () => {
+    console.log('[ProductDetail] Ask AI about item clicked - adding product to files')
+    // Add product as file attachment first
+    addProductAsFile(product)
+    
+    // Close the product detail modal
+    onClose()
+    
+    // Small delay to ensure file context is updated, then navigate
+    setTimeout(() => {
+      console.log('[ProductDetail] Navigating to chat')
+      router.push('/chat')
+    }, 100)
+  }
+
+  const handleAskAIAnalysis = () => {
+    console.log('[ProductDetail] Ask AI analysis clicked - adding product to files')
+    // Add product as file attachment first
+    addProductAsFile(product)
+    
+    // Close the product detail modal
+    onClose()
+    
+    // Small delay to ensure file context is updated, then navigate
+    setTimeout(() => {
+      console.log('[ProductDetail] Navigating to chat with auto-message')
+      router.push('/chat?autoMessage=' + encodeURIComponent('Is this worth it? Please show me similar competitors and analyze this product for value and quality.'))
+    }, 100)
   }
 
   return (
@@ -95,6 +129,17 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                 <div className="absolute bottom-4 right-4">
                   <AnalyzeWithAIButton onClick={handleAnalyzeWithAI} variant="floating" size="md" />
                 </div>
+              </div>
+
+              {/* Ask AI about this item button - directly below image */}
+              <div className="mt-3 mb-2">
+                <button
+                  onClick={handleAskAIAboutItem}
+                  className="w-full flex items-center justify-center space-x-2 py-2.5 px-4 bg-zinc-900 border border-zinc-700 rounded-lg text-white hover:bg-zinc-800 transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
+                  <span className="text-sm font-medium">Ask AI about this item</span>
+                </button>
               </div>
 
               <div className="flex justify-center mt-2 space-x-2">
@@ -151,21 +196,21 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                     <Sparkles className="w-4 h-4 mr-1" strokeWidth={1.5} />
                     Flair AI Insights
                   </h3>
-                  <p className="text-sm text-zinc-300">
+                  <p className="text-sm text-zinc-300 mb-3">
                     This {product.category?.toLowerCase()} features a minimalist design with clean lines and a modern
                     silhouette. The neutral color palette makes it versatile for various styling options. Based on your
                     previous preferences, this would complement your existing wardrobe and pair well with items you've
                     saved.
                   </p>
-                  <div className="flex justify-between items-center mt-3">
-                    <Link
-                      href={`/chat?product=${product.id}`}
-                      className="flex items-center text-xs text-white hover:underline"
+                  <div className="space-y-2">
+                    <button
+                      onClick={handleAskAIAnalysis}
+                      className="w-full flex items-center justify-center space-x-2 py-2 px-3 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors"
                     >
-                      <MessageCircle className="w-3 h-3 mr-1" strokeWidth={1.5} />
-                      Ask AI about this item
-                    </Link>
-                    <AnalyzeWithAIButton onClick={handleAnalyzeWithAI} variant="secondary" size="sm" />
+                      <MessageCircle className="w-4 h-4" strokeWidth={1.5} />
+                      <span className="text-sm font-medium">Is this worth it? Show competitors</span>
+                    </button>
+                    <AnalyzeWithAIButton onClick={handleAnalyzeWithAI} variant="secondary" size="sm" className="w-full" />
                   </div>
                 </div>
               )}

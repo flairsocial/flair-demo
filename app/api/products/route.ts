@@ -1,25 +1,24 @@
 import { NextResponse } from "next/server"
 import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
+import { getProfile } from "@/lib/profile-storage"
 
-// Function to get user profile for budget filtering
+// Function to get user profile directly from shared storage
 async function getUserProfile(userId?: string) {
-  if (!userId) return null;
-  
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/api/profile`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userId}`,
-      },
-    });
-    if (response.ok) {
-      return await response.json();
+    const savedProfile = getProfile(userId || undefined)
+    
+    if (savedProfile && Object.keys(savedProfile).length > 0) {
+      console.log('[Products] Found user profile in storage:', userId || 'anonymous')
+      return savedProfile
     }
+    
+    console.log('[Products] No profile found in storage for:', userId || 'anonymous')
+    return null
   } catch (error) {
-    console.log('Could not fetch user profile for budget filtering');
+    console.error('[Products] Error accessing profile storage:', error)
+    return null
   }
-  return null;
 }
 
 // Parse budget ranges from user profile
@@ -50,65 +49,181 @@ function getBudgetRange(userProfile: any): { min: number, max: number } {
   return { min, max }
 }
 
-// Default search query for luxury men's business casual clothing
-const DEFAULT_SEARCH_QUERY = "luxury mens business casual clothing premium designer"
-
-// Expanded and diversified list of fashion queries
+// Expanded and diversified list of fashion queries for users without profiles
 const preconfiguredFashionQueries = [
-  // Luxury & Designer
-  "luxury blue silk dress",
-  "designer men's green suit",
+  // TOPS - Shirts, Blouses, Sweaters, T-shirts
+  "luxury silk blouse women",
+  "men's cotton dress shirt",
+  "cashmere turtleneck sweater",
+  "premium cotton t-shirt pack",
+  "designer cropped blazer",
+  "oversized hoodie streetwear",
+  "wool pullover sweater",
+  "linen button-up shirt",
+  "graphic tee vintage style",
+  "merino wool cardigan",
+
+  // BOTTOMS - Jeans, Pants, Trousers, Shorts
+  "Japanese selvedge denim jeans",
+  "tailored wool trousers men",
+  "high-waisted wide leg pants",
+  "luxury athleisure leggings",
+  "cargo pants streetwear",
+  "pleated midi skirt",
+  "chino pants casual",
+  "leather mini skirt",
+  "palazzo pants wide leg",
+  "denim shorts high waisted",
+
+  // SHOES - Sneakers, Boots, Dress Shoes, Sandals
+  "Italian leather Chelsea boots",
+  "minimalist white sneakers",
+  "luxury dress shoes men",
+  "comfortable walking sandals",
+  "high-top canvas sneakers",
+  "ankle boots women",
+  "running shoes premium",
+  "loafers leather casual",
+  "platform heels designer",
+  "hiking boots waterproof",
+
+  // OUTERWEAR - Jackets, Coats, Blazers
+  "wool pea coat classic",
+  "leather bomber jacket",
+  "trench coat luxury",
+  "puffer jacket designer",
+  "denim jacket vintage",
+  "blazer structured tailored",
+  "cardigan oversized cozy",
+  "windbreaker technical",
+  "fur coat faux luxury",
+  "varsity jacket vintage",
+
+  // ACCESSORIES - Bags, Watches, Jewelry, Belts
+  "leather tote bag designer",
+  "luxury watch men stainless steel",
+  "gold jewelry minimalist",
+  "silk scarf designer",
+  "leather belt luxury",
+  "sunglasses aviator classic",
+  "backpack leather premium",
+  "statement earrings gold",
+  "crossbody bag chain strap",
+  "pearl necklace classic",
+
+  // DRESSES - Formal, Casual, Party
+  "midi dress silk floral",
+  "cocktail dress black elegant",
+  "maxi dress bohemian",
+  "shirt dress casual cotton",
+  "evening gown formal",
+  "wrap dress jersey",
+  "slip dress satin",
+  "sweater dress knit",
+  "bodycon dress stretchy",
+  "sundress summer cotton",
+
+  // LUXURY & DESIGNER SPECIFIC
   "Chanel classic flap bag new season",
   "Gucci Horsebit loafers men",
   "Prada Re-Nylon bomber jacket",
   "Saint Laurent Le 5 à 7 hobo bag",
   "Dior B23 high-top sneakers",
-  "luxury cashmere turtleneck sweater",
   "Tom Ford sunglasses for women",
   "Valentino Garavani Rockstud pumps",
   "Fendi Baguette embroidered bag",
-  "Celine Triomphe canvas tote",
-  "Loewe Puzzle bag mini",
-  "Burberry classic trench coat women",
-  "Rolex Datejust watch",
-  "Cartier Juste un Clou bracelet",
   "Bottega Veneta Cassette bag",
   "Balenciaga Speed Trainer",
-  "Vivienne Westwood pearl necklace",
-  "Alexander McQueen oversized sneakers",
-  "Givenchy Antigona bag",
-  "Moncler Maya down jacket",
 
-  // Popular & Quality Contemporary Brands
+  // POPULAR CONTEMPORARY BRANDS
   "Nike Air Force 1 white",
   "Adidas Ultraboost running shoes",
-  "Zara oversized blazer women",
   "Lululemon Align leggings",
   "Patagonia Synchilla fleece jacket",
   "Dr. Martens 1460 boots",
-  "Converse Chuck Taylor All Star high top",
-  "Levi's 501 original fit jeans men",
+  "Converse Chuck Taylor All Star",
+  "Levi's 501 original fit jeans",
   "Uniqlo Supima cotton t-shirt",
-  "COS tailored wool trousers",
   "Everlane The Day Glove flats",
-  "Reformation floral print dress",
-  "Ganni seersucker check dress",
-  "New Balance 550 sneakers",
-  "Stone Island cargo pants",
-  "Arc'teryx Beta AR jacket",
-
-  // Specific Item Types with Quality/Luxury Hint
-  "men's luxury athletic pants",
-  "premium cotton t-shirt pack",
-  "Italian leather Chelsea boots",
-  "Japanese selvedge denim jeans",
-  "women's silk blouse office wear",
-  "technical fabric outdoor jacket",
-  "minimalist leather sneakers",
-  "organic cotton hoodie",
-  "merino wool base layer",
-  "sustainable fashion brands clothing",
+  "New Balance 550 sneakers"
 ]
+
+// Simple function to select search query with proper category filtering and profile integration
+function selectSearchQuery(searchQuery?: string, categoryParam?: string, userProfile?: any): string {
+  // Build profile context if available
+  const profileContext = userProfile ? 
+    `${userProfile.gender || ''} ${userProfile.style?.[0] || ''} ${userProfile.age ? (userProfile.age < 30 ? 'young' : userProfile.age < 50 ? 'contemporary' : 'classic') : ''}`.trim() : ''
+  
+  // If we have a search query (from image analysis, chat context, or user input)
+  if (searchQuery) {
+    const finalQuery = profileContext ? `${searchQuery} ${profileContext}` : searchQuery
+    console.log(`[Products] Using search query with profile: "${finalQuery}"`)
+    return finalQuery
+  }
+  
+  // If category is specified, use STRICT category filtering
+  if (categoryParam && categoryParam !== "All") {
+    const categoryLower = categoryParam.toLowerCase()
+    
+    // Filter queries that STRICTLY match the category
+    let categoryQueries: string[] = []
+    
+    if (categoryLower === "tops") {
+      categoryQueries = preconfiguredFashionQueries.filter(query => 
+        query.includes('blouse') || query.includes('shirt') || query.includes('sweater') || 
+        query.includes('t-shirt') || query.includes('blazer') || query.includes('hoodie') || 
+        query.includes('cardigan') || query.includes('pullover') || query.includes('turtleneck')
+      )
+    } else if (categoryLower === "bottoms") {
+      categoryQueries = preconfiguredFashionQueries.filter(query => 
+        query.includes('jeans') || query.includes('pants') || query.includes('trousers') || 
+        query.includes('shorts') || query.includes('skirt') || query.includes('leggings') || 
+        query.includes('chino') || query.includes('cargo') || query.includes('palazzo')
+      )
+    } else if (categoryLower === "shoes") {
+      categoryQueries = preconfiguredFashionQueries.filter(query => 
+        query.includes('boots') || query.includes('sneakers') || query.includes('shoes') || 
+        query.includes('loafers') || query.includes('sandals') || query.includes('heels') || 
+        query.includes('pumps') || query.includes('trainers') || query.includes('flats')
+      )
+    } else if (categoryLower === "accessories") {
+      categoryQueries = preconfiguredFashionQueries.filter(query => 
+        query.includes('bag') || query.includes('watch') || query.includes('jewelry') || 
+        query.includes('belt') || query.includes('sunglasses') || query.includes('scarf') || 
+        query.includes('necklace') || query.includes('earrings') || query.includes('bracelet')
+      )
+    } else if (categoryLower === "outerwear") {
+      categoryQueries = preconfiguredFashionQueries.filter(query => 
+        query.includes('coat') || query.includes('jacket') || query.includes('blazer') || 
+        query.includes('trench') || query.includes('puffer') || query.includes('bomber') || 
+        query.includes('cardigan') || query.includes('windbreaker') || query.includes('fleece')
+      )
+    } else if (categoryLower === "dresses") {
+      categoryQueries = preconfiguredFashionQueries.filter(query => 
+        query.includes('dress') || query.includes('gown') || query.includes('midi') || 
+        query.includes('maxi') || query.includes('cocktail') || query.includes('evening')
+      )
+    }
+    
+    // If no category-specific queries found, create one
+    if (categoryQueries.length === 0) {
+      const baseQuery = `${categoryLower} fashion`
+      return profileContext ? `${baseQuery} ${profileContext}` : baseQuery
+    }
+    
+    // Select random from category-specific queries and add profile context
+    const selectedQuery = getRandomElement(categoryQueries)
+    const finalQuery = profileContext ? `${selectedQuery} ${profileContext}` : selectedQuery
+    console.log(`[Products] Using category-specific query for ${categoryParam}: "${finalQuery}"`)
+    return finalQuery
+  }
+  
+  // For discover page - use random selection with profile context
+  const selectedQuery = getRandomElement(preconfiguredFashionQueries)
+  const finalQuery = profileContext ? `${selectedQuery} ${profileContext}` : selectedQuery
+  console.log(`[Products] Using random preconfigured query with profile: "${finalQuery}"`)
+  return finalQuery
+}
 
 // Helper function to parse price string (e.g., "$23.74") to number
 function parsePrice(priceString: string | null | undefined): number {
@@ -205,23 +320,25 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const userQuery = searchParams.get("query")
   const categoryParam = searchParams.get("category")
-  const limit = Number.parseInt(searchParams.get("limit") || "40")
+  const chatContext = searchParams.get("chatContext") // New parameter for chat context
+  const imageAnalysis = searchParams.get("imageAnalysis") // New parameter for image analysis results
+  const limit = Number.parseInt(searchParams.get("limit") || "100") // Default to 100 for discovery
 
-  let serperSearchQuery: string
-  const qualityKeywords = "best quality stylish popular"
+  // For discovery page, always fetch extensive results
+  const isDiscoveryPage = !userQuery && !chatContext && !imageAnalysis
+  const effectiveLimit = isDiscoveryPage ? Math.max(limit, 120) : limit
 
-  if (userQuery) {
-    serperSearchQuery = `${userQuery} ${qualityKeywords}`
-    if (categoryParam && categoryParam !== "All") {
-      serperSearchQuery = `${userQuery} ${categoryParam} ${qualityKeywords}`
-    }
-  } else if (categoryParam && categoryParam !== "All") {
-    serperSearchQuery = `${categoryParam} ${getRandomElement(knownBrands)} ${qualityKeywords}`
-  } else {
-    // Use default luxury men's business casual search instead of random
-    serperSearchQuery = DEFAULT_SEARCH_QUERY
-  }
-  console.log(`LOG: Using Serper query: "${serperSearchQuery}"`)
+  // Generate search query with proper category filtering and profile integration
+  // If we have image analysis from Gemini Vision, use that instead of chat context
+  const searchQuery = imageAnalysis || chatContext || userQuery
+  const serperSearchQuery = selectSearchQuery(searchQuery || undefined, categoryParam || undefined, userProfile)
+  
+  console.log(`LOG: Using search query: "${serperSearchQuery}"`)
+  console.log(`LOG: Image analysis used: ${imageAnalysis ? 'yes' : 'no'}`)
+  console.log(`LOG: Profile integrated: ${userProfile ? 'yes' : 'no'} - styles=${userProfile?.style?.length || 0}, gender=${userProfile?.gender || 'not set'}`)
+  console.log(`LOG: Category filter: ${categoryParam || 'none'}`)
+  console.log(`LOG: Discovery page: ${isDiscoveryPage ? 'yes' : 'no'}`)
+  console.log(`LOG: Fetching ${effectiveLimit} items`)
 
   const requestOptions = {
     method: "POST",
@@ -231,7 +348,7 @@ export async function GET(request: Request) {
     },
     body: JSON.stringify({
       q: serperSearchQuery,
-      num: limit,
+      num: effectiveLimit, // Use effective limit for extensive discovery results
       gl: "us",
       hl: "en",
     }),
@@ -252,9 +369,6 @@ export async function GET(request: Request) {
     const data = await response.json()
     const rawShoppingResults = data.shopping || []
     console.log(`LOG: Received ${rawShoppingResults.length} raw results from Serper.`)
-    if (rawShoppingResults.length > 0) {
-      console.log("LOG: First raw Serper result:", JSON.stringify(rawShoppingResults[0], null, 2))
-    }
 
     const categoriesForMocking = ["Tops", "Bottoms", "Dresses", "Shoes", "Accessories", "Outerwear"]
     const descriptionsForMocking = [
@@ -264,8 +378,8 @@ export async function GET(request: Request) {
       "Features a contemporary design and is made from quality materials.",
     ]
 
-    const minPrice = Math.max(75, budgetRange.min) // Use user budget minimum or $75, whichever is higher
-    const maxPrice = budgetRange.max
+    // Only apply restrictive filtering for targeted searches, not discovery
+    const isTargetedSearch = userQuery || chatContext || imageAnalysis
     let priceFilteredCount = 0
     let budgetFilteredCount = 0
     let imageFilteredCount = 0
@@ -274,25 +388,26 @@ export async function GET(request: Request) {
       .map((item: any, index: number) => {
         const price = parsePrice(item.price)
         
-        // Basic price filter (minimum $75 for quality)
-        if (price < 75 && !preconfiguredFashionQueries.some((q) => q.toLowerCase().includes("uniqlo"))) {
+        // For discovery page - NO price filtering, show everything
+        // For targeted searches - light filtering only
+        if (isTargetedSearch && price < 25) { // Much lower threshold for targeted searches
           priceFilteredCount++
           return null
         }
         
-        // STRICT budget filtering based on user preferences
-        if (userProfile?.budgetRange?.length > 0 && (price < budgetRange.min || price > budgetRange.max)) {
-          budgetFilteredCount++
-          console.log(`LOG: Filtered item "${item.title}" ($${price}) - outside budget range $${budgetRange.min}-${budgetRange.max === Infinity ? '∞' : budgetRange.max}`)
-          return null
+        // ONLY apply budget filtering if user has VERY specific budget preferences
+        if (isTargetedSearch && userProfile?.budgetRange?.length > 0 && userProfile.budgetRange.every((range: string) => range !== "No limit")) {
+          if (price < budgetRange.min || price > budgetRange.max) {
+            budgetFilteredCount++
+            return null
+          }
         }
 
         const imageUrl = item.imageUrl
-        // Slightly relaxed image filter for debugging
+        // Very relaxed image filter - only filter completely broken URLs
         if (
           !imageUrl ||
-          imageUrl.includes("gstatic.com/images?q=tbn:ANd9GcR") || // Still filter the most generic placeholder
-          !imageUrl.startsWith("https://")
+          !imageUrl.startsWith("http")
         ) {
           imageFilteredCount++
           return null
@@ -325,16 +440,17 @@ export async function GET(request: Request) {
           saved: false,
         }
       })
-      .filter((product: Product | null): product is Product => product !== null && product.price > 0 && product.image !== null)
+      .filter((product: Product | null): product is Product => product !== null && product.image !== null)
 
-    console.log(`LOG: Items filtered out by basic price (< $75): ${priceFilteredCount}`)
-    console.log(`LOG: Items filtered out by user budget range: ${budgetFilteredCount}`)
+    console.log(`LOG: Items filtered out by price (targeted search only, min $25): ${priceFilteredCount}`)
+    console.log(`LOG: Items filtered out by user budget range (targeted search only): ${budgetFilteredCount}`)
     console.log(`LOG: Items filtered out by image URL: ${imageFilteredCount}`)
-    console.log(`LOG: Final product count after all filtering: ${products.length}`)
+    console.log(`LOG: Final product count after filtering: ${products.length}`)
+    console.log(`LOG: Search type: ${isTargetedSearch ? 'Targeted (with filtering)' : 'Discovery (no filtering)'}`)
 
     if (products.length === 0 && rawShoppingResults.length > 0) {
       console.warn(
-        `WARN: All ${rawShoppingResults.length} Serper results were filtered out. Check price/image filters and Serper response details. Query: "${serperSearchQuery}". Budget range: $${budgetRange.min}-${budgetRange.max === Infinity ? '∞' : budgetRange.max}`,
+        `WARN: All ${rawShoppingResults.length} Serper results were filtered out. Query: "${serperSearchQuery}". Search type: ${isTargetedSearch ? 'Targeted' : 'Discovery'}`,
       )
     } else if (rawShoppingResults.length === 0) {
       console.warn(`WARN: No shopping results from Serper for query: "${serperSearchQuery}"`)

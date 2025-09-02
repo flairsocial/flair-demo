@@ -62,43 +62,93 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile>(defaultProfile)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [hasInitialized, setHasInitialized] = useState(false)
 
-  // Load profile when user status changes
+  // Load profile only once when user status is available and we haven't initialized yet
   useEffect(() => {
-    if (userLoaded) {
+    if (userLoaded && !hasInitialized) {
+      console.log('[ProfileContext] Initializing profile for first time')
       loadUserProfile()
+      setHasInitialized(true)
     }
-  }, [userLoaded, isSignedIn])
+  }, [userLoaded, hasInitialized])
+
+  // Also load from localStorage immediately on mount (for faster UX)
+  useEffect(() => {
+    if (!hasInitialized) {
+      const savedProfile = localStorage.getItem("flairUserProfile")
+      if (savedProfile) {
+        try {
+          const parsedProfile = JSON.parse(savedProfile)
+          console.log('[ProfileContext] Loading profile from localStorage')
+          setProfile({ ...defaultProfile, ...parsedProfile })
+          setIsLoaded(true)
+        } catch (error) {
+          console.error("Error parsing saved profile:", error)
+        }
+      }
+    }
+  }, [hasInitialized])
 
   const loadUserProfile = async () => {
+    if (isLoading) {
+      console.log('[ProfileContext] Already loading, skipping...')
+      return // Prevent concurrent loads
+    }
+    
     setIsLoading(true)
+    console.log('[ProfileContext] Loading user profile...')
+    
     try {
-      if (isSignedIn) {
+      if (isSignedIn && userLoaded) {
+        console.log('[ProfileContext] User is signed in, attempting API load')
         // Try to load from API when authenticated
-        const response = await fetch("/api/profile")
+        const response = await fetch("/api/profile", {
+          headers: {
+            'Cache-Control': 'no-cache'
+          }
+        })
         if (response.ok) {
           const profileData = await response.json()
           if (profileData && Object.keys(profileData).length > 0) {
+            console.log('[ProfileContext] Successfully loaded profile from API')
             setProfile({ ...defaultProfile, ...profileData })
+            // Also save to localStorage for faster future loads
+            localStorage.setItem("flairUserProfile", JSON.stringify(profileData))
             setIsLoaded(true)
             setIsLoading(false)
             return
           }
+        } else {
+          console.log('[ProfileContext] API load failed, status:', response.status)
         }
       }
       
-      // Fallback to localStorage
+      // Fallback to localStorage (for signed out users or API failures)
+      const savedProfile = localStorage.getItem("flairUserProfile")
+      if (savedProfile) {
+        try {
+          const parsedProfile = JSON.parse(savedProfile)
+          console.log('[ProfileContext] Loaded profile from localStorage fallback')
+          setProfile({ ...defaultProfile, ...parsedProfile })
+        } catch (error) {
+          console.error("Error parsing saved profile:", error)
+        }
+      } else {
+        console.log('[ProfileContext] No saved profile found, using defaults')
+      }
+    } catch (error) {
+      console.error("Error loading user profile:", error)
+      // Try localStorage as last resort
       const savedProfile = localStorage.getItem("flairUserProfile")
       if (savedProfile) {
         try {
           const parsedProfile = JSON.parse(savedProfile)
           setProfile({ ...defaultProfile, ...parsedProfile })
-        } catch (error) {
-          console.error("Error parsing saved profile:", error)
+        } catch (e) {
+          console.error("Error parsing fallback profile:", e)
         }
       }
-    } catch (error) {
-      console.error("Error loading user profile:", error)
     } finally {
       setIsLoaded(true)
       setIsLoading(false)
@@ -106,13 +156,29 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateProfile = (newProfile: Partial<UserProfile>) => {
-    setProfile(prev => ({ ...prev, ...newProfile }))
+    const updatedProfile = { ...profile, ...newProfile }
+    setProfile(updatedProfile)
+    
+    // Immediately save to localStorage to prevent data loss on navigation
+    try {
+      localStorage.setItem("flairUserProfile", JSON.stringify(updatedProfile))
+      console.log('[ProfileContext] Profile updated and saved to localStorage')
+    } catch (error) {
+      console.error("Error saving updated profile to localStorage:", error)
+    }
   }
 
   const saveProfile = async (): Promise<void> => {
     setIsLoading(true)
+    console.log('[ProfileContext] Saving profile...')
+    
     try {
-      if (isSignedIn) {
+      // Always save to localStorage first (immediate persistence)
+      localStorage.setItem("flairUserProfile", JSON.stringify(profile))
+      console.log('[ProfileContext] Profile saved to localStorage')
+      
+      if (isSignedIn && userLoaded) {
+        console.log('[ProfileContext] Attempting to save to API...')
         // Save via API when authenticated
         const response = await fetch("/api/profile", {
           method: "POST",
@@ -122,18 +188,25 @@ export function ProfileProvider({ children }: { children: React.ReactNode }) {
           body: JSON.stringify(profile),
         })
 
-        if (!response.ok) {
-          throw new Error("API save failed")
+        if (response.ok) {
+          console.log('[ProfileContext] Profile successfully saved to API')
+        } else {
+          console.log('[ProfileContext] API save failed, but localStorage save succeeded')
+          // Don't throw error since localStorage save succeeded
         }
       } else {
-        // Fallback to localStorage
-        localStorage.setItem("flairUserProfile", JSON.stringify(profile))
+        console.log('[ProfileContext] User not signed in, localStorage save only')
       }
     } catch (error) {
-      console.error("Error saving profile:", error)
-      // Always save to localStorage as backup
-      localStorage.setItem("flairUserProfile", JSON.stringify(profile))
-      throw error
+      console.error("Error saving profile to API:", error)
+      // Ensure localStorage backup even if API fails
+      try {
+        localStorage.setItem("flairUserProfile", JSON.stringify(profile))
+        console.log('[ProfileContext] Fallback save to localStorage succeeded')
+      } catch (storageError) {
+        console.error("Error saving to localStorage backup:", storageError)
+        throw storageError
+      }
     } finally {
       setIsLoading(false)
     }

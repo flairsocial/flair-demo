@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { X, Sparkles, ArrowLeft, BarChart3, Leaf, DollarSign, Shirt } from "lucide-react"
+import { X, Sparkles, ArrowLeft, BarChart3, Leaf, DollarSign, Shirt, MessageCircle } from "lucide-react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useFiles } from "@/lib/file-context"
 import type { Product } from "@/lib/types"
 
 interface AIAnalysisProps {
@@ -15,6 +17,8 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
   const [activeTab, setActiveTab] = useState("style")
   const [loading, setLoading] = useState(true)
   const [analysisData, setAnalysisData] = useState<any>(null)
+  const router = useRouter()
+  const { addProductAsFile } = useFiles()
 
   // Mock data generation for the demo
   useEffect(() => {
@@ -93,6 +97,21 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
     { id: "sustainability", label: "Sustainability", icon: Leaf },
     { id: "value", label: "Value", icon: DollarSign },
   ]
+
+  const handleAskAIComparison = () => {
+    console.log('[AIAnalysis] Ask AI comparison clicked - adding product to files')
+    // Add product as file attachment first
+    addProductAsFile(product)
+    
+    // Close the modal
+    onClose()
+    
+    // Small delay to ensure file context is updated, then navigate
+    setTimeout(() => {
+      console.log('[AIAnalysis] Navigating to chat with competitor analysis auto-message')
+      router.push('/chat?autoMessage=' + encodeURIComponent('Is this worth it? Please show me similar competitors and analyze this product for value and quality compared to alternatives.'))
+    }, 100)
+  }
 
   return (
     <motion.div
@@ -512,7 +531,7 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
                   <Sparkles className="w-5 h-5 text-blue-400 mr-2" strokeWidth={1.5} />
                   <h3 className="text-md font-medium text-blue-300">AI Recommendations</h3>
                 </div>
-                <ul className="space-y-2">
+                <ul className="space-y-2 mb-4">
                   {analysisData.recommendations.map((rec: string, index: number) => (
                     <li key={index} className="flex items-start">
                       <span className="text-blue-400 mr-2">•</span>
@@ -520,6 +539,15 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
                     </li>
                   ))}
                 </ul>
+                
+                {/* Ask AI Comparison Button */}
+                <button
+                  onClick={handleAskAIComparison}
+                  className="w-full flex items-center justify-center space-x-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg text-white transition-colors font-medium"
+                >
+                  <MessageCircle className="w-5 h-5" strokeWidth={1.5} />
+                  <span>Ask AI: Is this worth it? Show competitors</span>
+                </button>
               </div>
             </>
           )}
