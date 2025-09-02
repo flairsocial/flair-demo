@@ -1,6 +1,19 @@
 // Shared profile storage for all APIs
-// In production, this would be replaced with a database
+// Uses file-based storage to persist data across server restarts
+import fs from 'fs'
+import path from 'path'
 import type { Product } from './types'
+
+const DATA_DIR = path.join(process.cwd(), 'data')
+const SAVED_ITEMS_FILE = path.join(DATA_DIR, 'saved-items.json')
+const COLLECTIONS_FILE = path.join(DATA_DIR, 'collections.json')
+const CHAT_HISTORY_FILE = path.join(DATA_DIR, 'chat-history.json')
+const PROFILES_FILE = path.join(DATA_DIR, 'profiles.json')
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true })
+}
 
 export interface Collection {
   id: string
@@ -8,6 +21,11 @@ export interface Collection {
   color: string
   createdAt: string
   itemIds: string[]
+}
+
+export interface SavedItemWithMetadata extends Product {
+  savedAt: string
+  userId: string
 }
 
 export interface ChatMessage {
@@ -27,36 +45,93 @@ export interface ChatHistory {
   updatedAt: string
 }
 
-export const profileStorage = new Map<string, any>()
-export const savedItemsStorage = new Map<string, Product[]>()
-export const collectionsStorage = new Map<string, Collection[]>()
-export const chatHistoryStorage = new Map<string, ChatHistory[]>()
+// Helper functions for file operations
+function readJSONFile<T>(filePath: string, defaultValue: T): T {
+  try {
+    if (fs.existsSync(filePath)) {
+      const data = fs.readFileSync(filePath, 'utf8')
+      return JSON.parse(data)
+    }
+  } catch (error) {
+    console.error(`Error reading ${filePath}:`, error)
+  }
+  return defaultValue
+}
+
+function writeJSONFile<T>(filePath: string, data: T): void {
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8')
+  } catch (error) {
+    console.error(`Error writing ${filePath}:`, error)
+  }
+}
+
+// Storage objects
+interface SavedItemsStorage {
+  [userId: string]: SavedItemWithMetadata[]
+}
+
+interface CollectionsStorage {
+  [userId: string]: Collection[]
+}
+
+interface ChatHistoryStorage {
+  [userId: string]: ChatHistory[]
+}
+
+interface ProfilesStorage {
+  [userId: string]: any
+}
 
 export function getProfile(userId?: string) {
   const profileKey = userId || 'anonymous'
-  return profileStorage.get(profileKey) || null
+  const profiles = readJSONFile<ProfilesStorage>(PROFILES_FILE, {})
+  return profiles[profileKey] || null
 }
 
 export function setProfile(profile: any, userId?: string) {
   const profileKey = userId || 'anonymous'
-  profileStorage.set(profileKey, profile)
+  const profiles = readJSONFile<ProfilesStorage>(PROFILES_FILE, {})
+  profiles[profileKey] = profile
+  writeJSONFile(PROFILES_FILE, profiles)
   console.log(`[ProfileStorage] Saved profile for key: ${profileKey}`)
 }
 
 export function hasProfile(userId?: string): boolean {
   const profileKey = userId || 'anonymous'
-  const profile = profileStorage.get(profileKey)
+  const profile = getProfile(userId)
   return profile && Object.keys(profile).length > 0
 }
 
 export function getSavedItems(userId?: string): Product[] {
   const profileKey = userId || 'anonymous'
-  return savedItemsStorage.get(profileKey) || []
+  const savedItems = readJSONFile<SavedItemsStorage>(SAVED_ITEMS_FILE, {})
+  const userItems = savedItems[profileKey] || []
+  // Convert SavedItemWithMetadata back to Product for compatibility
+  return userItems.map(item => ({
+    id: item.id,
+    title: item.title,
+    price: item.price,
+    brand: item.brand,
+    category: item.category,
+    image: item.image,
+    link: item.link,
+    description: item.description,
+    hasAiInsights: item.hasAiInsights,
+    saved: true
+  }))
 }
 
 export function setSavedItems(items: Product[], userId?: string): void {
   const profileKey = userId || 'anonymous'
-  savedItemsStorage.set(profileKey, items)
+  const savedItems = readJSONFile<SavedItemsStorage>(SAVED_ITEMS_FILE, {})
+  // Convert Product to SavedItemWithMetadata
+  savedItems[profileKey] = items.map(item => ({
+    ...item,
+    savedAt: new Date().toISOString(),
+    userId: profileKey
+  }))
+  writeJSONFile(SAVED_ITEMS_FILE, savedItems)
   console.log(`[ProfileStorage] Saved ${items.length} items for key: ${profileKey}`)
 }
 
@@ -75,12 +150,21 @@ export function removeSavedItem(itemId: string, userId?: string): void {
   const currentItems = getSavedItems(userId)
   const filteredItems = currentItems.filter(item => item.id !== itemId)
   setSavedItems(filteredItems, userId)
+  
+  // Also remove from all collections
+  const collections = getCollections(userId)
+  const updatedCollections = collections.map(col => ({
+    ...col,
+    itemIds: col.itemIds.filter(id => id !== itemId)
+  }))
+  setCollections(updatedCollections, userId)
 }
 
 // Collections functions
 export function getCollections(userId?: string): Collection[] {
   const profileKey = userId || 'anonymous'
-  const existingCollections = collectionsStorage.get(profileKey)
+  const collectionsData = readJSONFile<CollectionsStorage>(COLLECTIONS_FILE, {})
+  const existingCollections = collectionsData[profileKey]
   
   // If no collections exist, create default ones
   if (!existingCollections || existingCollections.length === 0) {
@@ -130,7 +214,9 @@ export function getCollections(userId?: string): Collection[] {
 
 export function setCollections(collections: Collection[], userId?: string): void {
   const profileKey = userId || 'anonymous'
-  collectionsStorage.set(profileKey, collections)
+  const collectionsData = readJSONFile<CollectionsStorage>(COLLECTIONS_FILE, {})
+  collectionsData[profileKey] = collections
+  writeJSONFile(COLLECTIONS_FILE, collectionsData)
   console.log(`[ProfileStorage] Saved ${collections.length} collections for key: ${profileKey}`)
 }
 
@@ -171,15 +257,26 @@ export function removeItemFromCollection(itemId: string, collectionId: string, u
   setCollections(updatedCollections, userId)
 }
 
+export function getItemsInCollection(collectionId: string, userId?: string): Product[] {
+  const collection = getCollections(userId).find(col => col.id === collectionId)
+  if (!collection) return []
+  
+  const savedItems = getSavedItems(userId)
+  return savedItems.filter(item => collection.itemIds.includes(item.id))
+}
+
 // Chat history functions
 export function getChatHistory(userId?: string): ChatHistory[] {
   const profileKey = userId || 'anonymous'
-  return chatHistoryStorage.get(profileKey) || []
+  const chatHistoryData = readJSONFile<ChatHistoryStorage>(CHAT_HISTORY_FILE, {})
+  return chatHistoryData[profileKey] || []
 }
 
 export function setChatHistory(chatHistory: ChatHistory[], userId?: string): void {
   const profileKey = userId || 'anonymous'
-  chatHistoryStorage.set(profileKey, chatHistory)
+  const chatHistoryData = readJSONFile<ChatHistoryStorage>(CHAT_HISTORY_FILE, {})
+  chatHistoryData[profileKey] = chatHistory
+  writeJSONFile(CHAT_HISTORY_FILE, chatHistoryData)
   console.log(`[ProfileStorage] Saved ${chatHistory.length} chat histories for key: ${profileKey}`)
 }
 

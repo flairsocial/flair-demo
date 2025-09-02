@@ -13,7 +13,6 @@ import {
   SlidersHorizontal,
   X,
   LogOut,
-  User,
   Lock,
   Bell,
   Moon,
@@ -54,16 +53,9 @@ export default function ProfilePage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
+  const [collections, setCollections] = useState<Array<{id: string; name: string; color: string; itemIds: string[]}>>([])
+  const [selectedCollection, setSelectedCollection] = useState<{id: string; name: string; color: string; items: Product[]} | null>(null)
   const isMobile = useMobile()
-
-  // Mock collections for organization
-  const collections = [
-    { id: "col-1", name: "Summer Essentials", color: "bg-amber-500" },
-    { id: "col-2", name: "Work Outfits", color: "bg-blue-500" },
-    { id: "col-3", name: "Casual Weekend", color: "bg-green-500" },
-    { id: "col-4", name: "Evening Wear", color: "bg-purple-500" },
-    { id: "col-5", name: "Wishlist", color: "bg-pink-500" },
-  ]
 
   // Mock purchases data
   const purchases = [
@@ -281,13 +273,49 @@ export default function ProfilePage() {
     // Scroll to top when component mounts
     window.scrollTo(0, 0)
 
-    // Simulate loading saved items
-    setLoading(true)
-    setTimeout(() => {
-      setSavedItems(mockSavedItems)
-      setLoading(false)
-    }, 800)
+    // Load actual saved items and collections from API
+    loadSavedItems()
+    loadCollections()
   }, [])
+
+  const loadSavedItems = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/saved')
+      if (response.ok) {
+        const items = await response.json()
+        // Convert Product[] to SavedItem[] by adding savedAt property
+        const savedItemsWithDate = items.map((item: Product) => ({
+          ...item,
+          savedAt: new Date().toISOString(), // In a real app, this would come from the backend
+          collectionIds: [] // This would also come from the backend
+        }))
+        setSavedItems(savedItemsWithDate)
+      } else {
+        console.error('Failed to load saved items')
+        setSavedItems([]) // Set empty array on error
+      }
+    } catch (error) {
+      console.error('Error loading saved items:', error)
+      setSavedItems([]) // Set empty array on error
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadCollections = async () => {
+    try {
+      const response = await fetch('/api/collections')
+      if (response.ok) {
+        const collectionsData = await response.json()
+        setCollections(collectionsData)
+      } else {
+        console.error('Failed to load collections')
+      }
+    } catch (error) {
+      console.error('Error loading collections:', error)
+    }
+  }
 
   // Add this useEffect to handle mobile viewport height issues
   useEffect(() => {
@@ -317,7 +345,6 @@ export default function ProfilePage() {
     { id: "saved", label: "Saved", icon: Heart },
     { id: "purchases", label: "Purchases", icon: Package },
     { id: "collections", label: "Collections", icon: Grid },
-    { id: "personal", label: "Personal", icon: User },
   ]
 
   // Filter saved items based on category and search query
@@ -396,10 +423,32 @@ export default function ProfilePage() {
   }
 
   // Handle bulk delete
-  const handleBulkDelete = () => {
-    setSavedItems(savedItems.filter((item) => !selectedItems.includes(item.id)))
-    setSelectedItems([])
-    setShowBulkActions(false)
+  const handleBulkDelete = async () => {
+    try {
+      // Remove items from saved list via API
+      for (const itemId of selectedItems) {
+        const item = savedItems.find(item => item.id === itemId)
+        if (item) {
+          await fetch('/api/saved', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              action: 'remove',
+              item: item
+            })
+          })
+        }
+      }
+      
+      // Update local state
+      setSavedItems(savedItems.filter((item) => !selectedItems.includes(item.id)))
+      setSelectedItems([])
+      setShowBulkActions(false)
+    } catch (error) {
+      console.error('Error deleting items:', error)
+    }
   }
 
   // Format date for display
@@ -418,6 +467,31 @@ export default function ProfilePage() {
   const getCollectionName = (collectionId: string) => {
     const collection = collections.find((c) => c.id === collectionId)
     return collection ? collection.name : ""
+  }
+
+  // Handle clicking on a collection to view its contents
+  const handleCollectionClick = async (collection: {id: string; name: string; color: string; itemIds: string[]}) => {
+    try {
+      const response = await fetch(`/api/collections/${collection.id}`)
+      if (response.ok) {
+        const items = await response.json()
+        setSelectedCollection({
+          id: collection.id,
+          name: collection.name,
+          color: collection.color,
+          items: items
+        })
+      } else {
+        console.error('Failed to load collection items')
+      }
+    } catch (error) {
+      console.error('Error loading collection items:', error)
+    }
+  }
+
+  // Close collection view
+  const handleCloseCollection = () => {
+    setSelectedCollection(null)
   }
 
   return (
@@ -896,6 +970,7 @@ export default function ProfilePage() {
                   <div
                     key={collection.id}
                     className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer touch-manipulation"
+                    onClick={() => handleCollectionClick(collection)}
                   >
                     <div className="p-3 sm:p-4 border-b border-zinc-800">
                       <div className="flex items-center justify-between mb-2">
@@ -904,7 +979,7 @@ export default function ProfilePage() {
                           <h4 className="text-sm sm:text-base font-medium">{collection.name}</h4>
                         </div>
                         <span className="text-[10px] sm:text-xs text-zinc-400 bg-zinc-800 px-1.5 sm:px-2 py-0.5 rounded-full">
-                          {savedItems.filter((item) => item.collectionIds?.includes(collection.id)).length} items
+                          {collection.itemIds.length} items
                         </span>
                       </div>
                     </div>
@@ -923,17 +998,29 @@ export default function ProfilePage() {
                             />
                           </div>
                         ))}
+                      {/* Show placeholder if less than 3 items */}
+                      {Array.from({ length: 3 - Math.min(3, savedItems.filter((item) => item.collectionIds?.includes(collection.id)).length) }).map((_, index) => (
+                        <div key={`placeholder-${index}`} className="aspect-square bg-zinc-800 flex items-center justify-center">
+                          <div className="w-6 h-6 border-2 border-dashed border-zinc-600 rounded"></div>
+                        </div>
+                      ))}
                     </div>
 
                     <div className="p-2 sm:p-3 flex justify-between items-center">
-                      <button className="text-[10px] sm:text-xs text-zinc-400 hover:text-white transition-colors touch-manipulation">
-                        View All
-                      </button>
+                      <span className="text-[10px] sm:text-xs text-zinc-400">
+                        Click to view all items
+                      </span>
                       <div className="flex space-x-2">
-                        <button className="p-1 sm:p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation">
+                        <button 
+                          className="p-1 sm:p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Heart className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-zinc-400" />
                         </button>
-                        <button className="p-1 sm:p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation">
+                        <button 
+                          className="p-1 sm:p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-zinc-400" />
                         </button>
                       </div>
@@ -952,83 +1039,69 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
+        </div>
+      )}
 
-          {activeTab === "personal" && (
-            <div className="p-4">
-              <div className="mb-4">
-                <h3 className="text-lg font-medium mb-2">Personal Settings</h3>
-                <p className="text-xs sm:text-sm text-zinc-400">Customize your style profile and preferences</p>
+      {selectedCollection && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-zinc-900 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+              <div className="flex items-center">
+                <div className={`w-4 h-4 rounded-full ${selectedCollection.color} mr-3`}></div>
+                <h3 className="text-lg font-medium">{selectedCollection.name}</h3>
+                <span className="ml-2 text-sm text-zinc-400">({selectedCollection.items.length} items)</span>
               </div>
-
-              <div className="max-w-2xl">
-                <Link
-                  href="/settings"
-                  className="block bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-zinc-700 rounded-xl p-4 transition-colors touch-manipulation"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center mr-3">
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-medium">Style Profile</h4>
-                        <p className="text-xs text-zinc-400">Age, body type, style preferences, and more</p>
-                      </div>
-                    </div>
-                    <div className="text-zinc-400">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                </Link>
-
-                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
-                    <div className="flex items-center mb-2">
-                      <Sparkles className="w-4 h-4 text-indigo-400 mr-2" />
-                      <h4 className="text-sm font-medium">AI Personalization</h4>
-                    </div>
-                    <p className="text-xs text-zinc-400 mb-3">
-                      Complete your style profile to get more personalized recommendations from our AI stylist.
-                    </p>
-                    <Link
-                      href="/settings"
-                      className="text-xs text-indigo-400 hover:text-indigo-300 underline"
-                    >
-                      Update Profile →
-                    </Link>
-                  </div>
-
-                  <div className="bg-zinc-900/50 border border-zinc-800/50 rounded-xl p-4">
-                    <div className="flex items-center mb-2">
-                      <Heart className="w-4 h-4 text-pink-400 mr-2" />
-                      <h4 className="text-sm font-medium">Style Goals</h4>
-                    </div>
-                    <p className="text-xs text-zinc-400 mb-3">
-                      Set your fashion goals to help our AI understand what you're looking to achieve.
-                    </p>
-                    <Link
-                      href="/settings"
-                      className="text-xs text-pink-400 hover:text-pink-300 underline"
-                    >
-                      Set Goals →
-                    </Link>
-                  </div>
-                </div>
-
-                <div className="mt-4 bg-zinc-900/30 border border-zinc-800/30 rounded-xl p-4">
-                  <div className="flex items-center mb-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                    <h4 className="text-sm font-medium text-green-400">Profile Status</h4>
-                  </div>
-                  <p className="text-xs text-zinc-400">
-                    Your style profile helps personalize product searches and AI recommendations across the entire app.
-                  </p>
-                </div>
-              </div>
+              <button
+                onClick={handleCloseCollection}
+                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-          )}
+            <div className="overflow-y-auto max-h-[60vh]">
+              {selectedCollection.items.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Grid className="w-8 h-8 text-zinc-600" />
+                  </div>
+                  <h4 className="text-lg font-medium mb-2">Collection is empty</h4>
+                  <p className="text-zinc-400">Add some items to this collection to see them here</p>
+                </div>
+              ) : (
+                <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {selectedCollection.items.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-zinc-800 rounded-lg overflow-hidden cursor-pointer hover:bg-zinc-750 transition-colors"
+                      onClick={() => {
+                        setSelectedProduct(item)
+                        handleCloseCollection()
+                      }}
+                    >
+                      <div className="aspect-[3/4] relative">
+                        <Image
+                          src={item.image || "/placeholder.svg"}
+                          alt={item.title}
+                          fill
+                          className="object-cover"
+                        />
+                        {item.hasAiInsights && (
+                          <div className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full p-1.5 shadow-md">
+                            <Sparkles className="w-3 h-3 text-white" strokeWidth={2} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h4 className="text-sm font-medium truncate">{item.title}</h4>
+                        <p className="text-xs text-zinc-400 truncate">{item.brand}</p>
+                        <p className="text-sm font-medium mt-1">${item.price}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

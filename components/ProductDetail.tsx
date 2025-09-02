@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { Heart, Share2, Sparkles, MessageCircle, X } from "lucide-react"
+import { Heart, Share2, Sparkles, MessageCircle, X, Plus } from "lucide-react"
 import type { Product } from "@/lib/types"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import AnalyzeWithAIButton from "./AnalyzeWithAIButton"
 import AIAnalysis from "./AIAnalysis"
+import CollectionModal from "./CollectionModal"
 import { useFiles } from "@/lib/file-context"
 
 interface ProductDetailProps {
@@ -22,6 +23,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   const [showAiInsights, setShowAiInsights] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
   const [showAIAnalysis, setShowAIAnalysis] = useState(false)
+  const [showCollectionModal, setShowCollectionModal] = useState(false)
   const router = useRouter()
   const { addProductAsFile } = useFiles()
 
@@ -33,13 +35,64 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
   useEffect(() => {
     document.body.style.overflow = "hidden"
+    
+    // Check if product is already saved/liked
+    checkIfSaved()
+    
     return () => {
       document.body.style.overflow = "auto"
     }
   }, [])
 
-  const handleLike = () => {
-    setLiked(!liked)
+  const checkIfSaved = async () => {
+    try {
+      const response = await fetch('/api/saved')
+      if (response.ok) {
+        const savedItems = await response.json()
+        const isProductSaved = savedItems.some((item: Product) => item.id === product.id)
+        setLiked(isProductSaved)
+      }
+    } catch (error) {
+      console.error('Error checking saved status:', error)
+    }
+  }
+
+  const handleLike = async () => {
+    try {
+      const action = liked ? 'remove' : 'add'
+      const response = await fetch('/api/saved', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action,
+          item: product
+        })
+      })
+
+      if (response.ok) {
+        setLiked(!liked)
+        console.log(`Product ${action}ed successfully`)
+      } else {
+        console.error('Failed to update saved status')
+      }
+    } catch (error) {
+      console.error('Error updating saved status:', error)
+    }
+  }
+
+  const handleAddToCollection = () => {
+    setShowCollectionModal(true)
+  }
+
+  const handleShare = () => {
+    if (product.link) {
+      // Open the product link in a new tab
+      window.open(product.link, '_blank', 'noopener,noreferrer')
+    } else {
+      console.log('No link available for this product')
+    }
   }
 
   const toggleAiInsights = () => {
@@ -107,11 +160,22 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                 <button
                   className="p-2 rounded-full bg-black/40 backdrop-blur-sm"
                   onClick={handleLike}
-                  aria-label={liked ? "Unlike" : "Like"}
+                  aria-label={liked ? "Remove from saved" : "Save item"}
                 >
                   <Heart className="w-5 h-5 text-white" fill={liked ? "white" : "none"} strokeWidth={1.5} />
                 </button>
-                <button className="p-2 rounded-full bg-black/40 backdrop-blur-sm" aria-label="Share">
+                <button
+                  className="p-2 rounded-full bg-black/40 backdrop-blur-sm"
+                  onClick={handleAddToCollection}
+                  aria-label="Add to collection"
+                >
+                  <Plus className="w-5 h-5 text-white" strokeWidth={1.5} />
+                </button>
+                <button 
+                  className="p-2 rounded-full bg-black/40 backdrop-blur-sm" 
+                  onClick={handleShare}
+                  aria-label="Share product"
+                >
                   <Share2 className="w-5 h-5 text-white" strokeWidth={1.5} />
                 </button>
               </div>
@@ -241,6 +305,12 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
       </motion.div>
 
       {showAIAnalysis && <AIAnalysis product={product} onClose={() => setShowAIAnalysis(false)} />}
+      
+      <CollectionModal
+        isOpen={showCollectionModal}
+        onClose={() => setShowCollectionModal(false)}
+        product={product}
+      />
     </>
   )
 }

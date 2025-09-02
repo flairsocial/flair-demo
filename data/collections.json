@@ -1,0 +1,41 @@
+{
+  "user_329KVwiv762JNKE2wiz6yRjlNbp": [
+    {
+      "id": "col-1",
+      "name": "Summer Essentials",
+      "color": "bg-amber-500",
+      "createdAt": "2025-09-02T23:32:11.523Z",
+      "itemIds": []
+    },
+    {
+      "id": "col-2",
+      "name": "Work Outfits",
+      "color": "bg-blue-500",
+      "createdAt": "2025-09-02T23:32:11.523Z",
+      "itemIds": []
+    },
+    {
+      "id": "col-3",
+      "name": "Casual Weekend",
+      "color": "bg-green-500",
+      "createdAt": "2025-09-02T23:32:11.523Z",
+      "itemIds": []
+    },
+    {
+      "id": "col-4",
+      "name": "Evening Wear",
+      "color": "bg-purple-500",
+      "createdAt": "2025-09-02T23:32:11.523Z",
+      "itemIds": []
+    },
+    {
+      "id": "col-5",
+      "name": "Wishlist",
+      "color": "bg-pink-500",
+      "createdAt": "2025-09-02T23:32:11.523Z",
+      "itemIds": [
+        "8507312949803895605"
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, ArrowLeft, Sparkles, Settings, Clock, Loader2, AlertTriangle, LinkIcon, X, Crown } from "lucide-react"
+import { Send, ArrowLeft, Sparkles, Settings, Clock, Loader2, AlertTriangle, X, Crown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import ChatMessage from "@/components/ChatMessage"
@@ -12,6 +12,7 @@ import FileUpload from "@/components/FileUpload"
 import AIToneToggle from "@/components/AIToneToggle"
 import { FileAttachmentList } from "@/components/FileAttachment"
 import PricingModal from "@/components/PricingModal"
+import ChatProductCard from "@/components/ChatProductCard"
 import { useFiles, type ChatFile } from "@/lib/file-context"
 import { useAITone } from "@/lib/ai-tone-context"
 import type { Message, Product } from "@/lib/types"
@@ -456,38 +457,10 @@ export default function ChatPage() {
                     </button>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-zinc-600 scrollbar-track-zinc-800">
                       {message.products.slice(0, productCount).map((product) => (
-                        <div
+                        <ChatProductCard
                           key={product.id}
-                          className="bg-zinc-800 p-2 rounded-lg hover:bg-zinc-700 transition-colors group cursor-pointer"
-                          onClick={() => {
-                            if (product.link) {
-                              window.open(product.link, '_blank', 'noopener,noreferrer')
-                            }
-                          }}
-                        >
-                          <div className="w-full aspect-square bg-zinc-700 rounded overflow-hidden relative mb-1.5">
-                            <Image
-                              src={product.image || "/placeholder.svg?width=96&height=80&query=fashion+item"}
-                              alt={product.title}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                          <p className="text-[10px] text-white font-medium line-clamp-2 group-hover:underline mb-1">
-                            {product.title}
-                          </p>
-                          <div className="flex flex-col">
-                            {product.price && product.price > 0 && (
-                              <p className="text-[10px] text-zinc-300">${product.price.toFixed(0)}</p>
-                            )}
-                            <div className="flex items-center justify-between mt-1">
-                              <LinkIcon className="w-2.5 h-2.5 text-zinc-500 group-hover:text-white" />
-                              <span className="text-[8px] text-zinc-500 group-hover:text-white">
-                                {product.link ? 'View' : 'No Link'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                          product={product}
+                        />
                       ))}
                     </div>
                   </div>
