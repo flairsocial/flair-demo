@@ -1,0 +1,62 @@
+{
+  "user_329KVwiv762JNKE2wiz6yRjlNbp": [
+    {
+      "id": "chat-1756918665960",
+      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T16:57:25.677Z"
+        },
+        {
+          "id": "user-1756918653666",
+          "content": "show this item's competittors",
+          "sender": "user",
+          "timestamp": "2025-09-03T16:57:33.666Z",
+          "attachedFiles": [
+            {
+              "id": "product-2092074222731586510",
+              "name": "Suitsupply Men's Striped Point Collar Shirt",
+              "type": "product",
+              "url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRdRlsCzArjc1VnGpJ3Hqo20XoH6WMJHEpUN3dHpy4D11PWBxgLlzL7JU6UyDgD2Yf46bMIrPl192Gal6HieUyvtnf3IVSk_ouHdIFh13A-VNmwvLjRwWyf",
+              "preview": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRdRlsCzArjc1VnGpJ3Hqo20XoH6WMJHEpUN3dHpy4D11PWBxgLlzL7JU6UyDgD2Yf46bMIrPl192Gal6HieUyvtnf3IVSk_ouHdIFh13A-VNmwvLjRwWyf",
+              "metadata": {
+                "title": "Suitsupply Men's Striped Point Collar Shirt",
+                "price": 139,
+                "brand": "Suitsupply",
+                "description": "A notable outerwear from Suitsupply. A stylish and high-quality piece, perfect for a modern wardrobe.",
+                "category": "Outerwear",
+                "link": "https://google.com/shopping/product/2092074222731586510?gl=us",
+                "productId": "2092074222731586510"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1756918656890",
+          "content": "That Suitsupply shirt is sharp!  For similar options within your usual budget, I'd suggest checking out Bonobos and J.Crew for comparable quality and styles.  They often have sales, so you might find a similar shirt for less.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T16:57:36.890Z",
+          "products": []
+        },
+        {
+          "id": "user-1756918664770",
+          "content": "list all of the competitros",
+          "sender": "user",
+          "timestamp": "2025-09-03T16:57:44.770Z"
+        },
+        {
+          "id": "ai-1756918665834",
+          "content": "I can't provide an exhaustive list of *every* competitor, but besides Bonobos and J.Crew, consider  Charles Tyrwhitt and Banana Republic for similar high-quality, classic men's shirts.  They offer a range of styles and price points.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T16:57:45.834Z",
+          "products": []
+        }
+      ],
+      "createdAt": "2025-09-03T16:57:45.960Z",
+      "updatedAt": "2025-09-03T16:58:15.582Z"
+    }
+  ]
+}

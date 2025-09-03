@@ -26,8 +26,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       description: "Limited access for everyday tasks",
       features: [
         "50-75% AI accuracy only",
-        "Slow response times",
-        "Limited credit usage",
+        "Limited 50 credit usage",
         "Limited product discovery",
         "Limited file uploads",
         "Limited search functionality"
@@ -52,7 +51,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         "Enhanced product analysis",
         "Custom AI recommendations"
       ],
-      buttonText: "Get Plus",
+      buttonText: "Get Free",
       buttonDisabled: false,
       icon: <Sparkles className="w-4 h-4" />,
       popular: true

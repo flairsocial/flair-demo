@@ -4,6 +4,7 @@ import { model } from "@/lib/ai-model"
 import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
 import { getProfile, getSavedItems } from "@/lib/profile-storage"
+import { searchForProducts } from "@/lib/products-service"
 
 const serperApiKey = process.env.SERPER_API_KEY
 
@@ -32,44 +33,6 @@ async function getUserSavedItems(userId?: string) {
     return Array.isArray(savedItems) ? savedItems.slice(0, 5) : [] // Limit to 5 most recent for context
   } catch (error) {
     console.log('Could not fetch saved items for context')
-    return []
-  }
-}
-
-async function searchForProducts(query: string, limit = 3, userProfile?: any, isImageAnalysis = false): Promise<Product[]> {
-  try {
-    console.log(`[Chat] Searching for products via products API: "${query}"`)
-    
-    // Use the products API which now has adaptive profile-based search
-    const baseUrl = process.env.NODE_ENV === 'production' ? 'https://your-domain.com' : 'http://localhost:3000'
-    const searchParams = new URLSearchParams({
-      limit: Math.min(limit, 20).toString()
-    })
-    
-    // If this is image analysis, pass it specifically, otherwise use chat context
-    if (isImageAnalysis) {
-      searchParams.append('imageAnalysis', query)
-    } else {
-      searchParams.append('chatContext', query)
-    }
-    
-    const response = await fetch(`${baseUrl}/api/products?${searchParams}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-
-    if (!response.ok) {
-      console.log("[Chat] Products API temporarily unavailable")
-      return []
-    }
-
-    const products = await response.json()
-    console.log(`[Chat] Found ${products.length} products via adaptive search`)
-    return products.slice(0, limit)
-  } catch (error) {
-    console.error("[Chat] Error calling products API:", error)
     return []
   }
 }
@@ -411,7 +374,7 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
       
       console.log(`[Chat] Final search query: "${searchQuery}"`)
       const searchLimit = hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit // Get more results for competitor analysis
-      products = await searchForProducts(searchQuery, searchLimit, userProfile, !!imageAnalysisQuery)
+      products = await searchForProducts(searchQuery, searchLimit, userId || undefined, !!imageAnalysisQuery)
     }
 
     // Generate more conversational suggestions

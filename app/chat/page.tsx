@@ -386,7 +386,14 @@ export default function ChatPage() {
               </div>
             </div>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => setShowPricing(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-blue-400/50 rounded-lg text-blue-400 hover:text-blue-300 font-medium text-xs transition-all duration-300 group"
+            >
+              <Crown className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform duration-300" />
+              Upgrade Plan
+            </button>
             <button
               onClick={toggleHistory}
               className={`p-2 rounded-full ${showHistory ? "bg-white text-black" : "bg-zinc-900 text-white hover:bg-zinc-800"}`}
@@ -416,25 +423,6 @@ export default function ChatPage() {
       {/* Chat Messages Area */}
       <div className={`flex-1 overflow-y-auto transition-all duration-300 ${isChatCollapsed ? 'max-h-0 opacity-0' : ''}`}>
         <div className="max-w-4xl mx-auto p-4 space-y-4">
-          {/* Upgrade Plan Button - Prominently displayed */}
-          {messages.length <= 1 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex justify-center py-8"
-            >
-              <button
-                onClick={() => setShowPricing(true)}
-                className="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-2xl text-white font-medium text-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-              >
-                <Crown className="w-6 h-6 group-hover:rotate-12 transition-transform duration-300" />
-                Upgrade your Plan
-                <Sparkles className="w-5 h-5 group-hover:scale-110 transition-transform duration-300" />
-              </button>
-            </motion.div>
-          )}
-
           <AnimatePresence initial={false}>
             {messages.map((message) => (
               <motion.div
