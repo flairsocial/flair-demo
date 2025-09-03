@@ -5,6 +5,7 @@ import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
 import { getProfile, getSavedItems } from "@/lib/profile-storage"
 import { searchForProducts } from "@/lib/products-service"
+import { ImageAnalysisService } from "@/lib/image-analysis-service"
 
 const serperApiKey = process.env.SERPER_API_KEY
 
@@ -91,11 +92,34 @@ export async function POST(request: Request) {
       for (const file of attachedFiles) {
         if (file.type === 'product' && file.metadata) {
           fileDescriptions.push(`Product: ${file.metadata.title} by ${file.metadata.brand || 'Unknown'} - $${file.metadata.price || 'N/A'} (${file.metadata.category || 'Fashion item'}). Description: ${file.metadata.description || 'No description available'}`)
+          
+          // For product files, analyze the product image if available
+          if (file.metadata.image && !imageAnalysisQuery) {
+            console.log(`[Chat] Analyzing attached product image for visual similarity search`)
+            console.log(`[Chat] Product image URL: ${file.metadata.image}`)
+            
+            try {
+              imageAnalysisQuery = await ImageAnalysisService.analyzeImage(
+                file.metadata.image,
+                file.metadata,
+                model
+              )
+              
+              console.log(`[Chat] Image analysis result: "${imageAnalysisQuery}"`)
+              fileDescriptions[fileDescriptions.length - 1] = `Product Image Analysis: ${imageAnalysisQuery} - Visual analysis of ${file.metadata.title}`
+            } catch (error) {
+              console.error('[Chat] Image analysis service failed:', error)
+              // Final fallback to basic product info
+              const product = file.metadata
+              imageAnalysisQuery = `${product.category || 'fashion'} similar to ${product.title || ''}`
+              fileDescriptions[fileDescriptions.length - 1] = `Product: ${product.title} - Basic fallback search`
+            }
+          }
         } else if (file.type === 'image') {
           fileDescriptions.push(`Image: ${file.name} - User uploaded an image for styling advice`)
           
           // For image files, generate an analysis query for product search
-          if (file.content || file.url) {
+          if ((file.content || file.url) && !imageAnalysisQuery) {
             try {
               console.log(`[Chat] Analyzing uploaded image for product search`)
               
@@ -108,7 +132,7 @@ export async function POST(request: Request) {
                     content: [
                       {
                         type: "text",
-                        text: "Analyze this fashion image and describe the specific clothing items, colors, style, and materials you see. Be very specific about what type of clothing this is (e.g., 'puff sleeve midi dress', 'cable knit sweater', 'leather ankle boots'). Focus on searchable keywords that would help find similar items. Respond with just the item description keywords."
+                        text: "Analyze this fashion image in detail. Describe the specific visual characteristics: silhouette, cut, neckline, sleeves, length, fit, fabric texture, patterns, colors, style details, and any unique design elements. Focus on visual features that would help find similar-looking items. Be very specific about the visual appearance. Respond with detailed visual descriptors that would help in a product search."
                       },
                       {
                         type: "image",
@@ -340,16 +364,16 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
     if ((hasProductRequest || hasCompetitorRequest) && serperApiKey) {
       let searchQuery = message
       
-      // Priority 1: Use image analysis if available
+      // Priority 1: Use image analysis if available (from either uploaded images or product images)
       if (imageAnalysisQuery) {
         searchQuery = imageAnalysisQuery
-        console.log(`[Chat] Using image analysis for product search: "${searchQuery}"`)
+        console.log(`[Chat] Using visual image analysis for product search: "${searchQuery}"`)
       }
-      // Priority 2: If asking about competitors and there's an attached product, search for similar items
-      else if (hasCompetitorRequest && attachedProduct?.metadata) {
+      // Priority 2: If asking about competitors and there's an attached product, but no image analysis, fall back to product details
+      else if (hasCompetitorRequest && attachedProduct?.metadata && !imageAnalysisQuery) {
         const product = attachedProduct.metadata
-        searchQuery = `${product.category || 'fashion'} ${product.title?.split(' ').slice(0, 3).join(' ') || ''} similar alternatives`
-        console.log(`[Chat] Using attached product for search: "${searchQuery}"`)
+        searchQuery = `${product.category || 'fashion'} similar to ${product.title?.split(' ').slice(0, 3).join(' ') || ''} style alternatives`
+        console.log(`[Chat] Using attached product details for search (image analysis failed): "${searchQuery}"`)
       } else {
         // Remove common question words but keep fashion terms
         searchQuery = searchQuery.replace(/\b(show me|find me|where can i get|i want to buy|looking for|need some|recommend|suggest|shopping for|buy|purchase|what|how|where|when|why|can you|could you|please|help me|i need|is this worth it|competitors|alternatives)\b/gi, '')

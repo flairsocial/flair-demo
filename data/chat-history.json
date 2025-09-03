@@ -1,6 +1,397 @@
 {
   "user_329KVwiv762JNKE2wiz6yRjlNbp": [
     {
+      "id": "chat-1756919950828",
+      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T17:16:37.094Z"
+        },
+        {
+          "id": "user-1756919827928",
+          "content": "find me similiar items to this",
+          "sender": "user",
+          "timestamp": "2025-09-03T17:17:07.928Z",
+          "attachedFiles": [
+            {
+              "id": "product-13038370295016758794",
+              "name": "Princess Polly Landon Lace Trim Shift Mini Sundress",
+              "type": "product",
+              "url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQSvED3LdcXMkV8V2pLhnGCmVIajaMzOV_nj1QkTHaXG6P_2vNc6g--bbTqvj_vkWW_OhmjM7rGFcn2dN95HdPM9A4DZ3q8k-boa8Za4B5Dtjt6fu-g0AH2",
+              "preview": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQSvED3LdcXMkV8V2pLhnGCmVIajaMzOV_nj1QkTHaXG6P_2vNc6g--bbTqvj_vkWW_OhmjM7rGFcn2dN95HdPM9A4DZ3q8k-boa8Za4B5Dtjt6fu-g0AH2",
+              "metadata": {
+                "title": "Princess Polly Landon Lace Trim Shift Mini Sundress",
+                "price": 65,
+                "brand": "Princess",
+                "description": "A notable bottoms from Princess. Features a contemporary design and is made from quality materials.",
+                "category": "Bottoms",
+                "link": "https://google.com/shopping/product/13038370295016758794?gl=us",
+                "productId": "13038370295016758794"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1756919830285",
+          "content": "That Princess Polly dress is super cute!  I can find similar mini dresses with lace detailing within your usual price range.  To give you the best recommendations, could you tell me your preferred sleeve length and desired color palette?\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T17:17:10.285Z",
+          "products": [
+            {
+              "id": "2762556931793184000",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQo4ZoIfaRuEAbA0tzJ2sou6C28QcYcLrX237jv6L0pvojflwJ3OHDQIAghrmF6t8ehnEi9svZ9AusL7y6KJ7xNMcuSU-TsPpzWFqTseNLlIqn6g8JWOSL6",
+              "title": "Princess Polly Ellanor Low Rise Slouch Denim Jean",
+              "price": 75,
+              "brand": "Princess",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Princess. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2762556931793184000?gl=us"
+            },
+            {
+              "id": "2681356695804574155",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQz_V1zN60ooOeoHQnqAVP-PKnlYZ3ULTIYAP04wVGjbfzJ19lMabMQJcLb-U0uu0fffTq2X0BS69enYTNw9Lf7g_O4C6cABj_CvJTGJrPkLckQgfr8PcE_aw",
+              "title": "Princess Polly Ramos Low Rise Denim Jeans",
+              "price": 75,
+              "brand": "Princess",
+              "category": "Shoes",
+              "description": "A notable shoes from Princess. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2681356695804574155?gl=us"
+            },
+            {
+              "id": "5481645094018621330",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSi4jj6pvpJTIRVJFMjz4TLzef8rjm5HIANm9nooXZqxWJyMV9vAUjTDup1SFdkN_j2ftI_Ajwpfa0IhCzHJ1jtPJi6_ANa-sHFklRyOGVgnaZxtw0tNpY4WQ",
+              "title": "Limestone Pants",
+              "price": 64,
+              "brand": "Princess",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Princess. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5481645094018621330?gl=us"
+            },
+            {
+              "id": "14993575471912532571",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSXPxL_yTsOtZIrPWl5J9YLeaI1SjAdAasFkRIWN82lrI9Ww4k-OcaEpNDLoFqP75N8wIKKjnX4A9zSOapqAEm-olMbAD0XwMK8pZDjXvyt_V9viOrzKE5WZl0",
+              "title": "Kinkirk Flared Pants",
+              "price": 69,
+              "brand": "Princess",
+              "category": "Shoes",
+              "description": "A notable shoes from Princess. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14993575471912532571?gl=us"
+            },
+            {
+              "id": "1023898921277168110",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSswE02--NEcOwirhFed1yXZ3f8_qAiB0AgP2wZR50EvNTdj86gpyhC0iKvhhJAbvh8gCKdRbbgTk2RFRvFsrmTkSimkFL_uGiw-fDbKoBNv98A24lsWRWU",
+              "title": "Neevie Wide Leg Pants",
+              "price": 65,
+              "brand": "Princess",
+              "category": "Tops",
+              "description": "A notable tops from Princess. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1023898921277168110?gl=us"
+            },
+            {
+              "id": "5612833830646776677",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSI846Ph8N5TrmPih1ot0Hoju8yovbIQOfDLseFcDQxz5np8Ncg-bdYhM6Cv14tPwVaZJfF0KdZGp7DrHRLjOHALzSVgP6CeLgEt0OrZNXXPm07nh07QGYw",
+              "title": "Pagano Pinstripe Flare Pants",
+              "price": 69,
+              "brand": "Princess",
+              "category": "Tops",
+              "description": "A notable tops from Princess. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5612833830646776677?gl=us"
+            },
+            {
+              "id": "14628904172186234793",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQeaGdL4XAIxFBwfYZZpenArSik0nRDv2XapmWh-x4b0DlxLwhHtsQTpWGQgmcHJr9blXkXyo5SkRvcf6jLQwlzeB-IlRvdpStWvFEBnP0",
+              "title": "Lucetta Wide Leg Pants",
+              "price": 69,
+              "brand": "Princess",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Princess. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14628904172186234793?gl=us"
+            },
+            {
+              "id": "7465167489613935688",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTTuYPkrV43wzLkDFz3Nt281Nrb1hpV6kZ6Y_67NAb45Mlc-bDq4WLQKXyW3rq3ptOPruTjmQjE8-jKcfc7SbzkLt7SVUdyCDbQ1mXRjjUwEc9yEEBtI6Y8og",
+              "title": "Kinkirk Flared Pinstripe Pants",
+              "price": 69,
+              "brand": "Princess",
+              "category": "Dresses",
+              "description": "A notable dresses from Princess. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7465167489613935688?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1756919938422",
+          "content": "find simliar dresses",
+          "sender": "user",
+          "timestamp": "2025-09-03T17:18:58.422Z",
+          "attachedFiles": [
+            {
+              "id": "url-1756919932270",
+              "name": "field-of-dreams-maxi-dress-oatmeal-1",
+              "type": "url",
+              "url": "https://us.princesspolly.com/products/field-of-dreams-maxi-dress-oatmeal-1",
+              "preview": "https://us.princesspolly.com/products/field-of-dreams-maxi-dress-oatmeal-1"
+            }
+          ]
+        },
+        {
+          "id": "ai-1756919950690",
+          "content": "That oatmeal maxi dress is lovely! I can definitely find similar styles.  To give you the best options,  I need a little more info - what kind of neckline and sleeve length are you looking for in a similar dress?\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T17:19:10.690Z",
+          "products": [
+            {
+              "id": "6665828794508560552",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS6cBzld5zugoYUesnnZdPda3cjB47kLUjJ_pZ3njkNyYTy4SZ7-ryRLoOpSAT8Q73jWo5WeSI-tlP9qeT8xc7Y8RKYCHg_gMAZ1K-1QUGW5mTPGWgNUidU",
+              "title": "5th + Madison Edit Sleeveless Zip-Front Geo Printed Dress",
+              "price": 71.2,
+              "brand": "Kohl's",
+              "category": "Tops",
+              "description": "A notable tops from Kohl's. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6665828794508560552?gl=us"
+            },
+            {
+              "id": "6194344593793921247",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRoIiC3Uu2BV4_FhH1Pm2Jc9mEByYCNYRxR5BC6BPpDNMx5xWnKcAkQyYnSfiTK_U03LWO-Zz8YzhMA_3iKeKcvT8A0Wm6LWPHKh9stexLNTFFqJITriTmX",
+              "title": "Multiples Geometric Slub Knit Midi Dress",
+              "price": 74,
+              "brand": "Dillard's",
+              "category": "Shoes",
+              "description": "A notable shoes from Dillard's. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6194344593793921247?gl=us"
+            },
+            {
+              "id": "15516845213402665324",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcT3_CvihKEnr1QUFSiZMsizalsQJCaQK4feD4HnVZqR5EW8OYtgc0htlbvtJpFqB39KT1OET6yBG7KQ30pyuepj93Xoy1M_IJVvCsu4v_ClIeCWVH2MQVbWwA",
+              "title": "Modcloth Fit & Flare Dress",
+              "price": 44.99,
+              "brand": "ModCloth",
+              "category": "Tops",
+              "description": "A notable tops from ModCloth. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15516845213402665324?gl=us"
+            },
+            {
+              "id": "12122985192074345180",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT2y45R4Z4GRnA9FuzGwcYuq0fad3ZQQak-1Rjj3ZFTbYPe7WYOaTPQLuw48lYbdfnIfpRI02TfG3kzp8HDUX1wbrmRKSwn1A",
+              "title": "Wild Fable Women's Knit Maxi Empire Waist Dress",
+              "price": 28,
+              "brand": "Target",
+              "category": "Tops",
+              "description": "A notable tops from Target. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12122985192074345180?gl=us"
+            },
+            {
+              "id": "3349421039714621065",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ68KVTp3eEHcz04EoqSgUsgMcSwfn1pwGzKqxZGzu-ogTTTK7AARTJ62UVwo5WSTHjX57tfZ-qZwqtHUZR_In83MPaE75iZjIps62r3d6glplMB-FOz_5mCg",
+              "title": "Magnolia Boutique Women's Boho Chic Lace Embroidered Tiered Maxi Dress",
+              "price": 79,
+              "brand": "Magnolia",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Magnolia. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3349421039714621065?gl=us"
+            },
+            {
+              "id": "15684365157523772755",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQOt_ruStbGFhUzBrJ19LQpFzLY4cbESsqLpHEpZCt_v5PEMPjXW8ARgJuCDnn3n74FGZ87eZ8C-fFWPRtpujG7HjPwQ6CX8GkmzeSppiVRQGpUJuav5w_F",
+              "title": "Scuba Crepe Fit and Flare Dress",
+              "price": 99,
+              "brand": "Dillard's",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Dillard's. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15684365157523772755?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-03T17:19:10.828Z",
+      "updatedAt": "2025-09-03T17:19:31.390Z"
+    },
+    {
+      "id": "chat-1756919377164",
+      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T17:06:28.712Z"
+        },
+        {
+          "id": "user-1756919194922",
+          "content": "can you find simliar item and comptitros ?",
+          "sender": "user",
+          "timestamp": "2025-09-03T17:06:34.922Z",
+          "attachedFiles": [
+            {
+              "id": "product-59747907627790382",
+              "name": "Rihoas Houndstooth Button-Up Midi Dress",
+              "type": "product",
+              "url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTibD701FvJqI-pakUrgH7TGOAALdoPv4CjVq8XyqtPoeFXh1K9njt_nKg8L7sQgzJBnwV3DKOOXYN5GcHBA3QCl5NQ4v-xdE8ctECctptwDb8CBQIrAz8c2A",
+              "preview": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTibD701FvJqI-pakUrgH7TGOAALdoPv4CjVq8XyqtPoeFXh1K9njt_nKg8L7sQgzJBnwV3DKOOXYN5GcHBA3QCl5NQ4v-xdE8ctECctptwDb8CBQIrAz8c2A",
+              "metadata": {
+                "title": "Rihoas Houndstooth Button-Up Midi Dress",
+                "price": 44,
+                "brand": "Rihoas",
+                "description": "A notable bottoms from Rihoas. A stylish and high-quality piece, perfect for a modern wardrobe.",
+                "category": "Bottoms",
+                "link": "https://google.com/shopping/product/59747907627790382?gl=us",
+                "productId": "59747907627790382"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1756919198667",
+          "content": "That Rihoas houndstooth dress is a great find!  For similar styles, check out ASOS and Mango for comparable midi dresses in similar patterns and price points.  To contrast, consider a sleek, solid-colored sweater and fitted jeans for a more casual look.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T17:06:38.667Z",
+          "products": [
+            {
+              "id": "10325436977053188448",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRM3lG7MeGCxF1m0nG7dRr0642Lf_9DOV7T2KFje2cne0Z0kCwq2_GxZHUNJ-47Tnj1e_k5m3FP2RYBuTkwC-xjuX35ko5N-GfrjzRuMAabRb9Ays5oJSEj",
+              "title": "Rihoas Women's Striped Waist Pants",
+              "price": 45,
+              "brand": "Rihoas",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Rihoas. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10325436977053188448?gl=us"
+            },
+            {
+              "id": "12396075237015698969",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSlkM0ns6Tsbzin-wVyJDrLM2aAxUeEtTmoeU_eG_DTj-iqUEXyg7Lt4NBbYTEWHvjUjv_3FvBAKCWw-QFAxxfoGCLgqD9yiV2lIxNFjitaBjb3B4fcW5g7",
+              "title": "Rihoas High Waisted Pocket Straight Pants",
+              "price": 29.99,
+              "brand": "Rihoas",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Rihoas. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12396075237015698969?gl=us"
+            },
+            {
+              "id": "4740865706611863021",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRfU0acqA2SjUPNK9DqJX3v7l5bBGRFsFI13_vngn-ku2x-rJ6akhdrQOo6qJbKSMYFqTl2QYizhfSgu6M4XqfEPJbjIjBVBdb75Ml9ZNgjEEqwC_S7ya2Q",
+              "title": "Rihoas Plaid Natural Waisted Straight Pants",
+              "price": 47,
+              "brand": "Rihoas",
+              "category": "Shoes",
+              "description": "A notable shoes from Rihoas. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4740865706611863021?gl=us"
+            },
+            {
+              "id": "16701498967590321820",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRduhGwxa8Tj2kXW-VdydmCReqeZWZvChdamc9b3upIjmZ-2sdBsh4N7fa7FBwD5VLYxHn0By8qyaGd3xZ_wMKKKjpRqv9WWsV25G-cBKMA7OpY1362Fnow",
+              "title": "Rihoas Women's Natural Waist Pocket Straight Leg Pants",
+              "price": 41,
+              "brand": "Rihoas",
+              "category": "Shoes",
+              "description": "A notable shoes from Rihoas. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/16701498967590321820?gl=us"
+            },
+            {
+              "id": "18386660153961713904",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRz3CVwSrv9ygHPu2K_QZcWpxGad5hER7MRuP-si5kiqgGyZVQE3Leq_7eD4_tHlSIsaxXMSFMXVaq-K-0qrC8s-5ZPLUKHc5bALieVGeY",
+              "title": "Rihoas Button Slant Pocket Straight Pants",
+              "price": 48,
+              "brand": "Rihoas",
+              "category": "Shoes",
+              "description": "A notable shoes from Rihoas. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/18386660153961713904?gl=us"
+            },
+            {
+              "id": "7706039619226820188",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTHz8vMXFAv00lVi1DkwJ_zgvXK4AmJIdNV9HkMCrx1dmoBgjSAAJzQzNXHCwGRE1p8vi-bjScMveeleK52VLhHGkk2ktHvwAyzq-7_7XNBLQ07A7K1cmG-",
+              "title": "Houndstooth Pants",
+              "price": 129,
+              "brand": "Ellen",
+              "category": "Tops",
+              "description": "A notable tops from Ellen. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7706039619226820188?gl=us"
+            },
+            {
+              "id": "17349656467980914313",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcS949artF4E97GPURZYJO813uEDmhw7Fmwchy_hAg_EXFzbmP-EMUME1P06t-kYgQVucVajm8oLN0BpTiTFtdZI9FhaogzbO5sz_QYyyDt_-Umvqq6nzel0",
+              "title": "Cara Cara Christopher Houndstooth Pants",
+              "price": 695,
+              "brand": "Cara",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Cara. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17349656467980914313?gl=us"
+            },
+            {
+              "id": "7916376083431852757",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSf_XvjwYXz5C8QJMy0X_dQs4W55Z8BrNkTakHvcKIhjIz02XH1hk1BfvTsJDeBelbiPL4n7R0kO0f7sQXi4_DlPRWNEQNCIUR7_FXS-JYrjGfVqBSvEx77Ew",
+              "title": "Terez Twill Pant in Houndstooth Women's",
+              "price": 198,
+              "brand": "Terez",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Terez. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7916376083431852757?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1756919344869",
+          "content": "please find similiar dress items that look the same as above",
+          "sender": "user",
+          "timestamp": "2025-09-03T17:09:04.869Z"
+        },
+        {
+          "id": "error-1756919347228",
+          "content": "I'm having a brief connection issue. Could you try asking your question again?",
+          "sender": "assistant",
+          "timestamp": "2025-09-03T17:09:07.228Z"
+        }
+      ],
+      "createdAt": "2025-09-03T17:09:37.164Z",
+      "updatedAt": "2025-09-03T17:09:37.164Z"
+    },
+    {
       "id": "chat-1756918665960",
       "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
       "messages": [
@@ -56,7 +447,7 @@
         }
       ],
       "createdAt": "2025-09-03T16:57:45.960Z",
-      "updatedAt": "2025-09-03T16:58:15.582Z"
+      "updatedAt": "2025-09-03T17:10:14.488Z"
     }
   ]
 }
