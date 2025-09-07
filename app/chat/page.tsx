@@ -166,11 +166,29 @@ export default function ChatPage() {
     const urlParams = new URLSearchParams(window.location.search)
     const autoMessage = urlParams.get("autoMessage")
     const productQuery = urlParams.get("product_query")
+    const collectionData = urlParams.get("collection")
     
-    console.log('[Chat] URL params check - autoMessage:', autoMessage, 'productQuery:', productQuery)
+    console.log('[Chat] URL params check - autoMessage:', autoMessage, 'productQuery:', productQuery, 'collection:', !!collectionData)
     console.log('[Chat] Attached files count:', attachedFiles.length)
     
-    if (autoMessage) {
+    if (collectionData) {
+      try {
+        const collection = JSON.parse(decodeURIComponent(collectionData))
+        console.log('[Chat] Auto-analyzing collection:', collection.name)
+        autoMessageSentRef.current = true
+        
+        // Create a comprehensive collection analysis message
+        const collectionMessage = `Analyze my collection "${collection.name}". ${collection.description ? `Description: ${collection.description}. ` : ''}This collection contains ${collection.totalItems} items: ${collection.items.map((item: any) => `${item.title} by ${item.brand} ($${item.price})`).join(', ')}. Please provide insights about this collection, suggest similar items, or help me understand the style theme.`
+        
+        setTimeout(() => {
+          handleSendMessage(undefined, collectionMessage)
+          // Clear the URL parameter to prevent re-sending
+          window.history.replaceState({}, '', '/chat')
+        }, 200)
+      } catch (error) {
+        console.error('Error parsing collection data:', error)
+      }
+    } else if (autoMessage) {
       console.log('[Chat] Auto-sending message:', autoMessage)
       autoMessageSentRef.current = true // Mark as sent
       // Small delay to ensure file context is loaded

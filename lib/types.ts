@@ -29,3 +29,13 @@ export interface Message {
   timestamp: string
   // products?: Product[] // This will be handled in ChatPage's specific message type
 }
+
+export interface Collection {
+  id: string
+  name: string
+  color: string
+  createdAt: string
+  itemIds: string[]
+  customBanner?: string // Optional custom banner image URL
+  description?: string // Optional collection description
+}

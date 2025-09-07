@@ -28,11 +28,27 @@ import {
   MoreHorizontal,
   Trash2,
   FolderPlus,
+  Check as CheckIcon,
+  MessageCircle,
+  Edit3,
+  Plus,
 } from "lucide-react"
 import ProductDetail from "@/components/ProductDetail"
+import CollectionModal from "@/components/CollectionModal"
+import CollectionDetailModal from "@/components/CollectionDetailModal"
+import CreateCollectionModal from "@/components/CreateCollectionModal"
+import BulkAddToCollectionModal from "@/components/BulkAddToCollectionModal"
 import type { Product } from "@/lib/types"
+import type { Collection, SavedItemWithMetadata } from "@/lib/profile-storage"
 import { useMobile } from "@/hooks/use-mobile"
 import Link from "next/link"
+
+// Define a SavedItem type that extends Product with additional saved-specific properties
+interface SavedItem extends Product {
+  savedAt: string
+  notes?: string
+  collectionIds?: string[]
+}
 
 // Define a SavedItem type that extends Product with additional saved-specific properties
 interface SavedItem extends Product {
@@ -53,8 +69,12 @@ export default function ProfilePage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
-  const [collections, setCollections] = useState<Array<{id: string; name: string; color: string; itemIds: string[]}>>([])
-  const [selectedCollection, setSelectedCollection] = useState<{id: string; name: string; color: string; items: Product[]} | null>(null)
+  const [collections, setCollections] = useState<Collection[]>([])
+  const [selectedCollection, setSelectedCollection] = useState<(Collection & { items: Product[] }) | null>(null)
+  const [showCollectionModal, setShowCollectionModal] = useState(false)
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null)
+  const [showCreateCollection, setShowCreateCollection] = useState(false)
+  const [showBulkAddModal, setShowBulkAddModal] = useState(false)
   const isMobile = useMobile()
 
   // Mock purchases data
@@ -470,15 +490,13 @@ export default function ProfilePage() {
   }
 
   // Handle clicking on a collection to view its contents
-  const handleCollectionClick = async (collection: {id: string; name: string; color: string; itemIds: string[]}) => {
+  const handleCollectionClick = async (collection: Collection) => {
     try {
       const response = await fetch(`/api/collections/${collection.id}`)
       if (response.ok) {
         const items = await response.json()
         setSelectedCollection({
-          id: collection.id,
-          name: collection.name,
-          color: collection.color,
+          ...collection,
           items: items
         })
       } else {
@@ -492,6 +510,59 @@ export default function ProfilePage() {
   // Close collection view
   const handleCloseCollection = () => {
     setSelectedCollection(null)
+  }
+
+  // Handle adding item to collection
+  const handleAddToCollection = (product: Product) => {
+    setCurrentProduct(product)
+    setShowCollectionModal(true)
+  }
+
+  // Handle creating new collection
+  const handleCreateNewCollection = (product?: Product) => {
+    setCurrentProduct(product || null)
+    setShowCreateCollection(true)
+  }
+
+  // Handle collection created
+  const handleCollectionCreated = (newCollection: Collection) => {
+    setCollections([newCollection, ...collections])
+    loadCollections() // Refresh collections from server
+  }
+
+  // Handle collection updated
+  const handleCollectionUpdated = (updatedCollection: Collection) => {
+    setCollections(collections.map(col => 
+      col.id === updatedCollection.id ? updatedCollection : col
+    ))
+    if (selectedCollection && selectedCollection.id === updatedCollection.id) {
+      setSelectedCollection({
+        ...updatedCollection,
+        items: selectedCollection.items
+      })
+    }
+  }
+
+  // Handle collection deleted
+  const handleCollectionDeleted = (collectionId: string) => {
+    setCollections(collections.filter(col => col.id !== collectionId))
+    if (selectedCollection && selectedCollection.id === collectionId) {
+      setSelectedCollection(null)
+    }
+  }
+
+  // Handle bulk add to collection
+  const handleBulkAddToCollection = () => {
+    if (selectedItems.length === 0) return
+    const itemsToAdd = savedItems.filter(item => selectedItems.includes(item.id))
+    setShowBulkAddModal(true)
+  }
+
+  // Handle bulk add completed
+  const handleBulkAddCompleted = () => {
+    setSelectedItems([])
+    setShowBulkAddModal(false)
+    loadCollections() // Refresh collections
   }
 
   return (
@@ -678,7 +749,10 @@ export default function ProfilePage() {
                         <Trash2 className="w-3 h-3 mr-1" />
                         Delete
                       </button>
-                      <button className="flex items-center text-xs bg-zinc-700 hover:bg-zinc-600 px-2 py-1 rounded transition-colors touch-manipulation">
+                      <button 
+                        onClick={handleBulkAddToCollection}
+                        className="flex items-center text-xs bg-zinc-700 hover:bg-zinc-600 px-2 py-1 rounded transition-colors touch-manipulation"
+                      >
                         <FolderPlus className="w-3 h-3 mr-1" />
                         Add to Collection
                       </button>
@@ -724,11 +798,11 @@ export default function ProfilePage() {
                           toggleItemSelection(item.id)
                         }}
                       >
-                        {selectedItems.includes(item.id) && <Check className="w-3 h-3 text-black" />}
+                        {selectedItems.includes(item.id) && <CheckIcon className="w-3 h-3 text-black" />}
                       </div>
 
                       <div
-                        className="bg-zinc-900 rounded-lg overflow-hidden cursor-pointer h-full touch-manipulation"
+                        className="bg-zinc-900 rounded-lg overflow-hidden cursor-pointer h-full touch-manipulation group relative"
                         onClick={() => handleProductClick(item)}
                       >
                         <div className="aspect-[3/4] relative">
@@ -745,6 +819,20 @@ export default function ProfilePage() {
                               <Sparkles className="w-3 h-3 text-white" strokeWidth={2} />
                             </div>
                           )}
+                          
+                          {/* Action overlay - appears on hover */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleAddToCollection(item)
+                              }}
+                              className="bg-white/90 hover:bg-white text-black px-3 py-1.5 rounded-lg font-medium transition-colors flex items-center"
+                            >
+                              <FolderPlus className="w-4 h-4 mr-1" />
+                              Add to Collection
+                            </button>
+                          </div>
                         </div>
                         <div className="p-2 sm:p-3">
                           <h3 className="text-xs sm:text-sm font-medium truncate">{item.title}</h3>
@@ -960,81 +1048,144 @@ export default function ProfilePage() {
             <div className="p-4">
               <div className="mb-4 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Your Collections</h3>
-                <button className="bg-zinc-900 hover:bg-zinc-800 text-sm px-3 py-1.5 rounded-lg transition-colors touch-manipulation">
+                <button 
+                  onClick={() => handleCreateNewCollection()}
+                  className="bg-zinc-900 hover:bg-zinc-800 text-sm px-3 py-1.5 rounded-lg transition-colors touch-manipulation"
+                >
                   + New Collection
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {collections.map((collection) => (
-                  <div
-                    key={collection.id}
-                    className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer touch-manipulation"
-                    onClick={() => handleCollectionClick(collection)}
-                  >
-                    <div className="p-3 sm:p-4 border-b border-zinc-800">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <div className={`w-3 h-3 rounded-full ${collection.color} mr-2`}></div>
-                          <h4 className="text-sm sm:text-base font-medium">{collection.name}</h4>
-                        </div>
-                        <span className="text-[10px] sm:text-xs text-zinc-400 bg-zinc-800 px-1.5 sm:px-2 py-0.5 rounded-full">
-                          {collection.itemIds.length} items
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-0.5">
-                      {savedItems
-                        .filter((item) => item.collectionIds?.includes(collection.id))
-                        .slice(0, 3)
-                        .map((item) => (
-                          <div key={item.id} className="aspect-square bg-zinc-800 relative">
-                            <Image
-                              src={item.image || "/placeholder.svg"}
-                              alt={item.title}
-                              fill
-                              className="object-cover"
-                            />
-                          </div>
-                        ))}
-                      {/* Show placeholder if less than 3 items */}
-                      {Array.from({ length: 3 - Math.min(3, savedItems.filter((item) => item.collectionIds?.includes(collection.id)).length) }).map((_, index) => (
-                        <div key={`placeholder-${index}`} className="aspect-square bg-zinc-800 flex items-center justify-center">
-                          <div className="w-6 h-6 border-2 border-dashed border-zinc-600 rounded"></div>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="p-2 sm:p-3 flex justify-between items-center">
-                      <span className="text-[10px] sm:text-xs text-zinc-400">
-                        Click to view all items
-                      </span>
-                      <div className="flex space-x-2">
-                        <button 
-                          className="p-1 sm:p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Heart className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-zinc-400" />
-                        </button>
-                        <button 
-                          className="p-1 sm:p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-zinc-400" />
-                        </button>
-                      </div>
-                    </div>
+              {collections.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <FolderPlus className="w-8 h-8 text-zinc-700" />
                   </div>
-                ))}
-              </div>
+                  <h3 className="text-xl font-medium mb-2">No collections yet</h3>
+                  <p className="text-zinc-400 mb-6">Create collections to organize your favorite items</p>
+                  <button
+                    onClick={() => handleCreateNewCollection()}
+                    className="inline-block px-6 py-3 bg-white text-black rounded-lg font-medium touch-manipulation"
+                  >
+                    Create Your First Collection
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {collections.map((collection) => (
+                    <div
+                      key={collection.id}
+                      className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer touch-manipulation group"
+                      onClick={() => handleCollectionClick(collection)}
+                    >
+                      {/* Collection Banner */}
+                      <div className="h-32 bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
+                        {collection.customBanner ? (
+                          // Show custom banner if available
+                          <Image
+                            src={collection.customBanner}
+                            alt={collection.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : collection.itemIds.length > 0 ? (
+                          // Show product images as fallback
+                          <div className="grid grid-cols-2 h-full">
+                            {savedItems
+                              .filter((item) => collection.itemIds.includes(item.id))
+                              .slice(0, 4)
+                              .map((item, index) => (
+                                <div key={item.id} className="relative">
+                                  <Image
+                                    src={item.image || "/placeholder.svg"}
+                                    alt={item.title}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                              ))}
+                          </div>
+                        ) : (
+                          // Show default icon if no banner and no items
+                          <div className="flex items-center justify-center h-full">
+                            <div className={`w-12 h-12 rounded-full ${collection.color} flex items-center justify-center`}>
+                              <FolderPlus className="w-6 h-6 text-white" />
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Collection overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                        
+                        {/* Collection info */}
+                        <div className="absolute bottom-2 left-2 right-2">
+                          <div className="flex items-center mb-1">
+                            <div className={`w-2 h-2 rounded-full ${collection.color} mr-2`} />
+                            <h4 className="text-sm font-medium text-white truncate">{collection.name}</h4>
+                          </div>
+                          <p className="text-xs text-zinc-300">
+                            {collection.itemIds.length} item{collection.itemIds.length !== 1 ? 's' : ''}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Collection Actions */}
+                      <div className="p-3 flex justify-between items-center">
+                        <span className="text-xs text-zinc-400">
+                          Click to view collection
+                        </span>
+                        <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            className="p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              // Handle ask chat about this collection
+                              const collectionSummary = {
+                                name: collection.name,
+                                description: "",
+                                totalItems: collection.itemIds.length,
+                                items: savedItems
+                                  .filter(item => collection.itemIds.includes(item.id))
+                                  .map(item => ({
+                                    id: item.id,
+                                    title: item.title,
+                                    brand: item.brand,
+                                    price: item.price,
+                                    category: item.category,
+                                    image: item.image,
+                                    description: item.description
+                                  }))
+                              }
+                              const collectionData = encodeURIComponent(JSON.stringify(collectionSummary))
+                              window.open(`/chat?collection=${collectionData}`, '_blank')
+                            }}
+                            title="Ask Chat about this collection"
+                          >
+                            <MessageCircle className="w-3 h-3 text-zinc-400" />
+                          </button>
+                          <button 
+                            className="p-1.5 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors touch-manipulation"
+                            onClick={(e) => e.stopPropagation()}
+                            title="Collection settings"
+                          >
+                            <MoreHorizontal className="w-3 h-3 text-zinc-400" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-6 p-4 bg-zinc-900/50 rounded-xl border border-zinc-800/50 text-center">
                 <Grid className="w-8 h-8 text-zinc-700 mx-auto mb-2" />
                 <h4 className="text-sm font-medium mb-1">Create Custom Collections</h4>
                 <p className="text-xs text-zinc-400 mb-3">Organize your favorite items into themed collections</p>
-                <button className="text-xs bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg transition-colors touch-manipulation">
-                  Learn More
+                <button 
+                  onClick={() => handleCreateNewCollection()}
+                  className="text-xs bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg transition-colors touch-manipulation"
+                >
+                  Get Started
                 </button>
               </div>
             </div>
@@ -1042,89 +1193,36 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {selectedCollection && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-zinc-900 rounded-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
-              <div className="flex items-center">
-                <div className={`w-4 h-4 rounded-full ${selectedCollection.color} mr-3`}></div>
-                <h3 className="text-lg font-medium">{selectedCollection.name}</h3>
-                <span className="ml-2 text-sm text-zinc-400">({selectedCollection.items.length} items)</span>
-              </div>
-              <button
-                onClick={handleCloseCollection}
-                className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="overflow-y-auto max-h-[60vh]">
-              {selectedCollection.items.length === 0 ? (
-                <div className="p-8 text-center">
-                  <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Grid className="w-8 h-8 text-zinc-600" />
-                  </div>
-                  <h4 className="text-lg font-medium mb-2">Collection is empty</h4>
-                  <p className="text-zinc-400">Add some items to this collection to see them here</p>
-                </div>
-              ) : (
-                <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {selectedCollection.items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-zinc-800 rounded-lg overflow-hidden cursor-pointer hover:bg-zinc-750 transition-colors"
-                      onClick={() => {
-                        setSelectedProduct(item)
-                        handleCloseCollection()
-                      }}
-                    >
-                      <div className="aspect-[3/4] relative">
-                        <Image
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                        />
-                        {item.hasAiInsights && (
-                          <div className="absolute top-2 right-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full p-1.5 shadow-md">
-                            <Sparkles className="w-3 h-3 text-white" strokeWidth={2} />
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-3">
-                        <h4 className="text-sm font-medium truncate">{item.title}</h4>
-                        <p className="text-xs text-zinc-400 truncate">{item.brand}</p>
-                        <p className="text-sm font-medium mt-1">${item.price}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modals */}
+      <CollectionModal
+        isOpen={showCollectionModal}
+        onClose={() => setShowCollectionModal(false)}
+        product={currentProduct!}
+      />
+
+      <CollectionDetailModal
+        collection={selectedCollection}
+        isOpen={!!selectedCollection}
+        onClose={handleCloseCollection}
+        onUpdate={handleCollectionUpdated}
+        onDelete={handleCollectionDeleted}
+      />
+
+      <CreateCollectionModal
+        isOpen={showCreateCollection}
+        onClose={() => setShowCreateCollection(false)}
+        onCollectionCreated={handleCollectionCreated}
+        preselectedItem={currentProduct}
+      />
+
+      <BulkAddToCollectionModal
+        isOpen={showBulkAddModal}
+        onClose={() => setShowBulkAddModal(false)}
+        selectedItems={savedItems.filter(item => selectedItems.includes(item.id))}
+        onItemsAdded={handleBulkAddCompleted}
+      />
 
       {selectedProduct && <ProductDetail product={selectedProduct} onClose={handleCloseDetail} />}
     </div>
-  )
-}
-
-function Check(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <polyline points="20 6 9 17 4 12" />
-    </svg>
   )
 }

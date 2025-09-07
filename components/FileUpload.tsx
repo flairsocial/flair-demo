@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useState } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { Paperclip, Upload, Link as LinkIcon, ImageIcon, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useFiles, type ChatFile } from "@/lib/file-context"
@@ -11,10 +11,36 @@ interface FileUploadProps {
 
 export default function FileUpload({ onFileAdded }: FileUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const [showOptions, setShowOptions] = useState(false)
   const [urlInput, setUrlInput] = useState("")
   const [showUrlInput, setShowUrlInput] = useState(false)
   const { addFile } = useFiles()
+
+  // Handle click outside to close options
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowOptions(false)
+        setShowUrlInput(false)
+        setUrlInput("")
+      }
+    }
+
+    if (showOptions) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showOptions])
+
+  const handleToggleOptions = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setShowOptions(!showOptions)
+  }
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files
@@ -71,11 +97,12 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
   }
 
   return (
-    <div className="relative">
+    <div className="relative" ref={containerRef}>
       <button
-        onClick={() => setShowOptions(!showOptions)}
+        onClick={handleToggleOptions}
         className="p-2 rounded-full hover:bg-zinc-700 transition-colors"
         aria-label="Attach file"
+        type="button"
       >
         <Paperclip className="w-5 h-5 text-zinc-400" />
       </button>
@@ -90,7 +117,10 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
           >
             <div className="space-y-1">
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  fileInputRef.current?.click()
+                }}
                 className="w-full flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-zinc-700 transition-colors text-left"
               >
                 <Upload className="w-4 h-4 text-blue-400" />
@@ -98,7 +128,10 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
               </button>
               
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  fileInputRef.current?.click()
+                }}
                 className="w-full flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-zinc-700 transition-colors text-left"
               >
                 <ImageIcon className="w-4 h-4 text-green-400" />
@@ -106,7 +139,10 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
               </button>
               
               <button
-                onClick={() => setShowUrlInput(!showUrlInput)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowUrlInput(!showUrlInput)
+                }}
                 className="w-full flex items-center space-x-3 px-3 py-2 rounded-md hover:bg-zinc-700 transition-colors text-left"
               >
                 <LinkIcon className="w-4 h-4 text-purple-400" />
@@ -132,7 +168,10 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
                     autoFocus
                   />
                   <button
-                    onClick={handleUrlSubmit}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleUrlSubmit()
+                    }}
                     disabled={!urlInput.trim()}
                     className="px-2 py-1 bg-blue-600 text-white rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                   >

@@ -40,9 +40,9 @@ export default function Header() {
 
   return (
     <>
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-md px-4 py-4 flex justify-between items-center border-b border-zinc-900 h-16">
+      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-md px-4 py-4 flex items-center border-b border-zinc-900 h-16 relative">
         {/* Left side: Logo on mobile, empty on desktop to align with sidebar */}
-        <div className="w-8">
+        <div className="flex items-center justify-start flex-1">
           {isMobile && (
             <Link href="/" className="flex items-center">
               <Image src="/flair-logo.png" alt="Flair Logo" width={32} height={32} className="object-contain" />
@@ -50,13 +50,13 @@ export default function Header() {
           )}
         </div>
 
-        {/* Center: Page Title */}
-        <div className="flex-1 text-center">
-          <h1 className="text-lg font-medium tracking-tight">{getTitle()}</h1>
+        {/* Center: Page Title - Absolutely positioned for perfect centering */}
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
+          <h1 className="text-lg font-medium tracking-tight whitespace-nowrap">{getTitle()}</h1>
         </div>
 
         {/* Right side: Upgrade Plan, Settings, Auth, and Info Icons */}
-        <div className="w-auto flex items-center justify-end gap-2">
+        <div className="flex items-center justify-end gap-2 flex-1">
           {/* Upgrade Plan Button */}
           <button
             onClick={() => setShowPricing(true)}

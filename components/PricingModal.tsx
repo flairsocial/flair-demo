@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Check, Crown, Sparkles, Building2 } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Check, Crown, Sparkles, Building2, Star, Quote } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -15,8 +15,107 @@ interface PricingModalProps {
   onClose: () => void
 }
 
+const customerReviews = [
+  {
+    name: "Sarah Chen",
+    role: "Fashion Reseller",
+    review: "This AI has completely transformed my business. I can find trending items 10x faster than before.",
+    rating: 5,
+    avatar: "SC"
+  },
+  {
+    name: "Marcus Rodriguez",
+    role: "E-commerce Entrepreneur",
+    review: "The fraud detection feature saved me from several bad deals. Worth every penny!",
+    rating: 5,
+    avatar: "MR"
+  },
+  {
+    name: "Emma Thompson",
+    role: "Boutique Owner",
+    review: "Smart shopping cart feature helps me manage inventory across multiple platforms seamlessly.",
+    rating: 5,
+    avatar: "ET"
+  },
+  {
+    name: "David Kim",
+    role: "Wholesale Buyer",
+    review: "AI deal discovery found me suppliers I never would have found manually. ROI is incredible.",
+    rating: 5,
+    avatar: "DK"
+  },
+  {
+    name: "Lisa Parker",
+    role: "Fashion Consultant",
+    review: "The accuracy is unmatched. My clients love the personalized recommendations.",
+    rating: 5,
+    avatar: "LP"
+  },
+  {
+    name: "James Wilson",
+    role: "Retail Manager",
+    review: "Deep link generation streamlined our entire product sourcing process.",
+    rating: 5,
+    avatar: "JW"
+  }
+]
+
 export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
   const [selectedTab, setSelectedTab] = useState<"personal" | "business">("personal")
+  const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
+
+  // Auto-scroll reviews
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentReviewIndex((prev) => (prev + 1) % customerReviews.length)
+    }, 4000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const ReviewsCarousel = () => (
+    <div className="relative overflow-hidden py-6 bg-zinc-900/30 rounded-lg border border-zinc-800/50 mb-8">
+      <div 
+        className="flex transition-transform duration-500 ease-in-out"
+        style={{ transform: `translateX(-${currentReviewIndex * 100}%)` }}
+      >
+        {customerReviews.map((review, index) => (
+          <div key={index} className="w-full flex-shrink-0 px-6">
+            <div className="text-center max-w-2xl mx-auto">
+              <div className="flex justify-center mb-2">
+                {[...Array(review.rating)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                ))}
+              </div>
+              <Quote className="w-6 h-6 text-zinc-600 mx-auto mb-3" />
+              <p className="text-zinc-300 text-sm italic mb-4">"{review.review}"</p>
+              <div className="flex items-center justify-center">
+                <div className="w-8 h-8 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-medium text-white mr-3">
+                  {review.avatar}
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-medium text-white">{review.name}</p>
+                  <p className="text-xs text-zinc-400">{review.role}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+      
+      {/* Dots indicator */}
+      <div className="flex justify-center mt-4 space-x-2">
+        {customerReviews.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => setCurrentReviewIndex(index)}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              index === currentReviewIndex ? 'bg-blue-500' : 'bg-zinc-600'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  )
 
   const personalPlans = [
     {
@@ -25,10 +124,10 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       period: "forever",
       description: "Limited access for everyday tasks",
       features: [
+        "Limited 50 Daily Credit Usage",
         "50-75% AI accuracy only",
-        "Limited 50 credit usage",
         "Limited product discovery",
-        "Limited file uploads",
+        "Limited file navigation",
         "Limited search functionality"
       ],
       buttonText: "Current Plan",
@@ -43,33 +142,30 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       description: "Unlimited AI access with advanced features",
       features: [
         "Unlimited AI usage with high accuracy",
-        "Fast response times",
         "Deep link generation",
-        "Advanced web scraping",
-        "Advanced file management",
-        "Priority support",
-        "Enhanced product analysis",
-        "Custom AI recommendations"
+        "Universal Smart Shopping Cart",
+        "Exclusive AI Deal Discovery",
+        "Fraud / Product Scam Detection",
+        "Marketplaces, Vendors, and Suppliers"
       ],
-      buttonText: "Get Free",
+      buttonText: "Get for Free",
       buttonDisabled: false,
       icon: <Sparkles className="w-4 h-4" />,
       popular: true
     },
     {
       name: "Pro",
-      price: "?",
-      period: "coming soon",
-      description: "Professional features for power users",
+      price: "$$",
+      period: "",
+      description: "Professional features for businesses / resellers",
       features: [
         "Everything in Plus",
-        "Advanced analytics",
+        "Advanced Resale Analytics",
         "Custom integrations",
-        "Team collaboration",
+        "Sell and Monitor Profits",
         "API access",
         "White-label options",
         "Premium support",
-        "Early access to new features"
       ],
       buttonText: "Coming Soon",
       buttonDisabled: true,
@@ -81,8 +177,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
   const businessPlans = [
     {
       name: "Business",
-      price: "$20",
-      period: "USD / month",
+      price: "$50",
+      period: "USD / Annually",
       description: "Everything Plus has, with business-grade features",
       features: [
         "Everything in Plus",
@@ -108,10 +204,38 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white">
-        <DialogHeader className="text-center pb-6">
+      <DialogContent className="max-w-7xl w-[95vw] max-h-[90vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white">
+        <DialogHeader className="text-center pb-4">
           <DialogTitle className="text-3xl font-semibold">Upgrade your plan</DialogTitle>
+          
+          {/* Trust Section */}
+          <div className="mt-4 mb-2">
+            <div className="flex items-center justify-center space-x-2 text-zinc-400">
+              <div className="flex -space-x-2">
+                <img 
+                  src="/placeholder-user.jpg" 
+                  alt="Customer" 
+                  className="w-8 h-8 rounded-full border-2 border-zinc-700 object-cover"
+                />
+                <img 
+                  src="/placeholder-user.jpg" 
+                  alt="Customer" 
+                  className="w-8 h-8 rounded-full border-2 border-zinc-700 object-cover"
+                />
+                <img 
+                  src="/placeholder-user.jpg" 
+                  alt="Customer" 
+                  className="w-8 h-8 rounded-full border-2 border-zinc-700 object-cover"
+                />
+                
+              </div>
+              <span className="text-sm font-medium">Trusted by Over 10,000+ Resellers</span>
+            </div>
+          </div>
         </DialogHeader>
+
+        {/* Customer Reviews Carousel */}
+        <ReviewsCarousel />
 
         {/* Tab Selector */}
         <div className="flex justify-center mb-8">

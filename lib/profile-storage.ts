@@ -21,6 +21,8 @@ export interface Collection {
   color: string
   createdAt: string
   itemIds: string[]
+  description?: string
+  customBanner?: string
 }
 
 export interface SavedItemWithMetadata extends Product {

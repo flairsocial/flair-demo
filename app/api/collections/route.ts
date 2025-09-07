@@ -42,7 +42,9 @@ export async function POST(request: Request) {
             name: collection.name,
             color: collection.color || 'bg-blue-500',
             createdAt: new Date().toISOString(),
-            itemIds: []
+            itemIds: [],
+            description: collection.description || undefined,
+            customBanner: collection.customBanner || undefined
           }
           addCollection(newCollection, userId || undefined)
           return NextResponse.json({ success: true, collection: newCollection })
@@ -78,5 +80,43 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("[Collections API] Error:", error)
     return NextResponse.json({ error: "Failed to update collections" }, { status: 500 })
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const { userId } = await auth()
+    const { id, name, description, customBanner } = await request.json()
+    
+    console.log(`[Collections API] PUT request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Collections API] Updating collection: ${id}`)
+
+    // Get current collections
+    const collections = getCollections(userId || undefined)
+    const collectionIndex = collections.findIndex(col => col.id === id)
+    
+    if (collectionIndex === -1) {
+      return NextResponse.json({ error: 'Collection not found' }, { status: 404 })
+    }
+
+    // Update the collection
+    const updatedCollection = {
+      ...collections[collectionIndex],
+      name: name || collections[collectionIndex].name,
+      description: description !== undefined ? description : collections[collectionIndex].description,
+      customBanner: customBanner !== undefined ? customBanner : collections[collectionIndex].customBanner
+    }
+
+    collections[collectionIndex] = updatedCollection
+
+    // Save updated collections
+    // Note: This is a simplified approach. In a real app, you'd have a proper update function
+    removeCollection(id, userId || undefined)
+    addCollection(updatedCollection, userId || undefined)
+
+    return NextResponse.json(updatedCollection)
+  } catch (error) {
+    console.error("[Collections API] Error updating collection:", error)
+    return NextResponse.json({ error: "Failed to update collection" }, { status: 500 })
   }
 }

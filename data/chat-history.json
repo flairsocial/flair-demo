@@ -1,6 +1,1137 @@
 {
   "user_329KVwiv762JNKE2wiz6yRjlNbp": [
     {
+      "id": "chat-1757271405398",
+      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:56:08.537Z"
+        },
+        {
+          "id": "user-1757271368755",
+          "content": "Analyze my collection \"Work Outfits\". This collection contains 5 items: Boohoo Boucle Wide Leg Trousers by boohoo ($28.48), Posse Matilda Gilet by Saint ($360), Pilcro The Rylan Relaxed High-Rise Flare Pants by Anthropologie ($96.6), Dressy Business Casual Blazer Pantsuits Set by Allegra ($49.99), Signature Crepe High Waisted Relaxed Trouser by Express ($88). Please provide insights about this collection, suggest similar items, or help me understand the style theme.",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:56:08.755Z"
+        },
+        {
+          "id": "ai-1757271370469",
+          "content": "Your \"Work Outfits\" collection blends casual and professional styles.  The pieces range from affordable (Boohoo trousers) to more luxurious (Posse Matilda Gilet).  To create a more cohesive look, consider adding structured blouses or tailored tops to complement the trousers and blazer.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:56:10.469Z",
+          "products": [
+            {
+              "id": "9903716046261520066",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSAEWmYm1414l5RWm5XJiSTm3_JztAUJ5mFYm7UzONy5rp7nEW50LI7L6-mSjkhwbi508-If0cI_1GLx-r7Xy9w5s5fSz4p3DtXlgpETAjm_WsEgxT1AmnK9z4",
+              "title": "Boohoo Boucle Wide Leg Trousers",
+              "price": 28.48,
+              "brand": "boohoo",
+              "category": "Dresses",
+              "description": "A notable dresses from boohoo. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9903716046261520066?gl=us"
+            },
+            {
+              "id": "9781792614900034533",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ5dC13jcoM4RzhaALgOPX_bezaJnaBCGLOICkP0Pnmerdku8tPE1ph-sKWMoKacHMuq5m7xXFHMSFzgohe2zvUP3SKh7YpEFbFTKuPYoyF2_p2Z3o6YxjASxY",
+              "title": "Boohoo Tailored Occasion Pleated Wide Leg Pants",
+              "price": 28.05,
+              "brand": "boohoo",
+              "category": "Dresses",
+              "description": "A notable dresses from boohoo. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9781792614900034533?gl=us"
+            },
+            {
+              "id": "12796237575307491835",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ8Mrh0l79hDuzRh2UvhZTRyPNtKzUTzfNYY2JjYdsvUYF3FRakUkHkt3OsH3Swy5gPoaRdMXqLvRjNDHefZMnHF5CL1wH3KW5j0po1TReCo_7Tqk6l3Jho3g",
+              "title": "Boohoo High Waisted Wide Leg Washed PU Trousers",
+              "price": 34.43,
+              "brand": "boohoo",
+              "category": "Outerwear",
+              "description": "A notable outerwear from boohoo. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12796237575307491835?gl=us"
+            },
+            {
+              "id": "10088362337045950854",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcT4e0g66dLPsfal7aGAGK64IAmJu05Kr0aAQWXIcvBFrqz6zhWpMMtKmzdsNzJ2hoW-k6hhQ3FByHzyzNIJ-oaAfjZK03hizRg6US6B3J-Xlul-rG_Tz0w6vHM",
+              "title": "Boohoo Wide Leg Woven Pants",
+              "price": 25.5,
+              "brand": "boohoo",
+              "category": "Dresses",
+              "description": "A notable dresses from boohoo. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10088362337045950854?gl=us"
+            },
+            {
+              "id": "2162632786365751904",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTjUNcdNahVSCgeTtuV4jGY46NCiIOfRQeBTX0p5_Lhtnr3DGhCZ4-JcSYqA6LCU6Yqe6QoPIQq7VI5Ov0ROdoI-H4CalJjIGJO4kl6q2NjstBATXZwuyF8RQ",
+              "title": "Boohoo Open Stitch Collared Top and Wide Leg Pants",
+              "price": 27.2,
+              "brand": "boohoo",
+              "category": "Tops",
+              "description": "A notable tops from boohoo. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2162632786365751904?gl=us"
+            },
+            {
+              "id": "11614509969650724796",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSJCNMIF1gGX5T2U9ccMUGrpDo8eatL57UrEDEz-P3_5-9oh-hSlyZ7YI3sqgijZEfadrTjdFKMAvvUrKbAN6d31QGTbtJUDxd94Xay5316acp_mNdmdZsZCro",
+              "title": "Boohoo Plus Textured Drawstring Waist Trousers",
+              "price": 29.75,
+              "brand": "boohoo",
+              "category": "Outerwear",
+              "description": "A notable outerwear from boohoo. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11614509969650724796?gl=us"
+            },
+            {
+              "id": "7782957002413488657",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRsgmIXhA-qeWfwzofbO6cc6Q8qBw9Yhxaxi4BsUZYbyJr011mgKIm6KpSaAkRgyE-6ZJLdAX5e_2sLNIUetCzLdURagY0qrFfKq0ccCUU_DX0ZT1MUBI_emw",
+              "title": "Boohoo Wide Leg Peached Jersey Trousers",
+              "price": 27.2,
+              "brand": "boohoo",
+              "category": "Shoes",
+              "description": "A notable shoes from boohoo. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7782957002413488657?gl=us"
+            },
+            {
+              "id": "17095195135544708816",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCjs-SVLW5oecTX9YcfaCXim8LW07doH6kQ4sjhR4G6-kbwbAjOz5b4qQCni96EYj23mBFBpwk9_psg9LsGakTHj2kTf7oBYXgjJS9VygbhFfKOCzer4Ez4g",
+              "title": "Boohoo Knitted Button Through T-Shirt and Wide Leg Trouser Matching Set",
+              "price": 50.15,
+              "brand": "boohoo",
+              "category": "Outerwear",
+              "description": "A notable outerwear from boohoo. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17095195135544708816?gl=us"
+            },
+            {
+              "id": "7164595697721294994",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQLBU9MLHV3tKUXIkTyrdwog2KU283XhmedQujPGcwyGO_3P3T_yCKdHopDtd3sqJJ-sOPJ6A1PC3rhHgFpsU_-_74orIjsk5v7ScSBPWRwMopLAybXUBeYOaQ",
+              "title": "Boohoo Super Stretch Wide Leg Pants",
+              "price": 33.15,
+              "brand": "boohoo",
+              "category": "Accessories",
+              "description": "A notable accessories from boohoo. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7164595697721294994?gl=us"
+            },
+            {
+              "id": "3055095373729393393",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ4Pjq6TB2CwRsS64lpsxwMcTO1cBRdTtfG7j__OwMPABZzfIBt9zMmB2GGkzGel1z5zSo28D8HA1sX-Ic-XheJ1Z1MGcIER04LwSXVlJqVuGnSR8PJUCVmdFw",
+              "title": "Boohoo Crinkle Texture Drawstring Trousers",
+              "price": 27.2,
+              "brand": "boohoo",
+              "category": "Bottoms",
+              "description": "A notable bottoms from boohoo. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3055095373729393393?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757271404637",
+          "content": "Find similiar work realted items",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:56:44.637Z"
+        },
+        {
+          "id": "ai-1757271405259",
+          "content": "To find similar work-related items, I need more information about your preferred style and price range.  Knowing your size and preferred shopping destinations will also help me provide the most relevant suggestions.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:56:45.259Z",
+          "products": []
+        },
+        {
+          "id": "user-1757271412243",
+          "content": "using the work outfit collection as reference",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:56:52.243Z"
+        },
+        {
+          "id": "ai-1757271414564",
+          "content": "Based on your \"Work Outfits\" collection, I can suggest similar items in a range of price points.  For example,  look for more wide-leg trousers in similar fabrics like crepe or boucle, and consider adding structured blazers or cardigans in coordinating colors.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:56:54.564Z",
+          "products": [
+            {
+              "id": "15511306680918350241",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTPv1gz3GFuOcGsCV22uCpiIQhDXz9S4GhNzl2bTMRJrub4sZI4gH_bYjf-RgmqHd-3JZ1oM6PMMSMNGHmmhPMKq4ClIq36Zk8HUeNHzrMFyGGrTeUedMpjlDs",
+              "title": "Fashion Nova Ponte Blazer and Wide Leg Pant Set",
+              "price": 64.99,
+              "brand": "Fashion",
+              "category": "Shoes",
+              "description": "A notable shoes from Fashion. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15511306680918350241?gl=us"
+            },
+            {
+              "id": "12816363380768049241",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQFGnrGWUNvYUaL4tavLt1uwtc7hJRNOufmkH1gD6RXHdLwWwGVDJH8tMvcqEF6WdyiOXTYEmU-gR_yUcI5wKco9hp-juMIMoAnPWojImU",
+              "title": "Dressy Business Casual Blazer Pantsuits Set",
+              "price": 49.99,
+              "brand": "Allegra",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Allegra. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12816363380768049241?gl=us"
+            },
+            {
+              "id": "9165633031749847720",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT2XUir_9IlqwwT0rZoHKXMUk4Q2_gHX_AX9rRqADT_OC-f752sJywhRsa3yojtgu9pwORwD5kpaDF6QPYCsLTScLnN6F3BB9nXVwiOQZ8uo8iPdpaEQku4JA",
+              "title": "Retro Stage Women's Business Casual Workwear Button Front Vest & Pleated Skirt",
+              "price": 43.99,
+              "brand": "Retro",
+              "category": "Accessories",
+              "description": "A notable accessories from Retro. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9165633031749847720?gl=us"
+            },
+            {
+              "id": "10696590725709463042",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSUbb7BmGZRqekyroQ74pU8XmAlDOAv2QdxzLNLMnO40AeYuVra4YK66VTCZm35EYuVQNE-3a1P5pV_g7e2ACSnSJLvwrf1E8IQexLGD2E",
+              "title": "Women's Curated Workwear Basics Set",
+              "price": 35,
+              "brand": "Etsy",
+              "category": "Dresses",
+              "description": "A notable dresses from Etsy. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10696590725709463042?gl=us"
+            },
+            {
+              "id": "12223792034964880690",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSY6WQq3a1iW3d5fQlTYVNJANqbaq-G7L3RsZBBv-QDG4NOaRS-PwZM7_G4LR4PHIvqJ0ufo32ge53mdY4Zsnri0wgU8i3BdosrjBBz5GK5N5OU7x38B9Jj",
+              "title": "CIDER Women's Workwear Wool-Like Wool-Look V-Neck Jacket Vest & Mid-Rise Solid Shorts Set",
+              "price": 46.32,
+              "brand": "Cider",
+              "category": "Tops",
+              "description": "A notable tops from Cider. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12223792034964880690?gl=us"
+            },
+            {
+              "id": "1419507690147756045",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRIveFGnjoe2E5LRAUn1RdNrh80zJSKXyV1HHcDn5SV-SLQH8C-HVXiYpzuKzBeSpaU2CCFfsEVAexBek15ip8OJlKRC_DPFjq-w95bf5gVD0rZIJ9dxi-W",
+              "title": "Anne Klein Executive Collection 3-Pc. Pants and Skirt Suit Set",
+              "price": 280,
+              "brand": "Macy's",
+              "category": "Dresses",
+              "description": "A notable dresses from Macy's. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1419507690147756045?gl=us"
+            },
+            {
+              "id": "15872110555489541757",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTrp3zzrYt_sV0fKsjsRyYT5ddxY7LzztPr8OyjLhpJN7aXz-_jR_8CguGi5Iyd3HiKi12tuEil2JqvOGhKZeHevDSXpufc7MIvbZi8xOUI",
+              "title": "Women's Sleeveless Business Casual 2-Piece Office Outfit with Pockets",
+              "price": 65.12,
+              "brand": "Etsy",
+              "category": "Accessories",
+              "description": "A notable accessories from Etsy. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15872110555489541757?gl=us"
+            },
+            {
+              "id": "929315448120172199",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSo1IRP3aPVhT2WZZT3CyslPzgcTNi5Ov2XE47GFXsTcz-M6hfLI1ZcVUipG7edNNUUVhvl6S-qk4k7JlxdqcEV_XO5fjFODySyUGKE1YphAOKF_PPJcf7GFr5r",
+              "title": "Women's Slim Business Dress",
+              "price": 40.48,
+              "brand": "eBay",
+              "category": "Accessories",
+              "description": "A notable accessories from eBay. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:929315448120172199"
+            },
+            {
+              "id": "11609207714653633108",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQdBff54jm6RnPukvS7jGnOO2Js72aMLF0mPRFz7lkEVcPH61FwLNQKpAew9KykaK7Y76ZN1ll1LFcraNEMKSchTbm3B6ed21tXAf5lZpxwLW17PWJakd5TjQ",
+              "title": "1620 Workwear The Shop Pant",
+              "price": 198,
+              "brand": "1620",
+              "category": "Dresses",
+              "description": "A notable dresses from 1620. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11609207714653633108?gl=us"
+            },
+            {
+              "id": "2606676876724811224",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRXnTopwpnc6oZKBKpHsTtUVgNv4CmVdbCG1IfjSJGCczJ4fISHKIFk9c0yM2oAEdXrrD9SDHVERcS5WrC8rpNgyo7_yCvS0X5tKLB3w8RT",
+              "title": "Allegra K 2 Pieces Long Sleeve Blazer and Pencil Skirt Suit Set",
+              "price": 59.88,
+              "brand": "Allegra",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Allegra. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2606676876724811224?gl=us"
+            },
+            {
+              "id": "691677533000907976",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTQ8Wv_QVWzlwZM60xIWUJq3LFt96FRC9r9YvplKNdv5f0wJUSER9CCSTu4BaCzGkP7sNSC0l_KPS5IDmor6-4f6HqDNvbzRcV2oEI7iZaMX4-_P91S-f_GQw",
+              "title": "1930s 1940s French Work Outfit",
+              "price": 430,
+              "brand": "Etsy",
+              "category": "Tops",
+              "description": "A notable tops from Etsy. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/691677533000907976?gl=us"
+            },
+            {
+              "id": "12147573422689511729",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSJCCtaft5D3LTiJbx_tvBjZoEmDSee0w1ALxM16pide7mbRsXQNDrj8NGRWL5OB1Dh8yJInQOWapd6THT6va3vvg3OFlN7wv5j8JfmXPo2Hnn-iaIvFvGc0A",
+              "title": "Men's Bleach Resistant Work Pants",
+              "price": 29.99,
+              "brand": "Lazzar",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Lazzar. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12147573422689511729?gl=us"
+            },
+            {
+              "id": "4590809731271896838",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSVSqB6E2ESO5cz4-sWdjCAawmL9_OzhNXF3wWTVxQeAptyVhjZloYfnGpJbSTAZme5JO_KdTN9y07x0Rxr38USPojUykj62wBncsPGvFR061T3yXmsXANivJM",
+              "title": "Kyle Richards Women's Top 10 Designer Matching Suit",
+              "price": 398,
+              "brand": "Kyle",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Kyle. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4590809731271896838?gl=us"
+            },
+            {
+              "id": "1197572275138117394",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR54TAdficKFNSPEvM5FdGA_TFYscqYcpmoKUPPDMy1r_vSzOw4TafJwkwQ92vCfmrhoJCHI7hqTl-7oTqlg0wGkYWZyAqSMAJhjgGL69U-0g0TFWCRLawwvHE",
+              "title": "Los Angeles Apparel Twill Work Pants",
+              "price": 40,
+              "brand": "Los",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Los. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1197572275138117394?gl=us"
+            },
+            {
+              "id": "13781388529060965114",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSzIw_1sVW-moqMZDnkB7bAPX3pCZk77jylXtpWYR8rlfgjGTFlUbo42n5VOaKWm7NAz7PsE591ZLxhpASYMmallspyoYc6IdTBOPbSrmau",
+              "title": "Women's Patchwork Two Piece Suit",
+              "price": 27.99,
+              "brand": "Walmart",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Walmart. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/13781388529060965114?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-07T18:56:45.398Z",
+      "updatedAt": "2025-09-07T18:57:08.754Z"
+    },
+    {
+      "id": "chat-1757271232169",
+      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:53:39.338Z"
+        },
+        {
+          "id": "user-1757271219556",
+          "content": "Analyze my collection \"Streetwear\". This collection contains 4 items: Vice Jean by Revice ($125), Ombre Multi Pocket Wide Leg Cargo Jeans by Micas ($78), Inspire Chic Women's Baggy Distressed High-Waisted Cargo Pants by Target ($53.99), Revice Denim Metallic Cargos by Poshmark ($100). Please provide insights about this collection, suggest similar items, or help me understand the style theme.",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:53:39.556Z"
+        },
+        {
+          "id": "ai-1757271221115",
+          "content": "Your \"Streetwear\" collection features a mix of cargo and wide-leg jeans, showcasing a relaxed, utilitarian aesthetic.  The price points vary, suggesting a diverse approach to shopping. To expand, consider similar styles from brands like ASOS or Urban Outfitters for a wider range of options within your preferred price range.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:53:41.115Z",
+          "products": [
+            {
+              "id": "8490540299324221191",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQGXy5a7s-fsLwe2YoigfpLtKQB4Q9TJqkEcJ3xeJd6ERCm-KOjZ0F6M49oDkFHCOcEnliLCxFrQLlPZhE9lLnWBOXnk1jerT1qyCjLZ5awrXqf4iIqQqHigw",
+              "title": "Vice Jean",
+              "price": 125,
+              "brand": "Revice",
+              "category": "Accessories",
+              "description": "A notable accessories from Revice. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8490540299324221191?gl=us"
+            },
+            {
+              "id": "15943924643740057503",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSiSSBDehhOEseu83ydogjXivq-TGzGm8OzsrWU-LJdSnqVLIt02x_Vvbd5SF9u3cgWy1k-UWIy728E9zMrbTKUktvJhLpOozPZR3PdWASpeAoXF2M7CplhPUNH",
+              "title": "Vice Cargo Coastline",
+              "price": 135,
+              "brand": "Revice",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Revice. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15943924643740057503?gl=us"
+            },
+            {
+              "id": "8341942933109994182",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTxgx8Q761No0wSRo_QvnhQcuOriksccB0LXKYLK0vbhiaMv99FSCbMiSkW1fccBw-B9N3DCC27h6VKYSLCSgLTDgzcghfH8_sOXBPVK5JxnQrx9uiqj3iAQQ",
+              "title": "Ombre Multi Pocket Wide Leg Cargo Jeans",
+              "price": 78,
+              "brand": "Micas",
+              "category": "Tops",
+              "description": "A notable tops from Micas. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8341942933109994182?gl=us"
+            },
+            {
+              "id": "9678688193638469679",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS9KnYmV59tWnAQPdOla8fUrm_YfgGgLPqa9DMMGbpF8h1waRR96w5meusYXof90dsaEzNLO6OLv2Ofka9qBeJmagZdY-jiyV36EkStXCeznTeTXrCviHRu",
+              "title": "Wylie Men's Wide-Leg Cargo Jeans",
+              "price": 185,
+              "brand": "RtA",
+              "category": "Tops",
+              "description": "A notable tops from RtA. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9678688193638469679?gl=us"
+            },
+            {
+              "id": "9178843434816323048",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQgfA0ls38rk5MmnewcwgccfEt_bNesG4pZicDjMkVSHz0SGblcLi9Wu_4Em3mvUIEC-kTZYMc62Wa-XOebgoGq-BTdtUmn2PS3uWsNLM5W1h2zJqDXdijukQ",
+              "title": "Revice Denim Pants",
+              "price": 55,
+              "brand": "Poshmark",
+              "category": "Shoes",
+              "description": "A notable shoes from Poshmark. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9178843434816323048?gl=us"
+            },
+            {
+              "id": "4026030788174577297",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTTu6peCFQA4Odbrzf4GLDIfjx-3xDOvFfd3luDSuSfypLNx87HAD0wcusKrMUeqbr0RFpTPukNBNa6H0DeP2pYykjNsv-usxIjzbFL8xmkp3WCxQqcwscp57g",
+              "title": "YMI Women's Relaxed Fit Cargo Wide Leg Jeans",
+              "price": 48,
+              "brand": "YMI",
+              "category": "Dresses",
+              "description": "A notable dresses from YMI. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4026030788174577297?gl=us"
+            },
+            {
+              "id": "4569462000663224452",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT6MfEsg15TFvM53ZGvG1Gvgc8UjI1udBnBnTSC4hXE-AAcQNgqF_mmDEEvTfK66Vxk2IFC4h7KRk8W2wlhrGYLP4DFeFrkzcYRsOBYn6Kfc9ZtERvL3IgMPQ",
+              "title": "Stacked Utility Multi Pocket Cargo Jeans",
+              "price": 45,
+              "brand": "Chicago",
+              "category": "Accessories",
+              "description": "A notable accessories from Chicago. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4569462000663224452?gl=us"
+            },
+            {
+              "id": "3862293916776440054",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQF4uDWMgjkCwaN9z8gBUV13lqL3ILyYPn4mUFjCnttPXSa9Ee3j7DW16QsNpseY4hgSj20dSwcPlfHKMp7uNI5Rnvi74Pf5FLn0lfV6N1P",
+              "title": "Women's Baggy Wide-Leg Non-Stretch Jeans",
+              "price": 44.9,
+              "brand": "Cider",
+              "category": "Tops",
+              "description": "A notable tops from Cider. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3862293916776440054?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757271231361",
+          "content": "can you look for simliar items but lower price",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:53:51.361Z"
+        },
+        {
+          "id": "ai-1757271232035",
+          "content": "Okay, I can definitely help you find similar items at lower price points.  To give you the best recommendations, could you specify your preferred retailers or a maximum budget?  Knowing this will help me narrow down the search.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:53:52.035Z",
+          "products": []
+        },
+        {
+          "id": "user-1757271241150",
+          "content": "use the streetwear collection in my profile",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:54:01.150Z"
+        },
+        {
+          "id": "ai-1757271243118",
+          "content": "Considering your \"Streetwear\" collection's focus on cargo and wide-leg jeans, and aiming for lower prices, I'd suggest checking out Shein or H&M.  They often have similar styles to your Revice and Micas pieces, but at significantly lower price points.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:54:03.118Z",
+          "products": [
+            {
+              "id": "9539093933321843300",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSta_8CVEVE8IiOaEA5f6xbV8DvxgzH7tsfaIhLTVtpHb6Av_TKgh2GOR2h8BV8wBiW2wvHFGm5XL0CF7yNHEHPowCiR9JR4ni_DHOwhJkLbKoaoQZY4KBmSA",
+              "title": "TRP Get Money Streetwear",
+              "price": 36,
+              "brand": "Streetwear",
+              "category": "Dresses",
+              "description": "A notable dresses from Streetwear. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9539093933321843300?gl=us"
+            },
+            {
+              "id": "8566935416368760390",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTw6QICyin-owqtI3S8DDl2IxQfFLSs5GgZ3QmBYOv1ewbHp61Fu9nGCj9rbu5hQgTJBEhgLpjUO1qrrarZY-fRwJft0P63uM8KuCIsKwx7iLTGlh6pg_Uv",
+              "title": "Streetwear fashion menswear",
+              "price": 31.99,
+              "brand": "Connetic",
+              "category": "Accessories",
+              "description": "A notable accessories from Connetic. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8566935416368760390?gl=us"
+            },
+            {
+              "id": "8552548020839304968",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcStNea0tAgq3NMfuQ82PywH14KiZiJseNkrKS4V5z_VtRhihXShR6_4dN6FaI61hG947S9MhFS7MxwkLPkFWBrrNqij1adgun80e18Z0hKdFe2cqW8CXemUYg",
+              "title": "Xclusiv Visionary Collab Set",
+              "price": 120,
+              "brand": "Xclusiv",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Xclusiv. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8552548020839304968?gl=us"
+            },
+            {
+              "id": "6310694816223728756",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRVrYjlHysrlw6rqEv6E1WYBnN9nF-JTHgeQORLzUeNKeg5yOc323yFTcCpunQDKGhqUwQ-nyG_bDRO57aJqX-DegmSeLHEI-pEV07CKTVI2LEnxfam4v1z5w",
+              "title": "The Collector Streetwear Hoodie",
+              "price": 69.99,
+              "brand": "Catori",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Catori. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6310694816223728756?gl=us"
+            },
+            {
+              "id": "10364353115115065807",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQQnOq78OlZosH2Zd5Y-YIxdjG9p3ZBjh5lHTSB1m22r9DIHIu65AvS0iCzFkzadvL6dWscdNJBpCG07z1LVtVET8QLAS06FDbMhrEMUdag9k8eVGWmOlpv",
+              "title": "Streetwear Official",
+              "price": 36,
+              "brand": "Streetwear",
+              "category": "Accessories",
+              "description": "A notable accessories from Streetwear. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10364353115115065807?gl=us"
+            },
+            {
+              "id": "5493543773731352632",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSE7LUooxUvB2gLAiQFDzmVYWy-mmHDArSggguS6iO2jjy-75KukZ-aKlZMvkkz0IfIygThWw-h_xKKLbJSeoKwz8rNEUwkbc0UBtC-AAJBACOJN0NMUVkn",
+              "title": "Chinatown Market Studios Born Again Graphic Hoodie",
+              "price": 110,
+              "brand": "marketstudios.com",
+              "category": "Accessories",
+              "description": "A notable accessories from marketstudios.com. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5493543773731352632?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-07T18:53:52.169Z",
+      "updatedAt": "2025-09-07T18:54:16.498Z"
+    },
+    {
+      "id": "chat-1757271026429",
+      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:49:58.348Z"
+        },
+        {
+          "id": "user-1757270998569",
+          "content": "Analyze my collection \"Streetwear\". This collection contains 1 items: Vice Jean by Revice ($125). Please provide insights about this collection, suggest similar items, or help me understand the style theme.",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:49:58.569Z"
+        },
+        {
+          "id": "ai-1757271000760",
+          "content": "The Vice Jean from Revice is a great starting point for a streetwear collection!  Its price point fits nicely within your budget. To build on this, consider adding graphic tees or hoodies for a more complete streetwear look.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:50:00.760Z",
+          "products": [
+            {
+              "id": "4691033781501740895",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQJLRSeO5WvlTNsHeRzp3qEjNkINyoXawk8gVPCZt8pVG8aGtLOg4CiSHqomFBmFj7gS9GeU5Ea7f3ONi1QG8GEyRabbD9ht4zw7AWguq1dJd5J2cOWiCU4iw",
+              "title": "Vice Jean",
+              "price": 125,
+              "brand": "Revice",
+              "category": "Accessories",
+              "description": "A notable accessories from Revice. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4691033781501740895?gl=us"
+            },
+            {
+              "id": "2556462509985269180",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQA1Mys1BsAapp-q7g7oeBSIOkxl_cUnqJtViVBhXzLyc7lMtl8lsE86_BfYjOnqjlst71iV3N4VvytgurQqYHeIx1Uk09Su27use7RSdqHOdXS3STzbx9v",
+              "title": "Streetwear Official 27 Club",
+              "price": 36,
+              "brand": "Streetwear",
+              "category": "Tops",
+              "description": "A notable tops from Streetwear. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2556462509985269180?gl=us"
+            },
+            {
+              "id": "18249965050353687673",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTmkoLr9nMoV6Jw-SpKqBtaAvXLWfswkYTaMEFos_PxRglX4rC8Dst0cndUA7DbEtr3nnd_gClADQRoHCHlMMmTWYKXa-L98wClgDEA2epGAwzdEfymyJwKUw",
+              "title": "Revice Women's Jeans",
+              "price": 125,
+              "brand": "Depop",
+              "category": "Dresses",
+              "description": "A notable dresses from Depop. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/18249965050353687673?gl=us"
+            },
+            {
+              "id": "9631699750566756117",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTGgwLeFTupOSb4_zKBfc4WTRA8CwkLgl4vgb07_Ios_JyHkfQtWO4UBhUHMf07ypti5Mfsa3cLZEPXnZLhwzA0B967m8ugofcJTJGPe4g",
+              "title": "Revice The Edition Jeans",
+              "price": 160,
+              "brand": "Poshmark",
+              "category": "Accessories",
+              "description": "A notable accessories from Poshmark. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9631699750566756117?gl=us"
+            },
+            {
+              "id": "8552548020839304968",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcStNea0tAgq3NMfuQ82PywH14KiZiJseNkrKS4V5z_VtRhihXShR6_4dN6FaI61hG947S9MhFS7MxwkLPkFWBrrNqij1adgun80e18Z0hKdFe2cqW8CXemUYg",
+              "title": "Xclusiv Visionary Collab Set",
+              "price": 120,
+              "brand": "Xclusiv",
+              "category": "Tops",
+              "description": "A notable tops from Xclusiv. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8552548020839304968?gl=us"
+            },
+            {
+              "id": "12965757110068167817",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRJDrDRLdD38cSt6V52H8I6WkhegVygbdLuwkwA8qlQ6QC-3P3xdt5yc_JsOhloQJjUHAveTIktZH2098hpQ-E8G2ZAXwv-l6owKFs4X7fMjYUdjfWMMG3M",
+              "title": "Streetwear Official 27 Club Bloom Within Tee",
+              "price": 36,
+              "brand": "Streetwear",
+              "category": "Tops",
+              "description": "A notable tops from Streetwear. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12965757110068167817?gl=us"
+            },
+            {
+              "id": "16526199117464725830",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRSyQHxDBwehH6-5jXu17VJ2PdUr57VZcJERZITpRwAgBt0S0EjPIcIhdHVgGdegVjpJPWgJ9Snx2ThybExYXwmYmukPahZd3C4reMJQBZldFd1176doOG6vA",
+              "title": "Tons of Streetwear & Collectors Piece",
+              "price": 250,
+              "brand": "Whatnot",
+              "category": "Shoes",
+              "description": "A notable shoes from Whatnot. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:16526199117464725830"
+            },
+            {
+              "id": "9221760012149311315",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRQWOnIwqQ6kui7_QyCM2QKIGmqB8wOu0CFV_-Gii3fnSt7diwyITJ6XU_Bopvizb20wXLC6zQN3K3lmAhvoJPA1g9s79tUElPuRnIgZX_A5nW5LP3U2znE",
+              "title": "Revice Straight Leg Jeans with Vintage Appeal",
+              "price": 40,
+              "brand": "Poshmark",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Poshmark. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9221760012149311315?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757271022837",
+          "content": "Can you find similiar pants but cheaper ?",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:50:22.837Z"
+        },
+        {
+          "id": "ai-1757271026294",
+          "content": "I can definitely help you find similar pants at a lower price point. To give you the best recommendations, could you tell me your preferred style within streetwear (e.g., oversized, skinny, distressed)?  Knowing this will help me narrow down the search.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:50:26.294Z",
+          "products": [
+            {
+              "id": "14109128822857801440",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTXMsCvovQCXp61eJRoNyMshvXaykJG1aMgDLGbs9Gzlm8XcZ6CKaeyTMQQ77OcB1Kcl38c7DoGtnJrhdzoO4iICr2ADp-uqW3KNgahBCnE1tt5raixqPpbqQ",
+              "title": "Mission Made Men's Tactical Pants with Water Repellent",
+              "price": 59.99,
+              "brand": "US",
+              "category": "Outerwear",
+              "description": "A notable outerwear from US. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14109128822857801440?gl=us"
+            },
+            {
+              "id": "7034809674263759883",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSudTUogOPFxZ-jTbOfdh1lVOiJX2L9NFZsyQ37aQNWJrHoo3id6hz4JXyZKMpe18RYpmilGM_RLR7559Bmzx3HPB-4w9tannYn8b4ZXHa7pjP79MwlSvaVEw",
+              "title": "Public Rec Gamechanger Rec Pants",
+              "price": 108,
+              "brand": "Lyst",
+              "category": "Dresses",
+              "description": "A notable dresses from Lyst. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7034809674263759883?gl=us"
+            },
+            {
+              "id": "15054553488994747164",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQmCRaRLTKCCghWroBudZoNBtYXGAwqg0OeCioMU6mfQKPi50gP6Orb-6pd6Uyq0NbVp4lIwDBGT3PiQncqfamkigkZMHaQnj-irN4hBrsAeEg08lvo2qs8",
+              "title": "H&M Ladies Dress Pants",
+              "price": 44.99,
+              "brand": "H&M",
+              "category": "Outerwear",
+              "description": "A notable outerwear from H&M. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15054553488994747164?gl=us"
+            },
+            {
+              "id": "18306797282890252210",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTQAFlqAMYdoQx42Pa0GdAbrXdjKRy1VLDE6FDIACx3odm2xAHUXADO6MZstLc2lgdRVGoUhwdSRsz8Z8D_UyPrKZooOhMLWn5PFGRBikGyHtO3WNhtkG5C",
+              "title": "Redhead Men's Ultimate Work Pants",
+              "price": 36.97,
+              "brand": "Bass",
+              "category": "Tops",
+              "description": "A notable tops from Bass. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/18306797282890252210?gl=us"
+            },
+            {
+              "id": "15252441062471530412",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTW3mxw1b6CbRXAQxkWpZFi48tjdFD7vW1zttFnRrmwMJ-v5TkYp68ZYF7UgjAONy1jXuaWr_Gqev3BoUnx6ieBQeLmsr0-BySoX7XFwYWx4A6HWF4I2R8w4Q",
+              "title": "Men's Jack Archer Jetsetter Tech Pant Slim Fit",
+              "price": 89,
+              "brand": "Jack",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Jack. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15252441062471530412?gl=us"
+            },
+            {
+              "id": "14798309878849707451",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSnBxk9vfCETdCzAYHpTgpjhFwdDbZ2qfAVKZd2zt4s0--RVPoonZYwA7hYibHB1ZngZBWVFWezFkXxrS227d8lrKi5ueV42cGws2P99B-cF7VUAcgkCioE",
+              "title": "Women's High-Rise Wide-Leg Wide Leg Stretch Challis Pant in Black by Mainline at Torrid",
+              "price": 59.9,
+              "brand": "Torrid",
+              "category": "Shoes",
+              "description": "A notable shoes from Torrid. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14798309878849707451?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757271040192",
+          "content": "similiar pants to the item in the collection streetwear that I HAVE",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:50:40.192Z"
+        },
+        {
+          "id": "ai-1757271042743",
+          "content": "To find cheaper alternatives to your Revice Vice Jeans, I need a little more information about what aspects of them you like best.  Are you looking for similar washes, fits, or details like specific pockets or distressing?\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:50:42.743Z",
+          "products": [
+            {
+              "id": "17467301286221348252",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR_6m4v7DaV3KdLmderv8WFVZcT0Pl7P82my3dartAjMBfplZbDdFQjo7oX1sPGlwmxiAPRoPC1W_WDrnZVIHEZKXdfUQC3gXDRhL-s_0spg4AV00t9eiCM",
+              "title": "Kidoriman Gelyu Harem Pants",
+              "price": 49.95,
+              "brand": "Kidoriman",
+              "category": "Accessories",
+              "description": "A notable accessories from Kidoriman. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17467301286221348252?gl=us"
+            },
+            {
+              "id": "16195108854115503360",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQQfpAylTXajXWz6PB57LFTGTNDh3oa7XqPly8Y_3-tcA8GKWgwv1nFMFio4Ft3J3CPTRT569ax8VXlcwhvajiVYuhKlKqdCdH71mqjtnyL5oIZr9SIR9LkJZs",
+              "title": "Edikted Women's Vivienne Baggy Twill Pants",
+              "price": 48,
+              "brand": "edikted",
+              "category": "Dresses",
+              "description": "A notable dresses from edikted. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/16195108854115503360?gl=us"
+            },
+            {
+              "id": "9601633640812849584",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQJeAeIhvm4vHgmFUYZck0ci49aYCrn139GlaGSNUHd-5XwvXdL8C_qvDO4VwVRfIAsGxg3RtBqEDH3l1WzqNkhjmi1a2B1h5DhqZdJUSY94MQxl_du_Q-Yhw",
+              "title": "Gelyu Harem Pants 2.0",
+              "price": 49.95,
+              "brand": "Kidoriman",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Kidoriman. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9601633640812849584?gl=us"
+            },
+            {
+              "id": "7424396782895748246",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSqxPMv6ZSljm6n5Tm8bNedUVacfDbhUt175oqiESX76hiv0HemexE4wQXST8y6tbrpXEwf538DFn6Prk11yuYIXPcCRWFXSbZzWVZxWaiV-K1ponwa-BvNng",
+              "title": "A.LAB Leo Y2k Wide Leg Cargo Pants",
+              "price": 31.99,
+              "brand": "Zumiez",
+              "category": "Dresses",
+              "description": "A notable dresses from Zumiez. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7424396782895748246?gl=us"
+            },
+            {
+              "id": "417498584354206335",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT-E9J0T2sOvFuhgJqLivjgDSCb7XldsRfi4XlmPn2YpzrBopYxdl8kHt07w48O3GGjprlHCiehQW3xEk_uTi5Ey7MgcIwfPDeWZXxBtKg8NMtQtx1KIh0WeA",
+              "title": "Foldover Track Pants",
+              "price": 55,
+              "brand": "Sundae",
+              "category": "Shoes",
+              "description": "A notable shoes from Sundae. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/417498584354206335?gl=us"
+            },
+            {
+              "id": "7671363853382280436",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTbZaL_M-bzntZUHuQAxeqMx6aRg9JLnEBFdrTIrR0_vAO-0zwvLnvQFaTf6Pd9N4x5G_GYL-S1Bx7uAWNr78vDvkaD7q7AapJlPZaEj5N-78zCLaWOT9k_EA",
+              "title": "Social Collision Wide Leg Cargo Pants with Contrast Stitch Skull & Chain",
+              "price": 32.94,
+              "brand": "Hot",
+              "category": "Tops",
+              "description": "A notable tops from Hot. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7671363853382280436?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757271049232",
+          "content": "WOMANS",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:50:49.232Z"
+        },
+        {
+          "id": "ai-1757271049975",
+          "content": "Okay, I understand you're looking for women's jeans similar to the Revice Vice Jeans but at a lower price point.  Knowing your preferred style (e.g., relaxed, straight-leg, skinny) and wash will help me give you more precise recommendations.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:50:49.975Z",
+          "products": []
+        },
+        {
+          "id": "user-1757271059671",
+          "content": "SAME STYLE AS THE ONE IN COLLECTIONS",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:50:59.671Z"
+        },
+        {
+          "id": "ai-1757271061756",
+          "content": "Perfect!  Since you want similar pants to the ones in your collection and a lower price point,  I'll use your saved preferences and budget to find comparable options.  I'll focus on finding similar styles and washes.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:51:01.756Z",
+          "products": [
+            {
+              "id": "708197943672577703",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTaWdYpaf9bmwQ4g7Uk0557yoWxW2Ev_F49nqQ4lmDI0p-KyaLJnmG8u9WdNsJRmGKEEsJbcBQwI6dxm8EpxA75E3ueNqqIkd40EeAeQ4cLnPS1XuOK54ttSw",
+              "title": "Men's Hyper Denim Camo 8 Pocket Cargo Pants",
+              "price": 82,
+              "brand": "Hyper",
+              "category": "Accessories",
+              "description": "A notable accessories from Hyper. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/708197943672577703?gl=us"
+            },
+            {
+              "id": "17467301286221348252",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR_6m4v7DaV3KdLmderv8WFVZcT0Pl7P82my3dartAjMBfplZbDdFQjo7oX1sPGlwmxiAPRoPC1W_WDrnZVIHEZKXdfUQC3gXDRhL-s_0spg4AV00t9eiCM",
+              "title": "Kidoriman Gelyu Harem Pants",
+              "price": 49.95,
+              "brand": "Kidoriman",
+              "category": "Shoes",
+              "description": "A notable shoes from Kidoriman. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17467301286221348252?gl=us"
+            },
+            {
+              "id": "7839729110959114184",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTxgx8Q761No0wSRo_QvnhQcuOriksccB0LXKYLK0vbhiaMv99FSCbMiSkW1fccBw-B9N3DCC27h6VKYSLCSgLTDgzcghfH8_sOXBPVK5JxnQrx9uiqj3iAQQ",
+              "title": "Ombre Multi Pocket Wide Leg Cargo Jeans",
+              "price": 78,
+              "brand": "Micas",
+              "category": "Tops",
+              "description": "A notable tops from Micas. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7839729110959114184?gl=us"
+            },
+            {
+              "id": "1475627757324150432",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQXEIFko_d6MvftFwfp_9jDJykItunX82B1Ok_Jp-a4ZmZxSBMhMyK7GZt1seiYnlDAsyF1OCziGOLt4UHI0H-cTAFVRmbA8Zrp46lfS8IzVrpHXtY-XwIlYg",
+              "title": "Streetwear Edgar Pants",
+              "price": 119,
+              "brand": "I",
+              "category": "Shoes",
+              "description": "A notable shoes from I. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1475627757324150432?gl=us"
+            },
+            {
+              "id": "11430108391502282200",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSi1GlMGMcFfpzcan98Uam3Zwpbet_V5iZFeIPyxvTZSwZE5DaKS91eiKqgUKNetdyG6EsxnAQZHMoZa799aoXu41O_U4xu6kvfcK54se4zaJ2Vp9erELA2wA",
+              "title": "Men's Streetwear Daily Letter Patched Multi-Pocket Drawstring Cargo Pants",
+              "price": 29.99,
+              "brand": "Rosegal",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Rosegal. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11430108391502282200?gl=us"
+            },
+            {
+              "id": "15237584784068618300",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQpPXeOBbHsJQv7h87_BdzvYeXP6k-EnM55xjXr30ubrgp-fr6c9N1idGCe0huZRF7GtS4tsaN8rms0RoCsAeG9hViBLmM3GQCg97UcpnG95lbn4lYyMd4TxA",
+              "title": "Streetwear Dual-wearable Zippered Cargo Pants",
+              "price": 68.99,
+              "brand": "Techwearofficial",
+              "category": "Shoes",
+              "description": "A notable shoes from Techwearofficial. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15237584784068618300?gl=us"
+            },
+            {
+              "id": "15443680012914424953",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcR42TvW8UMNmKJKCgPY1boQ4FrL-F_i2OVO0jNQAdOqw2Fl0FAcWplDwhlFYjvlyGovEki4_R2y5N2rXWuQiQyqi78CDp3STY87eZi1tPmdj-WKbu5LAfo5",
+              "title": "Goth Distressed Streetwear Pants",
+              "price": 60,
+              "brand": "DevilInspired",
+              "category": "Accessories",
+              "description": "A notable accessories from DevilInspired. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15443680012914424953?gl=us"
+            },
+            {
+              "id": "7995301793459822235",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSIUbaMo9URmYjsDhuhMXAG-MvyIKN6v6UMIlKWsCIrsGLQnP-L8GJNJL-POxXKExi6blyTSZEsJkxH1Logp981JtqcpHe9m0mNn2hSbKlJSliwch6b76siBA",
+              "title": "Streetwear Baggy Jeans",
+              "price": 60,
+              "brand": "YoungLA",
+              "category": "Outerwear",
+              "description": "A notable outerwear from YoungLA. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7995301793459822235?gl=us"
+            },
+            {
+              "id": "17888980109109239405",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQJeAeIhvm4vHgmFUYZck0ci49aYCrn139GlaGSNUHd-5XwvXdL8C_qvDO4VwVRfIAsGxg3RtBqEDH3l1WzqNkhjmi1a2B1h5DhqZdJUSY94MQxl_du_Q-Yhw",
+              "title": "Gelyu Harem Pants 2.0",
+              "price": 49.95,
+              "brand": "Kidoriman",
+              "category": "Bottoms",
+              "description": "A notable bottoms from Kidoriman. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17888980109109239405?gl=us"
+            },
+            {
+              "id": "311691975967938374",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRpzaM7GJExIoXMmU0hrGmXCWI7yAcmpZ6BohDtudcIQk4WPykbNIoeCurwmoTimIGjLTjB_4fPrEADszGaTJkZpK7qj7Za5gK6PUC2Me5Os-bRneqGERR2cw",
+              "title": "Fashion Nova Women's Fever Wide Leg Streetwear Pants",
+              "price": 39.99,
+              "brand": "Fashion",
+              "category": "Tops",
+              "description": "A notable tops from Fashion. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/311691975967938374?gl=us"
+            },
+            {
+              "id": "11217981704884650717",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTx1w0ai_ep8XALAVSOHvkAxtwdPPPjCfjb-tIcrIVWNUOSfSiUeiWmer_ZjjSY5zbCL5OWjIhWnU1DNXZ2beQjrw0sTgBfKaA4IE2IWZ1AAZH04ReTp4m9xZ8",
+              "title": "Streetwear Detachable Cargo Pants",
+              "price": 85.46,
+              "brand": "Japanese",
+              "category": "Shoes",
+              "description": "A notable shoes from Japanese. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11217981704884650717?gl=us"
+            },
+            {
+              "id": "17023212013158985568",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTFdKmF8shlqpTCdhpAPlQ2EPqhMOuRe_bQs2TxKRktfYkMN9lVTyc2dFlc1qLJ8GGQAdnSx29IR8GeO8OoGrC4RPEeo8nrfE2oiRKV0de77lM-TY6c9jyi1w",
+              "title": "Kimurakami Streetwear Pants",
+              "price": 52.24,
+              "brand": "kimurakami.com",
+              "category": "Bottoms",
+              "description": "A notable bottoms from kimurakami.com. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17023212013158985568?gl=us"
+            },
+            {
+              "id": "10211780479007705532",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQi7JBhBC2puHXtqmLwSjeCf-1e6K5OW8ZjY_rcGqKGjdyQXn3oV-obHvWJYr9yIAP1PSZIae0p6BIGlkm9BrIdDXZr5EhFkwMJ1xOnxkvHOAW2BSyWFBrjrQ",
+              "title": "Streetwear Dustin Cargo Pants",
+              "price": 119,
+              "brand": "I",
+              "category": "Shoes",
+              "description": "A notable shoes from I. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10211780479007705532?gl=us"
+            },
+            {
+              "id": "1467978807736191462",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTIZyABVOsWuJbLUEkxdCe9aOmfkHEmTgPH4gndj-PTNMpDncFeCqQw9ATF_KjRbc2kECGJY8ktdgzoXte7on4gOFaFBTa7GGK3nw1UEJYinbJbEFLi3-hFSpg",
+              "title": "Think I Need You Low Rise Cargo Pants",
+              "price": 52.49,
+              "brand": "White",
+              "category": "Shoes",
+              "description": "A notable shoes from White. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1467978807736191462?gl=us"
+            },
+            {
+              "id": "12615074787880939183",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQYmUTEu6dr4nZOMvgmlbBlR71sf4ImORXouzk7ED71iXUup_BP4Z8HKf_3uruzXraltmyRpg8J5BCYcCkBLhBOnkuwsDuAgICJWO3kJCzMjngIsq5mRIJRHQ",
+              "title": "Streetwear Drawstring Slim Cargo Pants",
+              "price": 74.99,
+              "brand": "Techwearofficial",
+              "category": "Shoes",
+              "description": "A notable shoes from Techwearofficial. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12615074787880939183?gl=us"
+            },
+            {
+              "id": "9670697826235841927",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT1KkNoKvTISjz8gVXw6tMl-gepwIXeK6CqxT2R9vtHav2R1hLZB0Y0X_YAclxWFhurW0Q6o2o2S4hz4ncrXyOzRAcOj4pyPzwWokxVMn69Ji3BxnwO_REV1g",
+              "title": "Men's Trendy Straight Denim Cargo Pants",
+              "price": 80,
+              "brand": "Hyper",
+              "category": "Accessories",
+              "description": "A notable accessories from Hyper. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9670697826235841927?gl=us"
+            },
+            {
+              "id": "4487181769966874311",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRXw--yOVmbLBm3IZt-pN4omtw6f3C_Zb65kgq70OkVPaGUA3AhUljiyXwV5-CXzq94abtFpGrgBcJdHH6JRB5dXD_AK9hXQXhv1DUKdd4lTdHIb33NfJG4",
+              "title": "Zaful Men's Streetwear Daily Letter Patched Multi-Pocket Drawstring Cargo Pants",
+              "price": 28.99,
+              "brand": "ZAFUL",
+              "category": "Dresses",
+              "description": "A notable dresses from ZAFUL. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4487181769966874311?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757271115374",
+          "content": "for woman please",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:51:55.374Z"
+        },
+        {
+          "id": "ai-1757271115997",
+          "content": "My apologies, I should have specified that already. I'll search for women's pants similar in style to those in your collection, within your budget.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:51:55.997Z",
+          "products": []
+        },
+        {
+          "id": "user-1757271123287",
+          "content": "find it ?",
+          "sender": "user",
+          "timestamp": "2025-09-07T18:52:03.287Z"
+        },
+        {
+          "id": "ai-1757271123959",
+          "content": "Please specify the style details of the pants from your collection you're referencing –  e.g.,  \"bootcut, dark wash, high-waisted\" – to help me find the best matches within your budget.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-07T18:52:03.959Z",
+          "products": []
+        }
+      ],
+      "createdAt": "2025-09-07T18:50:26.429Z",
+      "updatedAt": "2025-09-07T18:52:16.009Z"
+    },
+    {
       "id": "chat-1756919950828",
       "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
       "messages": [
