@@ -288,8 +288,7 @@ export function addChatHistory(chatHistory: ChatHistory, userId?: string): void 
   setChatHistory([chatHistory, ...currentHistory], userId)
 }
 
-export function updateChatHistory(chatId: string, messages: ChatMessage[], userId?: string): void {
-  const profileKey = userId || 'anonymous'
+export function updateChatHistory(chatId: string, messages: ChatMessage[], userId?: string, title?: string): void {
   const currentHistory = getChatHistory(userId)
   const updatedHistory = currentHistory.map(chat => {
     if (chat.id === chatId) {
@@ -297,7 +296,22 @@ export function updateChatHistory(chatId: string, messages: ChatMessage[], userI
         ...chat, 
         messages, 
         updatedAt: new Date().toISOString(),
-        title: messages.length > 0 ? generateChatTitle(messages[0].content) : chat.title
+        ...(title && { title })
+      }
+    }
+    return chat
+  })
+  setChatHistory(updatedHistory, userId)
+}
+
+export function renameChatHistory(chatId: string, newTitle: string, userId?: string): void {
+  const currentHistory = getChatHistory(userId)
+  const updatedHistory = currentHistory.map(chat => {
+    if (chat.id === chatId) {
+      return { 
+        ...chat, 
+        title: newTitle,
+        updatedAt: new Date().toISOString()
       }
     }
     return chat
@@ -306,14 +320,62 @@ export function updateChatHistory(chatId: string, messages: ChatMessage[], userI
 }
 
 export function deleteChatHistory(chatId: string, userId?: string): void {
-  const profileKey = userId || 'anonymous'
   const currentHistory = getChatHistory(userId)
   const filteredHistory = currentHistory.filter(chat => chat.id !== chatId)
   setChatHistory(filteredHistory, userId)
 }
 
-function generateChatTitle(firstMessage: string): string {
-  // Generate a title from the first message (first 50 characters)
-  const title = firstMessage.trim().slice(0, 50)
-  return title.length === 50 ? title + '...' : title
+export function generateChatTitle(firstMessage: ChatMessage): string {
+  // Use attached files for title if available
+  if (firstMessage.attachedFiles && firstMessage.attachedFiles.length > 0) {
+    const products = firstMessage.attachedFiles
+      .filter(f => f.type === 'product' && f.metadata?.title)
+      .map(f => f.metadata.title)
+    
+    if (products.length > 0) {
+      const title = products.length === 1 ? 
+        `${products[0]} styling` : 
+        `${products[0]} + ${products.length - 1} more items`
+      return title.slice(0, 50)
+    }
+  }
+  
+  // Use first message content and create a brief summary
+  const content = firstMessage.content.trim().toLowerCase()
+  
+  // Look for common fashion patterns and create descriptive titles
+  if (content.includes('show me') || content.includes('find me')) {
+    const searchTerm = content.replace(/show me|find me|please|can you|help me/, '').trim()
+    return `Looking for ${searchTerm}`.slice(0, 50)
+  }
+  
+  if (content.includes('what') && (content.includes('wear') || content.includes('outfit'))) {
+    return 'Outfit advice request'
+  }
+  
+  if (content.includes('style') || content.includes('fashion')) {
+    return 'Fashion styling discussion'
+  }
+  
+  if (content.includes('dress') || content.includes('top') || content.includes('pants') || 
+      content.includes('shoes') || content.includes('jacket') || content.includes('skirt')) {
+    const item = content.match(/(dress|top|pants|shoes|jacket|skirt|jeans|shirt|blouse|sweater|coat|boots|sneakers|heels|bag|purse)/)?.[0]
+    return item ? `${item.charAt(0).toUpperCase() + item.slice(1)} shopping` : 'Clothing search'
+  }
+  
+  if (content.includes('budget') || content.includes('price') || content.includes('cheap') || content.includes('expensive')) {
+    return 'Budget shopping advice'
+  }
+  
+  if (content.includes('work') || content.includes('office') || content.includes('business')) {
+    return 'Work wardrobe help'
+  }
+  
+  if (content.includes('date') || content.includes('party') || content.includes('wedding') || content.includes('event')) {
+    return 'Special occasion styling'
+  }
+  
+  // Fallback to first few words
+  const words = content.split(' ').slice(0, 6).join(' ')
+  return words.length > 40 ? words.slice(0, 40) + '...' : words || 'Fashion chat'
 }

@@ -43,6 +43,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
               showRemove={false}
               size="sm"
               maxDisplay={4}
+              clickable={true} // Enable clicking in chat
             />
           </div>
         )}

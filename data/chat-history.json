@@ -1,8 +1,908 @@
 {
   "user_329KVwiv762JNKE2wiz6yRjlNbp": [
     {
+      "id": "chat-1757380023494",
+      "title": "Edikted Women's Halley Faux Leather Bomber Jacket ",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T01:06:41.253Z"
+        },
+        {
+          "id": "user-1757380007881",
+          "content": "Find similiar items",
+          "sender": "user",
+          "timestamp": "2025-09-09T01:06:47.881Z",
+          "attachedFiles": [
+            {
+              "id": "product-13071830242235069430",
+              "name": "Edikted Women's Halley Faux Leather Bomber Jacket",
+              "type": "product",
+              "url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTmMNTfFIuNIJ2FFsAzG4y5PlvXMC1uWisL-Tu7GRsmddsPPcqQekJmm7-Skdh0hEpZxCWkaZ8guF1reJ7JfGMFFFq0owVxcd4iKEAHzOJ5yRGkMbwbCYwK",
+              "preview": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTmMNTfFIuNIJ2FFsAzG4y5PlvXMC1uWisL-Tu7GRsmddsPPcqQekJmm7-Skdh0hEpZxCWkaZ8guF1reJ7JfGMFFFq0owVxcd4iKEAHzOJ5yRGkMbwbCYwK",
+              "metadata": {
+                "title": "Edikted Women's Halley Faux Leather Bomber Jacket",
+                "price": 67.2,
+                "brand": "edikted",
+                "description": "A quality electronics product from edikted. Versatile and well-designed, this item is a great addition to any collection.",
+                "category": "Electronics",
+                "link": "https://google.com/shopping/product/13071830242235069430?gl=us",
+                "productId": "13071830242235069430"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757380010803",
+          "content": "That Edikted Halley Faux Leather Bomber Jacket is a great find!  Given your preference for minimalist and classic styles, I can suggest similar jackets in faux leather or other materials from brands like ASOS or Mango, staying within your usual budget.  Let me know if you'd like specific recommendations!\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T01:06:50.803Z",
+          "products": [
+            {
+              "id": "15812406610836101936",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTCPC069xxjnL-L2WItIg-OsQMXoS8Z45Re2Rdd4QNXSJmHczVPCZTRRRds5KUw_nHARYb9TLxmR_DfyEVoOKc0zFspQq7QTg9HnnNU_cYFXMO5yTZCuHYJEg",
+              "title": "Edikted Women's Halley Faux Leather Bomber Jacket",
+              "price": 67.2,
+              "brand": "edikted",
+              "category": "Beauty & Health",
+              "description": "A quality beauty & health product from edikted. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15812406610836101936?gl=us"
+            },
+            {
+              "id": "11615290164034412666",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSMJBajGY3GnNVIFwHAxEyHhDGvhYWUjaY6ZerlTl2GBypRhmeAFCcfyV1CfNvTJzyypcu2ndxNocN_gIpEadXoaq0ylm6aMXFd1WAfvTnJQlh7joZEBAjfIg",
+              "title": "Edikted Women's Cropped Faux Leather Bomber Jacket",
+              "price": 75,
+              "brand": "edikted",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from edikted. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11615290164034412666?gl=us"
+            },
+            {
+              "id": "1347832719261869072",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTJAGrZayTe1duOMBWv4cZbimocW1X7HBAn7k3Cr0u7V3yyfHtOUENU1HaLnQa3gvzqyC4fkJ8B-6IFip1JN-IQ9B7UfEaVg6oEkmaLUcIWrK53dRE9CN4uBJAm",
+              "title": "Edikted Women's Vava Washed Faux Leather Bomber Jacket",
+              "price": 79.2,
+              "brand": "edikted",
+              "category": "Books & Media",
+              "description": "A quality books & media product from edikted. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1347832719261869072?gl=us"
+            },
+            {
+              "id": "717376505061698582",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTc10yeQ5KIgW9SoPUQLEteID04fLxVloc5Bl3Xsawr6ZGW8SjCz6RLKZ5Pqg4ZobM1_xV5FetRCo_OcXyl5sF4U72Y80IjiouivDyPRl1I5lUqkz3yikvb",
+              "title": "Allegra K Women's Oversized Faux Leather Moto Bomber Jacket",
+              "price": 65.6,
+              "brand": "edikted",
+              "category": "Electronics",
+              "description": "A quality electronics product from edikted. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/717376505061698582?gl=us"
+            },
+            {
+              "id": "10803914271328765605",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRBmoOtvvz7G1up_lB6pLewbeCeurAcmzQpsj434bU7WnLZf0hFKlnt5lr39lD6m0tKFp2GruEv4_A5E6KaXedkysl-hKEHsrhl6xpSQjVeCdW4NYIJbqmurA",
+              "title": "Edikted Women's Oversized Faux Leather Bomber Jacket",
+              "price": 131.2,
+              "brand": "Nordstrom",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from Nordstrom. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10803914271328765605?gl=us"
+            },
+            {
+              "id": "6831153092597011338",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTXz_Iv5Wjtg7CXfMcl4TZGgask7CwtJVBvetj9BWDHf1t7n6K_VJLDPNBFD0cIoYKZpCNyxdx-pU-Bg3pHDM8wunMFTgaOak30gCxJkW-mr07fsGy-TsL-",
+              "title": "Edikted Women's Faux Leather Cargo Bomber Jacket",
+              "price": 98,
+              "brand": "edikted",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from edikted. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6831153092597011338?gl=us"
+            },
+            {
+              "id": "10344499633237274536",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRZQ0x8Wk9hW9nXqM4bp8pTdCO69erUlAY-FX4rfLQx-nkUhjE6Yr0b6N3gHYPXhPHwVPWTAmW2PLPnkjtHctO96cDxft5tQ1nBf-9pTQkVk0R7P6Se_OVFcQ",
+              "title": "Edikted Women's Oversize Faux Leather Bomber Jacket",
+              "price": 87,
+              "brand": "edikted",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from edikted. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10344499633237274536?gl=us"
+            },
+            {
+              "id": "12835970945182050667",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQNxlsDAthAUihxL9QdCN95EqOYhDghQ8lKiZDxRFOH438VqeBGyh7JHvPY8ISWyu2U4AwSVvlWqa3fNtZiwVDQBknSijyDOXKhz4Oylzucnb00aPcraYTi",
+              "title": "Edikted Women's Oversized Faux Leather Jacket",
+              "price": 84,
+              "brand": "edikted",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from edikted. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12835970945182050667?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757380021301",
+          "content": "show different brands",
+          "sender": "user",
+          "timestamp": "2025-09-09T01:07:01.301Z"
+        },
+        {
+          "id": "ai-1757380023086",
+          "content": "Considering your love for minimalist and classic styles, and your previous interest in faux leather jackets,  I can suggest similar items from AllSaints,  & Other Stories, and Aritzia. These brands often offer stylish, well-made jackets that align with your preferences.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T01:07:03.086Z",
+          "products": [
+            {
+              "id": "4316154314820658880",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTDqyQsYzicwD7D1H4Zu1dZ2ybEYWbWfAGtwgTGfkFzTotowAr4sbFI3OjmVu7ZIs3We28TPNFPZiOxp9rJChjhKKy0juXBCL2FczBgtB4HryHtccqFFQxZNZs",
+              "title": "Wilson SBR Shoe",
+              "price": 138,
+              "brand": "Wilson",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from Wilson. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4316154314820658880?gl=us"
+            },
+            {
+              "id": "9649469222580565108",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTVI2mTe5I81Rt_Jr33wJNv2H7FnYT5fkA9ZgoAYO7ebncqPo7_m6VP4i-beYY9VtF2qdCT7m_5kN9juZYXGPt1fLXH68GUGxFhM147o4ngPXOXElgxl90d3A",
+              "title": "Nike Men's P 6000 Se Low-top Sneakers",
+              "price": 120,
+              "brand": "Nike",
+              "category": "Electronics",
+              "description": "A quality electronics product from Nike. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:9649469222580565108"
+            },
+            {
+              "id": "16919058351548492191",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSBupGt_uNnzLFxInaknOh0mqKSA5dBAENNrrK7kyQacT9f6DwXUrC30eyeKeZxfQzGa7Q0EWClYgkDNHnscctcgKlz3W1bwRuysIIKOK-5OS2uB4-FyZWseg",
+              "title": "Golden Goose Leather Colorblock Pattern Sneakers",
+              "price": 204,
+              "brand": "The",
+              "category": "Books & Media",
+              "description": "A quality books & media product from The. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:16919058351548492191"
+            },
+            {
+              "id": "13161797241750149179",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQftbA-USSHMTRMex6IgYRHQVWX_rvtEr-tL4QZgPfgS0f7OzwMSPz8LnSO7eEBfyiBr9WvRqxz8vUtis8H_J8-eFiFvft5CAbaKdU9KvQ",
+              "title": "Cloud 6 Versa Sneakers",
+              "price": 193,
+              "brand": "ModeSens",
+              "category": "Beauty & Health",
+              "description": "A quality beauty & health product from ModeSens. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:13161797241750149179"
+            },
+            {
+              "id": "356793992416148697",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS6ajoJtFBtPsCgBBhKmYj23q1jFN3cQIFQX8H_xBuCu6TvYofQDaVtlEOVKyfehfhFOcBCK4hGmey8aK02X8INv-92ocdwF_eYspn-M2_7tfM4AASUaoynuA",
+              "title": "Skechers Women's Lifestyle Sneakers",
+              "price": 160.99,
+              "brand": "eBay",
+              "category": "Beauty & Health",
+              "description": "A quality beauty & health product from eBay. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:356793992416148697"
+            },
+            {
+              "id": "4722913213015023245",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRO7f1DoOymFTGK3HPUitAri2fVzAVH_r_xFnoTHDI7Hciy79cRbwdX_G5bdzgpCxPwp3riuLaD16eu38gvLBZ9hTU4KzaVkTgmcJEjnwEnW_2p9Z-ZzHuR",
+              "title": "Cole Haan Grand Cc Leather Sneaker",
+              "price": 109.99,
+              "brand": "Bluefly",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from Bluefly. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:4722913213015023245"
+            },
+            {
+              "id": "7521931863488161581",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQbsz5yU0RXgjnuLa6wD8uxvMu5hSww3EFYwpJ3n8I9dUFOXAX7fdzXLcNG6ZRpf_ZIVi5Igc6ZWMfgI_9Feq_Zp_ko5gmVUkc7TGF3SvjszseztjYB8ZUbIg",
+              "title": "Isabel Marant Women's Bobby High-top Sneaker",
+              "price": 790,
+              "brand": "Isabel Marant",
+              "category": "Beauty & Health",
+              "description": "A quality beauty & health product from Isabel Marant. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:7521931863488161581"
+            },
+            {
+              "id": "5110973242785447797",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTTCpNhRtuys1LqIBBBTT5WFSA4Cn8-t68JgOCKH_CJc_OE5087RXsuvgtxj2SsBCgUax0OpfLM9nUEZyibCUFGJDU-Yog312Y9FXTy9MosjPiUe_GJK0-O",
+              "title": "Adidas Advantage 2.0 Iconic Shoes",
+              "price": 169.23,
+              "brand": "Adidas",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from Adidas. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:5110973242785447797"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-09T01:07:03.494Z",
+      "updatedAt": "2025-09-09T01:07:20.459Z"
+    },
+    {
+      "id": "chat-1757379403665",
+      "title": "Joppe Western Leather Jacket styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T00:55:47.684Z"
+        },
+        {
+          "id": "user-1757379355104",
+          "content": "Find all items that look like this",
+          "sender": "user",
+          "timestamp": "2025-09-09T00:55:55.104Z",
+          "attachedFiles": [
+            {
+              "id": "product-7706568323157303604",
+              "name": "Joppe Western Leather Jacket",
+              "type": "product",
+              "url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQT6c145k6cty5bEfBeHuOzhFvH6u3JrGbElYPLNcW6GPCBJOod7kGTdTm7j8H_16yStiIbxkAxOnV-ureQ_HkLEDqZIO9YIkpN_z7yay_K2wIlyU20CrlmiA",
+              "preview": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQT6c145k6cty5bEfBeHuOzhFvH6u3JrGbElYPLNcW6GPCBJOod7kGTdTm7j8H_16yStiIbxkAxOnV-ureQ_HkLEDqZIO9YIkpN_z7yay_K2wIlyU20CrlmiA",
+              "metadata": {
+                "title": "Joppe Western Leather Jacket",
+                "price": 608,
+                "brand": "Stuarts",
+                "description": "A quality electronics product from Stuarts. Versatile and well-designed, this item is a great addition to any collection.",
+                "category": "Electronics",
+                "link": "https://google.com/shopping/product/7706568323157303604?gl=us",
+                "productId": "7706568323157303604"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757379359526",
+          "content": "That's a stylish Joppe Western Leather Jacket by Stuarts!  Since it's outside your typical budget, I can help you find similar leather jackets in your preferred styles (Business, Casual, Streetwear) within a more affordable price range.  I'll focus on brands you've liked before and find alternatives with comparable quality and design.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T00:55:59.526Z",
+          "products": [
+            {
+              "id": "7706568323157303604",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQT6c145k6cty5bEfBeHuOzhFvH6u3JrGbElYPLNcW6GPCBJOod7kGTdTm7j8H_16yStiIbxkAxOnV-ureQ_HkLEDqZIO9YIkpN_z7yay_K2wIlyU20CrlmiA",
+              "title": "Joppe Western Leather Jacket",
+              "price": 608,
+              "brand": "Stuarts",
+              "category": "Books & Media",
+              "description": "A quality books & media product from Stuarts. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7706568323157303604?gl=us"
+            },
+            {
+              "id": "8026075837680384677",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTah6854qwYQzSqhU5wwO1BOJTxAQkRIOkXPlyhquM3Ot8jmTDroRN15rY-ov2zqIGO_yttWh0eGFK34v9D1SXx35rgIqvvVPutMza872_RUTm3Bn7pMvJX",
+              "title": "Lambskin Leather Jacket",
+              "price": 100.85,
+              "brand": "SkinOutfit",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from SkinOutfit. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8026075837680384677?gl=us"
+            },
+            {
+              "id": "15391110042321715899",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTlE74d58as0hd0ojRHLlhJlFZjiQiuuuCAFjm_-S21dT7QQ0S-rEB-VP7fNETQzFUmlDvObo6Qiu-mSC_4oRPGVwwNDtZIQ2aVX6yn4TSJALJ1FivoLPDa7g",
+              "title": "Men's Shearling Collar Leather Bomber Jacket",
+              "price": 282,
+              "brand": "The",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from The. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15391110042321715899?gl=us"
+            },
+            {
+              "id": "14945005911974469528",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcS5AtnKFURmvanGIPNT2cpm-OnNuZ9AOBGgShRqjhAt86hYkX9iTMUiRpu5-5IzoC6h5lkgZfMHXxJsgUwzwEacxmHvxkUwA_rloygYfWu52jR4zdIB927bYg",
+              "title": "Men's Western Leather Jacket with Fringe Beaded",
+              "price": 69.99,
+              "brand": "eBay",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from eBay. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14945005911974469528?gl=us"
+            },
+            {
+              "id": "1663586059669190267",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRXdpnOLv5mLlVnjPwabRpSLskfRwGFi8QWEGId5v_n9dzDl-iOKKQx3l9E1-tqy7kYfqOhfvjSHxFrRwedwxtCqNV9uqFfpVnm_aK26PZPqq6V09dN_BMz",
+              "title": "Frye Men's Modern Leather Trucker Jacket",
+              "price": 298.98,
+              "brand": "The",
+              "category": "Electronics",
+              "description": "A quality electronics product from The. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1663586059669190267?gl=us"
+            },
+            {
+              "id": "15576372241285750368",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRGBYCEpR_xZ7RESUf7bwVXhc6Msgqddw2vAaW67E59cXb3oUxFPkowQdWEq8sypMBfkGVarA8RVLWXW2UkXHs0oUoKUUCSvJjDlB7TP1VnFNZyIAPv1kFv",
+              "title": "Scully Men's Leather Zip Out Front Jacket",
+              "price": 234.56,
+              "brand": "Kleinschmidt's",
+              "category": "Tools & Hardware",
+              "description": "A quality tools & hardware product from Kleinschmidt's. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15576372241285750368?gl=us"
+            },
+            {
+              "id": "5056961292804681934",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQI8yXywo38WEsdjdoL2NpDRq7Bi-1CFhmLmQC1gqm75R2MHq4t87bJKDzlA_SYH50kgLyK_q16-u7JKOwNXLb8V_YAgbPhvyW3kBYrtXmZTDq5T0chKWpT",
+              "title": "Gabriela Hearst Albie Western Jacket in Nappa Leather",
+              "price": 7450,
+              "brand": "Gabriela",
+              "category": "Electronics",
+              "description": "A quality electronics product from Gabriela. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5056961292804681934?gl=us"
+            },
+            {
+              "id": "13853422393299289977",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ3wvf2eW5JYupn_E9a45oYFDgqrK4AqFbntU0hmKkookjvenmSbEzmagRMt09GBp9aar4zzrVgMXSD9Kn1I-1bziOIJbwTbJjxFu0b0lG6gBrMDy-BYYBIYg",
+              "title": "Leathercult Vintage Grain Western Leather Blazer",
+              "price": 259,
+              "brand": "LeatherCult",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from LeatherCult. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/13853422393299289977?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757379400272",
+          "content": "find that jacket but under 200\\",
+          "sender": "user",
+          "timestamp": "2025-09-09T00:56:40.272Z"
+        },
+        {
+          "id": "ai-1757379403277",
+          "content": "Okay, I can help you find similar Western-style leather jackets under $200.  Given your preference for Business, Casual, and Streetwear styles, I'll search for options that match those aesthetics while staying within your budget. I'll also consider the fit you prefer based on your profile.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T00:56:43.277Z",
+          "products": [
+            {
+              "id": "2075392720737990028",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSeujgHLqFnyYqn65ch9x3vnPRYayhP3wTwJ9nCUltICnXX--agge8tvOnz-9FhXWBbzi6DfhSGwT9812ES17wEKmzbGHZxlE6ZzvB1_9c",
+              "title": "Under Armour Men's Unstoppable Jacket",
+              "price": 110,
+              "brand": "DICK'S",
+              "category": "Books & Media",
+              "description": "A quality books & media product from DICK'S. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2075392720737990028?gl=us"
+            },
+            {
+              "id": "9359796412334709697",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTFt2cIUmcia6Hkj02Ay6466gwymPGhtFNHf0ogl6z01VP60MbcxclKe8nWxtWMHehcgalI0L3il3hayOjSbGhUjGMdW3Ld9wH-qMsm6geiC8a6UWbXXmVqVQ",
+              "title": "Ozark Trail Men's Softshell Jacket",
+              "price": 34.98,
+              "brand": "Walmart",
+              "category": "Tools & Hardware",
+              "description": "A quality tools & hardware product from Walmart. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9359796412334709697?gl=us"
+            },
+            {
+              "id": "388467455749348945",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRwG6KaFM5MeGXVxvp5lPUEI8VX_rcV4QvW6BlW7f2QHyimKpF28EOwxOjBUlKthBbx7Lt_NJXB88ZPjofD6-MkQrbgDDDy193hULEEyoFIAa_0ouyejma4",
+              "title": "Carhartt Men's Gilliam Jacket",
+              "price": 99.99,
+              "brand": "Academy",
+              "category": "Beauty & Health",
+              "description": "A quality beauty & health product from Academy. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/388467455749348945?gl=us"
+            },
+            {
+              "id": "10852663430588199982",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTwVt2yPgqIeHeIKgvb2ZQMbFmwcC6GA0efaWtYRM1T7UxgYVyew-S2ACCtwPCC1J-4d5q0Zab_q_fMXWITmE7yIyAntyRrLue2tI79CEz5LLbJGUi6qOBW",
+              "title": "Old Navy Women's Canvas Barn Jacket",
+              "price": 59.99,
+              "brand": "Old",
+              "category": "Beauty & Health",
+              "description": "A quality beauty & health product from Old. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10852663430588199982?gl=us"
+            },
+            {
+              "id": "17559651157161139984",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRqoQm4Ob6oPEvSX7dgbba31f7ervI9R8G-VRXQo9wtcHLc5gpqVt64GZeZ_z9BWzB3b61Y4O_wBsVtbKwVOFvRnzqOWAtghz5UfzlTmApT9mNVGcNE21hEzQ",
+              "title": "Quince Women's Featherless Quilted Nylon Puffer Jacket",
+              "price": 100,
+              "brand": "Quince",
+              "category": "Tools & Hardware",
+              "description": "A quality tools & hardware product from Quince. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17559651157161139984?gl=us"
+            },
+            {
+              "id": "8142456955870214976",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRmqHprFdpd7ZQdnIUbNqDZ_H4cpbZJE4UJh3Mys_vPSpNVVshEju6a9cBMxWwc7Y5dFbUFx6IUhi0VnB_IoEFZIMY0Nu6K6JbRQjD6vernyy74P4WPfz-plA",
+              "title": "Columbia Men's Glenbrook Bend Rain Jacket",
+              "price": 60,
+              "brand": "DICK'S",
+              "category": "Books & Media",
+              "description": "A quality books & media product from DICK'S. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8142456955870214976?gl=us"
+            },
+            {
+              "id": "17980339988128339930",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSE0x5ZcK59Jpu-RBvEtlTY6HiKfmLWQJu1B-UCY1fLQ8gIB5rf6afCSM34MUJki_MfpyT-KHDy9KAJIThbliM-SP3Xmwi48UiwaNKFQI_9puUE7bWz7AZwxA",
+              "title": "UNIQLO Ultra Light Down Jacket",
+              "price": 89.9,
+              "brand": "Uniqlo",
+              "category": "Electronics",
+              "description": "A quality electronics product from Uniqlo. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17980339988128339930?gl=us"
+            },
+            {
+              "id": "16342593968319995706",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTnLQ27J46E218mInWWiIgujkmhtXhr5Ht9dg21xqWU9yQ7uRLCORp-3aNcI1d70lxn74YCHiT8dR21ek5jQjqiHIUKYTh8",
+              "title": "Weatherproof Men's Golf Jacket Lightweight Windbreaker Water-Resistant Microfiber Shell",
+              "price": 81,
+              "brand": "Belk",
+              "category": "Electronics",
+              "description": "A quality electronics product from Belk. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/16342593968319995706?gl=us"
+            },
+            {
+              "id": "15995585620655066301",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTwBgWo_kXVuXNxdqSKrsXV-U1U9aviE1QC1zMj3qe3whRQdZ1HeCDIwrJ2K9XKbpfEsAHeGB7s_u9BDGr9enFyukBCoev0QbN13TRBmY1gAwxmHqvSldbz4A",
+              "title": "Time and Tru Women's Lightweight Anorak Jacket with Hood",
+              "price": 29.98,
+              "brand": "Walmart",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from Walmart. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15995585620655066301?gl=us"
+            },
+            {
+              "id": "11932450642120426295",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ5iGjJREAvLCGjCHiV50SdnI2Gk1oYD-h8QISjH82SGwF_xQ-X1yC2J3v14KnfFKPmX0JCf2ncgAK_Q_8TxXVe9QtgvMYZTQ",
+              "title": "Universal Thread Women's Relaxed Faux Leather Bomber Jacket",
+              "price": 65,
+              "brand": "Target",
+              "category": "Books & Media",
+              "description": "A quality books & media product from Target. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11932450642120426295?gl=us"
+            },
+            {
+              "id": "3868715205666821147",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRzq0P0KzPav6qm0dzhRbKOlKJx03OfYvcntSNSlvnfxutWSQduribovjg2EEFwQLKnmA9cD8YaDsoPYEY4UfTksNsc4PB1BW_maJE2H4WwFdqS54d6AzeDxQ",
+              "title": "The North Face Men's Canyonlands Hybrid Jacket",
+              "price": 150,
+              "brand": "Macy's",
+              "category": "Electronics",
+              "description": "A quality electronics product from Macy's. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3868715205666821147?gl=us"
+            },
+            {
+              "id": "14472925924710389857",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRYMu0lsXV6-1dVlQTpi6j4arJkHwEbNFpi0Vwc5CyfmmIf8Xr78J6jIP8iLK262APlGCaOR9O7VI6N4oBDizyupsHfBflS3wLgm0mvm3E9xkz19Znrl_AFdg",
+              "title": "Columbia Men's Powder Lite II Jacket",
+              "price": 120,
+              "brand": "Academy",
+              "category": "Tools & Hardware",
+              "description": "A quality tools & hardware product from Academy. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14472925924710389857?gl=us"
+            },
+            {
+              "id": "8684114229896752242",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTjnd-9z2cgnzIGFoKqnAT0ecral2alPd5tjl6c2BgVRwib4CeUp3CJ_pECPLG-lsFtOZAfj4yqW5Kogbnl1ZTZKOuf7tnx__zkmrqyahFt10DzJKNJc61NaA",
+              "title": "Brahma Men's Midweight Hooded Shirt Jacket",
+              "price": 32.98,
+              "brand": "Walmart",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from Walmart. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8684114229896752242?gl=us"
+            },
+            {
+              "id": "6276547312785228974",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSU-w5SSHboqD3Nc6UWsO-ljcNSuL9CqT2PLHcR28Cc0ZWQCx2X3zQrUkeq6q5r-9NnbC6OAQmtKRjjbnDlMshUWEZI0qecDUBPznCKkhY",
+              "title": "Legendary Whitetails Men's Dakota Waxed Cotton Jacket",
+              "price": 129.99,
+              "brand": "Legendary",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from Legendary. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6276547312785228974?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-09T00:56:43.665Z",
+      "updatedAt": "2025-09-09T01:06:08.288Z"
+    },
+    {
+      "id": "chat-1757377445843",
+      "title": "Loro Piana Men's Tennis Walk Suede styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T00:23:39.050Z"
+        },
+        {
+          "id": "user-1757377426379",
+          "content": "find all similiar look items like this for cheap",
+          "sender": "user",
+          "timestamp": "2025-09-09T00:23:46.379Z",
+          "attachedFiles": [
+            {
+              "id": "product-5690069281737068538",
+              "name": "Loro Piana Men's Tennis Walk Suede",
+              "type": "product",
+              "url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQEVCUlY5C6LmJh6bwp3Ol7DB_CuP0xdd-VYaeKNZTcXkemEExuZEfz4rFpdhw_xwCYmqYuLW-nKfeZgefEXOZl1d9PXS93aRMmtEbprHQpilZAiYu14BHwOw",
+              "preview": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQEVCUlY5C6LmJh6bwp3Ol7DB_CuP0xdd-VYaeKNZTcXkemEExuZEfz4rFpdhw_xwCYmqYuLW-nKfeZgefEXOZl1d9PXS93aRMmtEbprHQpilZAiYu14BHwOw",
+              "metadata": {
+                "title": "Loro Piana Men's Tennis Walk Suede",
+                "price": 1085,
+                "brand": "Loro",
+                "description": "A quality sports & outdoors product from Loro. Versatile and well-designed, this item is a great addition to any collection.",
+                "category": "Sports & Outdoors",
+                "link": "https://google.com/shopping/product/5690069281737068538?gl=us",
+                "productId": "5690069281737068538"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757377429961",
+          "content": "Those Loro Piana suede sneakers are stylish!  Finding exact matches for that price point will be tough, but I can locate similar suede sneakers from other brands within a more affordable range.  I'll focus on business-casual styles to match your preferences.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T00:23:49.961Z",
+          "products": [
+            {
+              "id": "8827199772087432134",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQf365ePNEJAVzo9wncF-C5NTLLuPQpPHNqAaRJ592rhJhCnS-dg7AASD742fUtT_H7MxWRVm7PK_-tZqUIcU6oRaCoBmfnwbx0zOk78zsIj1Gf4fKXzlIrWw",
+              "title": "Loro Piana Men's 360 LP Flexy Walk Active Wish",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Tools & Hardware",
+              "description": "A quality tools & hardware product from Loro. A high-quality product with excellent reviews and reliable performance.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8827199772087432134?gl=us"
+            },
+            {
+              "id": "5239985576823414926",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTbpyD74uFwHwNDHkNM0L1ZoHPRumnGtAualnFb-NzutMZpKNBW8ZRq_I8Gfh3mCKirDj-4JLnkJ9ux_HjoYil4TOcTlhAtPZfCzI1QCNQOGWrVSgelyStqLJU",
+              "title": "Loro Piana Men's 410 LP Walk Gok",
+              "price": 2310,
+              "brand": "Loro",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from Loro. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5239985576823414926?gl=us"
+            },
+            {
+              "id": "14561209171440724553",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTpEg0fD-n_ijMLtkLAmCjwcsV40KzEVuwztdMepEukp_PFZYyB-CabGLouSnhJjNJjt92SljYn2eflvuLWwlzY66JDBAot_U1m--MDo34nv0tKwzCcc45O1A",
+              "title": "Loro Piana Newport Walk Wind Suede",
+              "price": 995,
+              "brand": "Loro",
+              "category": "Sports & Outdoors",
+              "description": "A quality sports & outdoors product from Loro. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14561209171440724553?gl=us"
+            },
+            {
+              "id": "14215873451314293823",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcT7nnfI-2za9r5VSk3NYqbTG1tuV_qR6HjHcBlFbPijMzdpZZLXC5b1_tmquT2x-tONa4uE27Yhw4C175x8g84XPGRKjv6IOB2P4RxXnJ03QYI0UJ_2pqMVvgQ",
+              "title": "Loro Piana 360 LP Walk Recycled Cash",
+              "price": 1225,
+              "brand": "Loro",
+              "category": "Tools & Hardware",
+              "description": "A quality tools & hardware product from Loro. Crafted with attention to detail, offering both functionality and durability.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14215873451314293823?gl=us"
+            },
+            {
+              "id": "4996436466664480556",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSoO33UACvkkT2PxvJx02BFzGU02eA4f2iQ9jYQxI3k7mGDjwWABGPCEp_ARkJp0NgNzdW3X56AGaB7Coykv_oVoGcM_Fge3NhIFxSFaFWVMnDg0wCSCc6v3A",
+              "title": "Loro Piana Men's Tennis Walk Suede",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Home & Garden",
+              "description": "A quality home & garden product from Loro. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4996436466664480556?gl=us"
+            },
+            {
+              "id": "14288611628051485779",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTrBtUVV8bh441OiK8al_4Ka-hcLybRAwkAvwJTVmBfNCGBR8QhQP567WDP8Tb4nKp8oBkfN9rhqbZe36LU32zmkR1K9C9CYTGuGNAtbY_LFNxGBrxfBHahyA",
+              "title": "Loro Piana Men's Tennis Walk Suede Nabuk Alligator",
+              "price": 5470,
+              "brand": "Loro",
+              "category": "Books & Media",
+              "description": "A quality books & media product from Loro. Features modern design and is made from quality materials for lasting use.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14288611628051485779?gl=us"
+            },
+            {
+              "id": "12226521517978894704",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQqVG0DIFdrZUhl0FCh6O0P9DA3ixW-SvjflqlvHQUfhUprrNbS8sgJq1Tg28rq0ClPeDU-YolYD9m9bttx8CeTjEWdkA4NRMbvYGdIvjJvhF4fy8RsDXKo9yY",
+              "title": "Loro Piana Katharina Outdoor Bristol",
+              "price": 1580,
+              "brand": "Loro",
+              "category": "Electronics",
+              "description": "A quality electronics product from Loro. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12226521517978894704?gl=us"
+            },
+            {
+              "id": "17485473001325748111",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS5as2xR9kUqP91lPiS7QDPSoGBo1bzSOp9FZTkVCoLE-jFOGueiDH6LyqLIoYEALMJayEWWfNgIfcpTxe3J18-6bigPsIRrW4I5Wy2uwhnwP8ljZoX80-0PTE",
+              "title": "Loro Piana Venice Walk Flat Suede",
+              "price": 950,
+              "brand": "Loro",
+              "category": "Books & Media",
+              "description": "A quality books & media product from Loro. Versatile and well-designed, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17485473001325748111?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757377444855",
+          "content": "doesnt have to be same brand",
+          "sender": "user",
+          "timestamp": "2025-09-09T00:24:04.855Z"
+        },
+        {
+          "id": "ai-1757377445704",
+          "content": "Great! To find similar-looking, budget-friendly alternatives, could you please provide a link or image of the specific Loro Piana sneakers you're referencing?  This will help me narrow down the search and offer the best recommendations.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-09T00:24:05.704Z",
+          "products": []
+        }
+      ],
+      "createdAt": "2025-09-09T00:24:05.843Z",
+      "updatedAt": "2025-09-09T01:19:33.441Z"
+    },
+    {
+      "id": "chat-1757373447647",
+      "title": "Pants shopping",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-08T23:17:12.402Z"
+        },
+        {
+          "id": "user-1757373434431",
+          "content": "acne studios cargo pants",
+          "sender": "user",
+          "timestamp": "2025-09-08T23:17:14.431Z"
+        },
+        {
+          "id": "ai-1757373437920",
+          "content": "Given your preference for business attire and athletic build,  I'd suggest exploring Acne Studios' tailored trousers instead of cargo pants for a more professional look.  Their structured designs would flatter your figure while maintaining a polished business style.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-08T23:17:17.920Z",
+          "products": []
+        }
+      ],
+      "createdAt": "2025-09-08T23:17:27.647Z",
+      "updatedAt": "2025-09-08T23:22:47.774Z"
+    },
+    {
+      "id": "chat-1757369827279",
+      "title": "Georgette Relaxed Portofino Shirt styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-08T22:15:49.564Z"
+        },
+        {
+          "id": "user-1757369749788",
+          "content": "Is this worth it? Please show me similar competitors and analyze this product for value and quality compared to alternatives.",
+          "sender": "user",
+          "timestamp": "2025-09-08T22:15:49.788Z",
+          "attachedFiles": [
+            {
+              "id": "product-5905847481313076384",
+              "name": "Georgette Relaxed Portofino Shirt",
+              "type": "product",
+              "url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRivfir855Ytu-CGiuMJ8KCUH1Px58MWnqk3hX5evW6WS7KF8qRRKiONg-WpWI7aQ5raE7DKEjykTOyQbpCuUs9Rf8ZWDT91A",
+              "preview": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRivfir855Ytu-CGiuMJ8KCUH1Px58MWnqk3hX5evW6WS7KF8qRRKiONg-WpWI7aQ5raE7DKEjykTOyQbpCuUs9Rf8ZWDT91A",
+              "metadata": {
+                "title": "Georgette Relaxed Portofino Shirt",
+                "price": 50,
+                "brand": "Express",
+                "description": "A notable dresses from Express. Versatile and chic, this item is a great addition to any collection.",
+                "category": "Dresses",
+                "link": "https://google.com/shopping/product/5905847481313076384?gl=us",
+                "productId": "5905847481313076384"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757369752089",
+          "content": "The Express Georgette Relaxed Portofino Shirt is a good value at $50, especially considering your preference for business casual attire.  Its relaxed fit should be comfortable and flattering on your athletic build.  However, for similar options, check out White House Black Market's selection of blouses; their quality is comparable and their styles often align with your preferences.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-08T22:15:52.089Z",
+          "products": [
+            {
+              "id": "11765997264338450614",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS-UpfrCR1C5xLBeha_5ym1i9o7C7LZBdfnnVqLXW-OYqzkSR0LBtPq6ci6o-Mq_IM94Nlj-n-6P7YAaxayyCeXBpC3yky2gOEdin0AUDvX",
+              "title": "Inspire Chic Women's Business Elegant Boat Neck Half Sleeve Pleated Midi Dress",
+              "price": 52.09,
+              "brand": "Walmart",
+              "category": "Dresses",
+              "description": "A notable dresses from Walmart. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11765997264338450614?gl=us"
+            },
+            {
+              "id": "2191773674866167665",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTBqs7QoHBRFmY4_DlqbUlU6v5z5v-kS2P6gDVsgX8UCvhg5PWax8Pza9ec9bxvatjAfQSAWmfWWqdy6f_LaRU3UAoeTJfesiqQB5Co1YVcLnr00aciJuC2fQ",
+              "title": "Chic Soul Women's Down to Business Dress",
+              "price": 68.5,
+              "brand": "Chic",
+              "category": "Accessories",
+              "description": "A notable accessories from Chic. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2191773674866167665?gl=us"
+            },
+            {
+              "id": "6199640227735817764",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT8zffmurGvgp4_vepiqJLOv7GhR21RcQGIpfKrpdht14bVmZuBUj1PK_2StGA1EC0F09eBRrFJB33Dk4tsmBE-RIQKZPRymZObqcP_1tL7E1FJ10-zJ4TV",
+              "title": "Standards & Practices Women's Candice Georgette Wrap Dress",
+              "price": 66,
+              "brand": "Bloomingdale's",
+              "category": "Tops",
+              "description": "A notable tops from Bloomingdale's. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6199640227735817764?gl=us"
+            },
+            {
+              "id": "13042187541823354122",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQLSodJMxeX3g-42B-BrX97UCDq63AsdR2NMMPdZ92DcBVfZ-u9RCOvyqsvffPPrplKxq-iC1ATE7_dtxGPLG2QcZuZ-lW-qLPwuMcZ7RjN4RWZHboFTBdK",
+              "title": "Alexia Admor Women's Kate Collared Long Sleeve Maxi Dress",
+              "price": 99.97,
+              "brand": "Nordstrom",
+              "category": "Shoes",
+              "description": "A notable shoes from Nordstrom. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/13042187541823354122?gl=us"
+            },
+            {
+              "id": "1689678699201394795",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSBPw4vm2Fyichh7N8rry4ccScRFBT-df1PBMzVoy6jsmJ_0zPmAAzgl-wlqdc03MLMc3Q-t7IHwlf4oSfsJNjdivF07SIvZ6VAeoAbk4I",
+              "title": "Down to Business Dress",
+              "price": 54,
+              "brand": "Molly",
+              "category": "Shoes",
+              "description": "A notable shoes from Molly. Versatile and chic, this item is a great addition to any collection.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1689678699201394795?gl=us"
+            },
+            {
+              "id": "2283793087025070820",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSYaC8QXl4jnZqTCATgnZLq4WYuNG3n3SKRtFqsJW0q-VW-UFRAx0zddkUc3Jzs2Y01DlfVT0iMEh_vdfEsdtbnyaAqUsG2jhK5m11i15uRGm0xzzYI440eQA",
+              "title": "Daring Diva Boat Neck Half Sleeve Pleated Dress",
+              "price": 52.09,
+              "brand": "Walmart",
+              "category": "Outerwear",
+              "description": "A notable outerwear from Walmart. Features a contemporary design and is made from quality materials.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2283793087025070820?gl=us"
+            },
+            {
+              "id": "17214788220631105600",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRFPWfM48uH7cVBDBpwI5PHhh8_K8v-g9fyAPun_w3KN_kstFX5M5qePgEJAJrlfkUxLsmA8LfjJLopLo3CK7ElUu5zZhr3f6XHw7gN8cG9ZY0dBLOw0JMG",
+              "title": "ELOQUII Women's Plus Size Seam Detail Ponte Work Dress",
+              "price": 65.97,
+              "brand": "ELOQUII",
+              "category": "Accessories",
+              "description": "A notable accessories from ELOQUII. A stylish and high-quality piece, perfect for a modern wardrobe.",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17214788220631105600?gl=us"
+            },
+            {
+              "id": "1188511572749245116",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR_-lpfwu0kMgCb8XpAG0hMDP81fPDAwDQ21clm5axadZu_dzMCcbtPtmnBUK6I67rM_MhKcugQR5-rZU5fzM1JqC-Mg1eYRCPJcpumtBdgEXJN6GPUVFto",
+              "title": "Women's Elegant Business Dress",
+              "price": 67.99,
+              "brand": "Kohl's",
+              "category": "Shoes",
+              "description": "A notable shoes from Kohl's. Crafted with attention to detail, offering both comfort and contemporary style.",
+              "hasAiInsights": true,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:1188511572749245116"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-08T22:17:07.279Z",
+      "updatedAt": "2025-09-08T23:44:59.065Z"
+    },
+    {
       "id": "chat-1757271405398",
-      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "title": "Work Outfits - Dress",
       "messages": [
         {
           "id": "welcome",
@@ -353,11 +1253,11 @@
         }
       ],
       "createdAt": "2025-09-07T18:56:45.398Z",
-      "updatedAt": "2025-09-07T18:57:08.754Z"
+      "updatedAt": "2025-09-07T22:26:05.712Z"
     },
     {
       "id": "chat-1757271232169",
-      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "title": "Suggestions Jeans",
       "messages": [
         {
           "id": "welcome",
@@ -576,11 +1476,11 @@
         }
       ],
       "createdAt": "2025-09-07T18:53:52.169Z",
-      "updatedAt": "2025-09-07T18:54:16.498Z"
+      "updatedAt": "2025-09-07T22:26:12.945Z"
     },
     {
       "id": "chat-1757271026429",
-      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "title": "Suggestions Help",
       "messages": [
         {
           "id": "welcome",
@@ -1129,11 +2029,11 @@
         }
       ],
       "createdAt": "2025-09-07T18:50:26.429Z",
-      "updatedAt": "2025-09-07T18:52:16.009Z"
+      "updatedAt": "2025-09-07T22:26:19.852Z"
     },
     {
       "id": "chat-1756919950828",
-      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
+      "title": "Find Help",
       "messages": [
         {
           "id": "welcome",
@@ -1366,11 +2266,11 @@
         }
       ],
       "createdAt": "2025-09-03T17:19:10.828Z",
-      "updatedAt": "2025-09-03T17:19:31.390Z"
+      "updatedAt": "2025-09-07T22:26:26.710Z"
     },
     {
       "id": "chat-1756919377164",
-      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t",
+      "title": "can you find",
       "messages": [
         {
           "id": "welcome",
@@ -1520,65 +2420,7 @@
         }
       ],
       "createdAt": "2025-09-03T17:09:37.164Z",
-      "updatedAt": "2025-09-03T17:09:37.164Z"
-    },
-    {
-      "id": "chat-1756918665960",
-      "title": "Hi! I'm Flair, your Shopping Assistant. I'm here t...",
-      "messages": [
-        {
-          "id": "welcome",
-          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
-          "sender": "assistant",
-          "timestamp": "2025-09-03T16:57:25.677Z"
-        },
-        {
-          "id": "user-1756918653666",
-          "content": "show this item's competittors",
-          "sender": "user",
-          "timestamp": "2025-09-03T16:57:33.666Z",
-          "attachedFiles": [
-            {
-              "id": "product-2092074222731586510",
-              "name": "Suitsupply Men's Striped Point Collar Shirt",
-              "type": "product",
-              "url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRdRlsCzArjc1VnGpJ3Hqo20XoH6WMJHEpUN3dHpy4D11PWBxgLlzL7JU6UyDgD2Yf46bMIrPl192Gal6HieUyvtnf3IVSk_ouHdIFh13A-VNmwvLjRwWyf",
-              "preview": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRdRlsCzArjc1VnGpJ3Hqo20XoH6WMJHEpUN3dHpy4D11PWBxgLlzL7JU6UyDgD2Yf46bMIrPl192Gal6HieUyvtnf3IVSk_ouHdIFh13A-VNmwvLjRwWyf",
-              "metadata": {
-                "title": "Suitsupply Men's Striped Point Collar Shirt",
-                "price": 139,
-                "brand": "Suitsupply",
-                "description": "A notable outerwear from Suitsupply. A stylish and high-quality piece, perfect for a modern wardrobe.",
-                "category": "Outerwear",
-                "link": "https://google.com/shopping/product/2092074222731586510?gl=us",
-                "productId": "2092074222731586510"
-              }
-            }
-          ]
-        },
-        {
-          "id": "ai-1756918656890",
-          "content": "That Suitsupply shirt is sharp!  For similar options within your usual budget, I'd suggest checking out Bonobos and J.Crew for comparable quality and styles.  They often have sales, so you might find a similar shirt for less.\n",
-          "sender": "assistant",
-          "timestamp": "2025-09-03T16:57:36.890Z",
-          "products": []
-        },
-        {
-          "id": "user-1756918664770",
-          "content": "list all of the competitros",
-          "sender": "user",
-          "timestamp": "2025-09-03T16:57:44.770Z"
-        },
-        {
-          "id": "ai-1756918665834",
-          "content": "I can't provide an exhaustive list of *every* competitor, but besides Bonobos and J.Crew, consider  Charles Tyrwhitt and Banana Republic for similar high-quality, classic men's shirts.  They offer a range of styles and price points.\n",
-          "sender": "assistant",
-          "timestamp": "2025-09-03T16:57:45.834Z",
-          "products": []
-        }
-      ],
-      "createdAt": "2025-09-03T16:57:45.960Z",
-      "updatedAt": "2025-09-03T17:10:14.488Z"
+      "updatedAt": "2025-09-07T22:26:33.507Z"
     }
   ]
 }

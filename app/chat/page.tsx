@@ -13,6 +13,7 @@ import AIToneToggle from "@/components/AIToneToggle"
 import { FileAttachmentList } from "@/components/FileAttachment"
 import PricingModal from "@/components/PricingModal"
 import ChatProductCard from "@/components/ChatProductCard"
+import ChatHistoryPanel from "@/components/ChatHistoryPanel"
 import { useFiles, type ChatFile } from "@/lib/file-context"
 import { useAITone } from "@/lib/ai-tone-context"
 import type { Message, Product } from "@/lib/types"
@@ -148,7 +149,7 @@ export default function ChatPage() {
     setMessages([{
       id: "welcome",
       content:
-        "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+        "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing deals, and answer any questions you have. What can I help you with today?",
       sender: "ai",
       timestamp: new Date().toISOString(),
     }])
@@ -380,6 +381,83 @@ export default function ChatPage() {
     setIsChatCollapsed(!isChatCollapsed)
   }
 
+  const handleDeleteChat = async (chatId: string) => {
+    try {
+      const response = await fetch('/api/chat-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete',
+          chatId
+        })
+      })
+
+      if (response.ok) {
+        // If we're deleting the current chat, start a new one
+        if (chatId === currentChatId) {
+          startNewChat()
+        }
+        // Reload the chat history
+        loadChatHistory()
+      } else {
+        console.error('Failed to delete chat')
+      }
+    } catch (error) {
+      console.error('Error deleting chat:', error)
+    }
+  }
+
+  const handleRenameChat = async (chatId: string, newTitle: string) => {
+    try {
+      const response = await fetch('/api/chat-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'rename',
+          chatId,
+          title: newTitle
+        })
+      })
+
+      if (response.ok) {
+        loadChatHistory() // Reload to show updated title
+      } else {
+        console.error('Failed to rename chat')
+      }
+    } catch (error) {
+      console.error('Error renaming chat:', error)
+    }
+  }
+
+  const handleShareChat = async (chatId: string) => {
+    try {
+      const response = await fetch('/api/chat-history', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'share',
+          chatId
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        // Copy share URL to clipboard
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(result.shareUrl)
+          // You could add a toast notification here
+          console.log('Share URL copied to clipboard:', result.shareUrl)
+        } else {
+          console.log('Share URL:', result.shareUrl)
+        }
+      } else {
+        console.error('Failed to generate share link')
+      }
+    } catch (error) {
+      console.error('Error sharing chat:', error)
+    }
+  }
+
   return (
     <div className="flex flex-col h-screen w-full bg-black">
       {/* Header */}
@@ -394,7 +472,7 @@ export default function ChatPage() {
                 <Sparkles className="w-5 h-5 text-black" strokeWidth={2} />
               </div>
               <div>
-                <h1 className="text-lg font-medium text-white">Flair AI Stylist</h1>
+                <h1 className="text-lg font-medium text-white">Flair Agent</h1>
                 <button
                   onClick={() => setShowPersonalityPopup(true)}
                   className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
@@ -600,64 +678,18 @@ export default function ChatPage() {
       />
 
       {/* History Panel */}
-      {showHistory && (
-        <div className="fixed inset-0 z-40 bg-black/50" onClick={toggleHistory}>
-          <div
-            className={`bg-zinc-900 ${isMobile ? "fixed bottom-0 left-0 right-0 rounded-t-2xl p-4 max-h-[70vh] overflow-y-auto" : "fixed right-0 top-0 w-72 h-full p-4 border-l border-zinc-800"}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center pb-3 border-b border-zinc-800 mb-3">
-              <h3 className="font-medium text-lg">Chat History</h3>
-              <div className="flex items-center space-x-2">
-                <button 
-                  onClick={startNewChat}
-                  className="text-xs bg-white text-black px-3 py-1 rounded-full hover:bg-zinc-200 transition-colors"
-                >
-                  New Chat
-                </button>
-                <button onClick={toggleHistory} className="p-1 rounded-full hover:bg-zinc-800">
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-            
-            {loadingHistory ? (
-              <div className="flex justify-center py-4">
-                <div className="w-6 h-6 border-2 border-zinc-700 border-t-white rounded-full animate-spin"></div>
-              </div>
-            ) : chatHistories.length > 0 ? (
-              <div className="space-y-2">
-                {chatHistories.map((chat) => (
-                  <div
-                    key={chat.id}
-                    className="p-3 border border-zinc-800/50 hover:bg-zinc-800/70 cursor-pointer rounded-lg transition-colors"
-                    onClick={() => loadChatFromHistory(chat)}
-                  >
-                    <h4 className="text-sm font-medium truncate">{chat.title}</h4>
-                    <p className="text-xs text-zinc-400 mt-1">
-                      {new Date(chat.updatedAt).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </p>
-                    <p className="text-xs text-zinc-500 mt-1 truncate">
-                      {chat.messages.length} messages
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <Clock className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-                <p className="text-zinc-400 text-sm">No chat history yet</p>
-                <p className="text-zinc-500 text-xs mt-1">Start a conversation to see it here</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <ChatHistoryPanel
+        showHistory={showHistory}
+        onClose={toggleHistory}
+        chatHistories={chatHistories}
+        loadingHistory={loadingHistory}
+        onLoadChat={loadChatFromHistory}
+        onStartNewChat={startNewChat}
+        onDeleteChat={handleDeleteChat}
+        onRenameChat={handleRenameChat}
+        onShareChat={handleShareChat}
+        isMobile={isMobile}
+      />
 
       {/* AI Personality Popup */}
       <AnimatePresence>

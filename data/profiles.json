@@ -1,0 +1,32 @@
+{
+  "user_329KVwiv762JNKE2wiz6yRjlNbp": {
+    "age": "",
+    "gender": "Prefer not to say",
+    "height": "5'10",
+    "heightUnit": "feet",
+    "weight": "",
+    "weightUnit": "lbs",
+    "shoeSize": "",
+    "shoeSizeUnit": "US",
+    "waistSize": "",
+    "chestSize": "",
+    "hipSize": "",
+    "bodyType": "Mesomorph (Athletic)",
+    "style": [
+      "Business",
+      "Casual",
+      "Formal",
+      "Streetwear",
+      "Vintage",
+      "Minimalist",
+      "Romantic",
+      "Classic"
+    ],
+    "budgetRange": [],
+    "shoppingSources": [],
+    "lifestyle": "",
+    "goals": [],
+    "allergies": "",
+    "notes": ""
+  }
+}

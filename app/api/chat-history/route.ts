@@ -4,7 +4,9 @@ import {
   getChatHistory, 
   addChatHistory, 
   updateChatHistory, 
-  deleteChatHistory 
+  deleteChatHistory,
+  renameChatHistory,
+  generateChatTitle
 } from "@/lib/profile-storage"
 import type { ChatHistory, ChatMessage } from "@/lib/profile-storage"
 
@@ -35,10 +37,14 @@ export async function POST(request: Request) {
 
     switch (action) {
       case 'create':
-        if (messages && Array.isArray(messages)) {
+        if (messages && Array.isArray(messages) && messages.length > 0) {
+          // Generate descriptive title from first user message
+          const firstUserMessage = messages.find(m => m.sender === 'user')
+          const chatTitle = firstUserMessage ? generateChatTitle(firstUserMessage) : 'New Chat'
+          
           const newChat: ChatHistory = {
             id: `chat-${Date.now()}`,
-            title: title || (messages.length > 0 ? messages[0].content.slice(0, 50) : 'New Chat'),
+            title: chatTitle,
             messages,
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
@@ -55,10 +61,31 @@ export async function POST(request: Request) {
         }
         break
 
+      case 'rename':
+        if (chatId && title) {
+          renameChatHistory(chatId, title.trim(), userId || undefined)
+          console.log(`[Chat History API] Renamed chat ${chatId} to: "${title}"`)
+          return NextResponse.json({ success: true, message: 'Chat renamed successfully' })
+        }
+        break
+
       case 'delete':
         if (chatId) {
           deleteChatHistory(chatId, userId || undefined)
+          console.log(`[Chat History API] Deleted chat: ${chatId}`)
           return NextResponse.json({ success: true, message: 'Chat deleted successfully' })
+        }
+        break
+
+      case 'share':
+        if (chatId) {
+          // For now, just return success - sharing functionality can be implemented later
+          console.log(`[Chat History API] Share request for chat: ${chatId}`)
+          return NextResponse.json({ 
+            success: true, 
+            message: 'Share link generated',
+            shareUrl: `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/chat/shared/${chatId}`
+          })
         }
         break
 

@@ -24,6 +24,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   const [selectedImage, setSelectedImage] = useState(0)
   const [showAIAnalysis, setShowAIAnalysis] = useState(false)
   const [showCollectionModal, setShowCollectionModal] = useState(false)
+  const [isFromUrlOrImage, setIsFromUrlOrImage] = useState(false)
   const router = useRouter()
   const { addProductAsFile } = useFiles()
 
@@ -39,10 +40,26 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
     // Check if product is already saved/liked
     checkIfSaved()
     
+    // Check if this product is from URL or image attachment
+    const fromUrlOrImage = (product.id?.startsWith('url-') || false) || 
+                          product.category === 'Image' || 
+                          product.category === 'Link' ||
+                          (product.description?.includes('Uploaded image') || false) ||
+                          (product.description?.includes('from http') || false)
+    
+    setIsFromUrlOrImage(fromUrlOrImage)
+    
+    // Auto-add product to file context if it's from URL or image
+    // This ensures the chat system can reference it for similar product searches
+    if (fromUrlOrImage) {
+      console.log('[ProductDetail] Auto-adding URL/image product to file context:', product.title)
+      addProductAsFile(product)
+    }
+    
     return () => {
       document.body.style.overflow = "auto"
     }
-  }, [])
+  }, [product, addProductAsFile])
 
   const checkIfSaved = async () => {
     try {
@@ -225,7 +242,15 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
             <div className="p-4">
               <div className="flex justify-between items-start mb-2">
-                <h2 className="text-xl font-medium">{product.title}</h2>
+                <div className="flex-1">
+                  <h2 className="text-xl font-medium">{product.title}</h2>
+                  {isFromUrlOrImage && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 mt-1 text-xs bg-purple-500/20 text-purple-300 rounded-md border border-purple-500/30">
+                      <Sparkles className="w-3 h-3" />
+                      From {product.category === 'Image' ? 'Image' : 'URL'} • Click "Find Similar" below
+                    </span>
+                  )}
+                </div>
                 <p className="text-lg font-medium text-white">${product.price}</p>
               </div>
 
@@ -297,6 +322,16 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                   ))}
                 </div>
               </div>
+
+              {isFromUrlOrImage && (
+                <button
+                  onClick={handleAskAIAnalysis}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-4 rounded-lg font-medium text-sm mb-3 hover:from-purple-500 hover:to-blue-500 transition-all duration-200 flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  Find Similar Items
+                </button>
+              )}
 
               <AnalyzeWithAIButton onClick={handleAnalyzeWithAI} variant="primary" size="lg" className="w-full" />
             </div>

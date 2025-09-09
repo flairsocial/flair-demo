@@ -17,6 +17,7 @@ export interface ChatFile {
     category?: string
     link?: string
     productId?: string
+    image?: string // Add image property for URL-processed products
   }
 }
 

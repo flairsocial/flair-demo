@@ -146,81 +146,25 @@ const preconfiguredFashionQueries = [
   "New Balance 550 sneakers"
 ]
 
-// Simple function to select search query with proper category filtering and profile integration
+// Simple function to select search query based on user input without profile spam
 function selectSearchQuery(searchQuery?: string, categoryParam?: string, userProfile?: any): string {
-  // Build profile context if available
-  const profileContext = userProfile ? 
-    `${userProfile.gender || ''} ${userProfile.style?.[0] || ''} ${userProfile.age ? (userProfile.age < 30 ? 'young' : userProfile.age < 50 ? 'contemporary' : 'classic') : ''}`.trim() : ''
-  
-  // If we have a search query (from image analysis, chat context, or user input)
+  // If we have a search query (from image analysis, chat context, or user input) - USE IT DIRECTLY
   if (searchQuery) {
-    const finalQuery = profileContext ? `${searchQuery} ${profileContext}` : searchQuery
-    console.log(`[ProductsService] Using search query with profile: "${finalQuery}"`)
-    return finalQuery
+    console.log(`[ProductsService] Using direct search query: "${searchQuery}"`)
+    return searchQuery
   }
   
-  // If category is specified, use STRICT category filtering
+  // If category is specified and no search query, create basic category search
   if (categoryParam && categoryParam !== "All") {
-    const categoryLower = categoryParam.toLowerCase()
-    
-    // Filter queries that STRICTLY match the category
-    let categoryQueries: string[] = []
-    
-    if (categoryLower === "tops") {
-      categoryQueries = preconfiguredFashionQueries.filter(query => 
-        query.includes('blouse') || query.includes('shirt') || query.includes('sweater') || 
-        query.includes('t-shirt') || query.includes('blazer') || query.includes('hoodie') || 
-        query.includes('cardigan') || query.includes('pullover') || query.includes('turtleneck')
-      )
-    } else if (categoryLower === "bottoms") {
-      categoryQueries = preconfiguredFashionQueries.filter(query => 
-        query.includes('jeans') || query.includes('pants') || query.includes('trousers') || 
-        query.includes('shorts') || query.includes('skirt') || query.includes('leggings') || 
-        query.includes('chino') || query.includes('cargo') || query.includes('palazzo')
-      )
-    } else if (categoryLower === "shoes") {
-      categoryQueries = preconfiguredFashionQueries.filter(query => 
-        query.includes('boots') || query.includes('sneakers') || query.includes('shoes') || 
-        query.includes('loafers') || query.includes('sandals') || query.includes('heels') || 
-        query.includes('pumps') || query.includes('trainers') || query.includes('flats')
-      )
-    } else if (categoryLower === "accessories") {
-      categoryQueries = preconfiguredFashionQueries.filter(query => 
-        query.includes('bag') || query.includes('watch') || query.includes('jewelry') || 
-        query.includes('belt') || query.includes('sunglasses') || query.includes('scarf') || 
-        query.includes('necklace') || query.includes('earrings') || query.includes('bracelet')
-      )
-    } else if (categoryLower === "outerwear") {
-      categoryQueries = preconfiguredFashionQueries.filter(query => 
-        query.includes('coat') || query.includes('jacket') || query.includes('blazer') || 
-        query.includes('trench') || query.includes('puffer') || query.includes('bomber') || 
-        query.includes('cardigan') || query.includes('windbreaker') || query.includes('fleece')
-      )
-    } else if (categoryLower === "dresses") {
-      categoryQueries = preconfiguredFashionQueries.filter(query => 
-        query.includes('dress') || query.includes('gown') || query.includes('midi') || 
-        query.includes('maxi') || query.includes('cocktail') || query.includes('evening')
-      )
-    }
-    
-    // If no category-specific queries found, create one
-    if (categoryQueries.length === 0) {
-      const baseQuery = `${categoryLower} fashion`
-      return profileContext ? `${baseQuery} ${profileContext}` : baseQuery
-    }
-    
-    // Select random from category-specific queries and add profile context
-    const selectedQuery = getRandomElement(categoryQueries)
-    const finalQuery = profileContext ? `${selectedQuery} ${profileContext}` : selectedQuery
-    console.log(`[ProductsService] Using category-specific query for ${categoryParam}: "${finalQuery}"`)
-    return finalQuery
+    const baseQuery = `${categoryParam.toLowerCase()} products`
+    console.log(`[ProductsService] Using category-based query: "${baseQuery}"`)
+    return baseQuery
   }
   
-  // For discover page - use random selection with profile context
-  const selectedQuery = getRandomElement(preconfiguredFashionQueries)
-  const finalQuery = profileContext ? `${selectedQuery} ${profileContext}` : selectedQuery
-  console.log(`[ProductsService] Using random preconfigured query with profile: "${finalQuery}"`)
-  return finalQuery
+  // Default fallback for discovery page only
+  const defaultQuery = "popular products trending"
+  console.log(`[ProductsService] Using default discovery query: "${defaultQuery}"`)
+  return defaultQuery
 }
 
 // Helper function to parse price string (e.g., "$23.74") to number
@@ -351,12 +295,12 @@ export async function searchForProducts(
     const rawShoppingResults = data.shopping || []
     console.log(`[ProductsService] Received ${rawShoppingResults.length} raw results from Serper`)
 
-    const categoriesForMocking = ["Tops", "Bottoms", "Dresses", "Shoes", "Accessories", "Outerwear"]
+    const categoriesForMocking = ["Electronics", "Home & Garden", "Sports & Outdoors", "Tools & Hardware", "Beauty & Health", "Books & Media"]
     const descriptionsForMocking = [
-      "A stylish and high-quality piece, perfect for a modern wardrobe.",
-      "Crafted with attention to detail, offering both comfort and contemporary style.",
-      "Versatile and chic, this item is a great addition to any collection.",
-      "Features a contemporary design and is made from quality materials.",
+      "A high-quality product with excellent reviews and reliable performance.",
+      "Crafted with attention to detail, offering both functionality and durability.",
+      "Versatile and well-designed, this item is a great addition to any collection.",
+      "Features modern design and is made from quality materials for lasting use.",
     ]
 
     let priceFilteredCount = 0
@@ -393,13 +337,13 @@ export async function searchForProducts(
         return {
           id: item.productId || item.link || `${serperSearchQuery}-${index}-${price}`,
           image: imageUrl,
-          title: item.title || "Fashion Item",
+          title: item.title || "Product Item",
           price: price,
           brand: brandName,
           category: productCategory,
           description:
             item.snippet ||
-            `A notable ${productCategory.toLowerCase()} from ${brandName}. ${getRandomElement(descriptionsForMocking)}`,
+            `A quality ${productCategory.toLowerCase()} product from ${brandName}. ${getRandomElement(descriptionsForMocking)}`,
           hasAiInsights: Math.random() > 0.4,
           saved: false,
           link: item.link || undefined,

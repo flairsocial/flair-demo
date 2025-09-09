@@ -15,6 +15,7 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
   const [showOptions, setShowOptions] = useState(false)
   const [urlInput, setUrlInput] = useState("")
   const [showUrlInput, setShowUrlInput] = useState(false)
+  const [isProcessingUrl, setIsProcessingUrl] = useState(false)
   const { addFile } = useFiles()
 
   // Handle click outside to close options
@@ -69,8 +70,10 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
     setShowOptions(false)
   }
 
-  const handleUrlSubmit = () => {
-    if (!urlInput.trim()) return
+  const handleUrlSubmit = async () => {
+    if (!urlInput.trim() || isProcessingUrl) return
+
+    setIsProcessingUrl(true)
 
     const chatFile: ChatFile = {
       id: `url-${Date.now()}`,
@@ -78,6 +81,48 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
       type: "url",
       url: urlInput.trim(),
       preview: urlInput.trim()
+    }
+
+    // Automatically process the URL to extract product information
+    try {
+      console.log('[FileUpload] Auto-processing URL:', urlInput.trim())
+      const response = await fetch('/api/analyze-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: urlInput.trim() })
+      })
+      
+      if (response.ok) {
+        const productData = await response.json()
+        console.log('[FileUpload] URL processed successfully:', productData.title)
+        
+        // Update the chat file with extracted product data
+        chatFile.name = productData.title || chatFile.name
+        chatFile.metadata = {
+          title: productData.title,
+          price: productData.price,
+          brand: productData.brand,
+          description: productData.description,
+          category: productData.category,
+          link: productData.link,
+          productId: productData.id,
+          image: productData.image
+        }
+        
+        // Use the extracted image as preview if available
+        if (productData.image && productData.image !== '/placeholder.svg') {
+          chatFile.preview = productData.image
+        }
+      } else {
+        console.log('[FileUpload] URL processing failed, using basic URL attachment')
+      }
+    } catch (error) {
+      console.error('[FileUpload] Error processing URL:', error)
+      // Continue with basic URL attachment
+    } finally {
+      setIsProcessingUrl(false)
     }
 
     addFile(chatFile)
@@ -163,19 +208,27 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
                     value={urlInput}
                     onChange={(e) => setUrlInput(e.target.value)}
                     onKeyDown={handleUrlKeyPress}
-                    placeholder="Enter URL..."
+                    placeholder={isProcessingUrl ? "Processing URL..." : "Enter URL..."}
                     className="flex-1 px-2 py-1 bg-zinc-900 border border-zinc-600 rounded text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-zinc-500"
                     autoFocus
+                    disabled={isProcessingUrl}
                   />
                   <button
                     onClick={(e) => {
                       e.stopPropagation()
                       handleUrlSubmit()
                     }}
-                    disabled={!urlInput.trim()}
-                    className="px-2 py-1 bg-blue-600 text-white rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!urlInput.trim() || isProcessingUrl}
+                    className="px-2 py-1 bg-blue-600 text-white rounded text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1"
                   >
-                    Add
+                    {isProcessingUrl ? (
+                      <>
+                        <div className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
+                        <span>Processing</span>
+                      </>
+                    ) : (
+                      <span>Add</span>
+                    )}
                   </button>
                 </div>
               </motion.div>

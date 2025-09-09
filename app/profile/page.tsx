@@ -575,7 +575,7 @@ export default function ProfilePage() {
           <div className="flex-1 min-w-0">
             <h2 className="text-lg sm:text-xl font-medium truncate">Flair Dev</h2>
             <p className="text-zinc-400 text-xs sm:text-sm">@flairdev</p>
-            <p className="text-xs sm:text-sm mt-1 truncate">Fashion enthusiast and style curator</p>
+            <p className="text-xs sm:text-sm mt-1 truncate">shopping addict and reseller</p>
           </div>
           <Link
             href="/settings"

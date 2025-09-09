@@ -1,12 +1,94 @@
 import type { Product } from "@/lib/types"
+import { ComprehensiveVisualSearchService, type ImageSearchResult } from "@/lib/comprehensive-visual-search-service"
 
-// Enhanced image analysis service with multiple fallback methods
+// Real visual search service using multiple providers for actual visual understanding  
 export class ImageAnalysisService {
   
-  // Method 1: Direct Gemini Vision Analysis (primary)
+  // NEW: Comprehensive visual search using multiple providers (Google Vision, Bing, etc.)
+  static async findVisuallySimilarProducts(
+    imageUrl: string, 
+    model: any,
+    budget?: { min: number, max: number },
+    userStyle?: string[]
+  ): Promise<any> { // Using any for backward compatibility
+    try {
+      console.log(`[ImageAnalysis] Starting COMPREHENSIVE visual search for: ${imageUrl}`)
+      
+      // Use comprehensive visual search with multiple providers
+      const searchResult = await ComprehensiveVisualSearchService.searchByImage(
+        imageUrl, 
+        budget, 
+        { style: userStyle }
+      )
+      
+      console.log(`[ImageAnalysis] Visual search completed:`)
+      console.log(`  - Search method: ${searchResult.searchMethod}`)
+      console.log(`  - Objects detected: ${JSON.stringify(searchResult.detectedObjects)}`)
+      console.log(`  - Products found: ${searchResult.products.length}`)
+      console.log(`  - Overall confidence: ${searchResult.confidence}%`)
+      
+      // Convert to backward-compatible format
+      return {
+        products: searchResult.products,
+        visualFeatures: {
+          objects: searchResult.detectedObjects.map(name => ({ name, confidence: 0.8 })),
+          labels: searchResult.detectedObjects.map(name => ({ description: name, confidence: 0.8 })),
+          colors: [],
+          webEntities: []
+        },
+        searchMethod: searchResult.searchMethod,
+        confidence: searchResult.confidence,
+        matchingCriteria: {
+          objectMatch: searchResult.confidence,
+          colorMatch: 0,
+          categoryMatch: searchResult.confidence,
+          overallSimilarity: searchResult.confidence
+        },
+        timestamp: searchResult.timestamp
+      }
+      
+    } catch (error) {
+      console.error('[ImageAnalysis] Comprehensive visual search failed:', error)
+      
+      // Ultimate fallback to simple text analysis
+      console.log('[ImageAnalysis] Using ultimate text fallback')
+      try {
+        const textAnalysisQuery = await this.analyzeWithGemini(imageUrl, model)
+        if (textAnalysisQuery) {
+          const { searchForProducts } = await import("@/lib/products-service")
+          const products = await searchForProducts(textAnalysisQuery, 8, undefined, true)
+          
+          return {
+            products,
+            visualFeatures: {
+              objects: [{ name: textAnalysisQuery, confidence: 0.5 }],
+              colors: [],
+              labels: [{ description: textAnalysisQuery, confidence: 0.5 }],
+              categoryHints: ['unknown']
+            },
+            searchMethod: 'fallback',
+            confidence: 30,
+            matchingCriteria: {
+              objectMatch: 30,
+              colorMatch: 0,
+              categoryMatch: 50,
+              overallSimilarity: 30
+            },
+            timestamp: new Date().toISOString()
+          }
+        }
+      } catch (fallbackError) {
+        console.error('[ImageAnalysis] Ultimate fallback also failed:', fallbackError)
+      }
+      
+      return null
+    }
+  }
+  
+  // Enhanced text-based analysis with detailed visual understanding
   static async analyzeWithGemini(imageUrl: string, model: any): Promise<string | null> {
     try {
-      console.log(`[ImageAnalysis] Attempting Gemini Vision analysis for: ${imageUrl}`)
+      console.log(`[ImageAnalysis] Using ENHANCED Gemini visual analysis for: ${imageUrl}`)
       
       // Fetch and convert image to base64
       const imageResponse = await fetch(imageUrl)
@@ -29,18 +111,32 @@ export class ImageAnalysisService {
             content: [
               {
                 type: "text",
-                text: `You are a fashion expert analyzing this product image. Provide a detailed description focusing on:
+                text: `Analyze this image in extreme detail and identify EXACTLY what product is shown. Be incredibly specific about:
 
-1. ITEM TYPE: Specific product category (sneakers, dress, jacket, etc.)
-2. COLORS: Exact colors you see (navy blue, cream white, burgundy, etc.)
-3. MATERIALS: Visible textures (leather, cotton, denim, knit, etc.)
-4. STYLE DETAILS: Cut, fit, patterns, special features
-5. OCCASION: Casual, formal, athletic, etc.
+1. EXACT PRODUCT TYPE: What is this? (e.g., "leather bomber jacket", "luxury dress watch", "wireless headphones", "desk lamp")
 
-Create a search-friendly description that would help find visually similar items. Focus only on what you can see, not brand names.
+2. VISUAL CHARACTERISTICS:
+   - Materials: leather, metal, fabric, plastic, etc.
+   - Colors: primary and secondary colors
+   - Style/Design: modern, vintage, minimalist, ornate, etc.
+   - Brand elements: logos, distinctive design features
+   - Texture and finish: matte, glossy, brushed, etc.
 
-Format: "[item type] [colors] [materials] [style details] [occasion]"
-Example: "white leather sneakers minimal design casual athletic"`
+3. PRODUCT CATEGORY: Fashion, electronics, furniture, accessories, etc.
+
+4. DISTINCTIVE FEATURES: What makes this product unique or recognizable?
+
+5. SEARCH TERMS: What 3-4 search terms would help find VISUALLY SIMILAR products?
+
+Format your response as: "[Product Type] [Material] [Color] [Style] [Distinctive Feature]"
+
+Example outputs:
+- "leather bomber jacket brown vintage aviator style"
+- "luxury dress watch gold rose metal classic dial"
+- "wireless bluetooth headphones black over-ear modern"
+- "modern desk lamp metal adjustable arm"
+
+Be extremely specific and focus on VISUAL characteristics that would help find similar-looking products.`
               },
               {
                 type: "image",
@@ -52,81 +148,43 @@ Example: "white leather sneakers minimal design casual athletic"`
       })
       
       if (result?.text) {
-        console.log(`[ImageAnalysis] Gemini analysis successful: "${result.text}"`)
-        return result.text.trim()
+        const enhancedQuery = result.text.trim()
+        console.log(`[ImageAnalysis] Enhanced Gemini analysis result: "${enhancedQuery}"`)
+        return enhancedQuery
       }
       
       return null
     } catch (error) {
-      console.error('[ImageAnalysis] Gemini analysis failed:', error)
+      console.error('[ImageAnalysis] Enhanced Gemini analysis failed:', error)
       return null
     }
   }
   
-  // Method 2: Enhanced product metadata analysis (fallback)
-  static analyzeFromMetadata(productMetadata: any): string {
-    console.log(`[ImageAnalysis] Using enhanced metadata analysis`)
-    
-    const categoryKeywords: Record<string, string> = {
-      'Shoes': 'shoes footwear sneakers boots sandals heels flats',
-      'Tops': 'top shirt blouse sweater t-shirt tank hoodie',
-      'Bottoms': 'pants jeans shorts skirt trousers leggings',
-      'Dresses': 'dress gown midi maxi mini cocktail',
-      'Outerwear': 'jacket coat blazer cardigan bomber',
-      'Accessories': 'bag purse belt jewelry watch sunglasses'
-    }
-    
-    const category = productMetadata.category as string
-    const title = productMetadata.title as string || ''
-    
-    // Get category-specific keywords
-    const categoryTerms = categoryKeywords[category] || category || 'fashion item'
-    
-    // Extract meaningful words from title
-    const titleWords = title
-      .toLowerCase()
-      .split(' ')
-      .filter((word: string) => 
-        word.length > 2 &&
-        !['men\'s', 'women\'s', 'new', 'sale', 'best', 'top', 'item', 'product'].includes(word)
-      )
-      .slice(0, 3)
-      .join(' ')
-    
-    // Create search query
-    const searchQuery = `${categoryTerms} ${titleWords} similar style alternatives`.trim()
-    
-    console.log(`[ImageAnalysis] Enhanced metadata query: "${searchQuery}"`)
-    return searchQuery
-  }
-  
-  // Method 3: Google Reverse Image Search (future implementation)
-  static async reverseImageSearch(imageUrl: string): Promise<string | null> {
-    // This could be implemented using Google's Custom Search API
-    // For now, return null to indicate not implemented
-    console.log(`[ImageAnalysis] Reverse image search not yet implemented`)
-    return null
-  }
-  
-  // Main analysis method that tries multiple approaches
+  // Legacy method for backwards compatibility
   static async analyzeImage(
     imageUrl: string, 
     productMetadata: any, 
     model: any
   ): Promise<string> {
-    // Try Gemini Vision first
-    const geminiResult = await this.analyzeWithGemini(imageUrl, model)
-    if (geminiResult) {
-      return geminiResult
+    // Try the real visual search first
+    const visualResult = await this.findVisuallySimilarProducts(imageUrl, model)
+    
+    if (visualResult && visualResult.visualFeatures.objects.length > 0) {
+      // Use the primary detected object
+      return visualResult.visualFeatures.objects[0].name
     }
     
-    // Try reverse image search (future)
-    const reverseResult = await this.reverseImageSearch(imageUrl)
-    if (reverseResult) {
-      return reverseResult
+    // Fall back to text analysis
+    const textResult = await this.analyzeWithGemini(imageUrl, model)
+    if (textResult) {
+      return textResult
     }
     
-    // Fall back to enhanced metadata analysis
-    return this.analyzeFromMetadata(productMetadata)
+    // Final fallback to metadata
+    if (productMetadata?.category && productMetadata?.title) {
+      return `${productMetadata.category} similar to ${productMetadata.title}`
+    }
+    
+    return "unknown product"
   }
 }
