@@ -1,5 +1,5 @@
 "use client"
-
+import { showOutOfCreditsModal } from '@/components/CreditGuard'
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -16,6 +16,7 @@ import ChatProductCard from "@/components/ChatProductCard"
 import ChatHistoryPanel from "@/components/ChatHistoryPanel"
 import { useFiles, type ChatFile } from "@/lib/file-context"
 import { useAITone } from "@/lib/ai-tone-context"
+import { useCredits } from "@/lib/credit-context"
 import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
 import type { ChatHistory, ChatMessage as ChatHistoryMessage } from "@/lib/profile-storage"
@@ -58,6 +59,7 @@ export default function ChatPage() {
   const isMobile = useMobile()
   const { attachedFiles, removeFile, clearFiles } = useFiles()
   const { tone } = useAITone()
+  const { credits, useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
   const autoMessageSentRef = useRef(false) // Track if auto-message has been sent
 
   // Load chat history on component mount
@@ -220,6 +222,12 @@ export default function ChatPage() {
     const messageText = overrideMessage || input.trim()
     if (!messageText) return
 
+    // Check if user has enough credits BEFORE attempting operation
+    if (!checkCreditsAvailable(1)) {
+      showOutOfCreditsModal()
+      return
+    }
+
     console.log(`[Chat UI] Sending message: "${messageText}"`)
     setError(null)
 
@@ -278,6 +286,9 @@ export default function ChatPage() {
 
       const data = await response.json()
       console.log(`[Chat UI] Received response with ${data.products?.length || 0} products`)
+
+      // Consume credits for chat message (1 credit per prompt, builds to 10 after 10-15 prompts)
+      consumeCredits(1)
 
       // Add AI response
       const aiMessage: ChatMessageWithProducts = {
@@ -725,6 +736,7 @@ export default function ChatPage() {
 
       {/* Pricing Modal */}
       <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />
+
     </div>
   )
 }

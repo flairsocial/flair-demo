@@ -785,8 +785,8 @@ export default function ProfilePage() {
               ) : viewMode === "grid" ? (
                 // Grid View - Mobile Optimized
                 <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {sortedItems.map((item) => (
-                    <div key={item.id} className="relative group">
+                  {sortedItems.map((item, index) => (
+                    <div key={item.id || `grid-item-${index}`} className="relative group">
                       <div
                         className={`absolute top-2 left-2 z-10 w-5 h-5 rounded-full border touch-manipulation ${
                           selectedItems.includes(item.id)
@@ -874,9 +874,9 @@ export default function ProfilePage() {
               ) : (
                 // List View - Mobile Optimized
                 <div className="p-4 space-y-3">
-                  {sortedItems.map((item) => (
+                  {sortedItems.map((item, index) => (
                     <div
-                      key={item.id}
+                      key={item.id || `list-item-${index}`}
                       className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors"
                     >
                       <div className="flex">

@@ -4,7 +4,7 @@ import { model } from "@/lib/ai-model"
 import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
 import { getProfile, getSavedItems } from "@/lib/profile-storage"
-import { searchForProducts } from "@/lib/products-service"
+import { searchForProducts, searchForCompetitorProducts } from "@/lib/products-service"
 import { ImageAnalysisService } from "@/lib/image-analysis-service"
 import { chatMemoryService, type ProductMention } from "@/lib/chat-memory-service"
 import { realSearchService } from "@/lib/real-search-service"
@@ -51,16 +51,105 @@ export async function POST(request: Request) {
     const { userId } = await auth()
     const sessionId = userId || `anonymous-${Date.now()}`
     
-    // Load previous conversation context from memory
-    const previousContext = chatMemoryService.loadUserMemory(userId || undefined)
-    console.log(`[Chat API] Loaded previous context: ${previousContext?.discussedProducts.length || 0} products, ${previousContext?.searchQueries.length || 0} searches`)
+    // EXTRACT CONVERSATION CONTEXT - ONLY USER-ATTACHED/PASTED PRODUCTS (NOT AI GENERATED RESULTS)
+    const userAttachedProducts: Product[] = []
+    
+    // Look through conversation history for user-attached products ONLY
+    history.forEach((msg: any) => {
+      // Only track products that came from user attachments, NOT from AI search results
+      if (msg.sender === 'user' && msg.attachedFiles) {
+        msg.attachedFiles.forEach((file: any) => {
+          if (file.type === 'product' && file.metadata) {
+            userAttachedProducts.push(file.metadata)
+          }
+        })
+      }
+    })
+    
+    // Also check current request for attached products
+    if (attachedFiles && attachedFiles.length > 0) {
+      attachedFiles.forEach((file: any) => {
+        if (file.type === 'product' && file.metadata) {
+          userAttachedProducts.push(file.metadata)
+        }
+      })
+    }
+    
+    const mostRecentUserProduct = userAttachedProducts[userAttachedProducts.length - 1]
+    console.log(`[Chat API] User-attached products in conversation: ${userAttachedProducts.length}`)
+    if (mostRecentUserProduct) {
+      console.log(`[Chat API] Most recent user product: ${mostRecentUserProduct.title} by ${mostRecentUserProduct.brand}`)
+    }
+
+    // OPTIMIZE USER PROMPT FOR BETTER UNDERSTANDING WITH FULL CONTEXT
+    let optimizedSearchQuery = message
+    let hasOptimizedIntent = false
+    
+    // Only optimize if user seems to be looking for products
+    const needsOptimization = message.toLowerCase().includes('show') || 
+                            message.toLowerCase().includes('find') || 
+                            message.toLowerCase().includes('similar') ||
+                            message.toLowerCase().includes('like') ||
+                            message.toLowerCase().includes('look') ||
+                            message.toLowerCase().includes('competitor') ||
+                            message.toLowerCase().includes('item') ||
+                            message.toLowerCase().includes('product') ||
+                            message.toLowerCase().includes('dupe') ||
+                            attachedFiles.length > 0
+    
+    if (needsOptimization && process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+      try {
+        // Build context for optimization
+        const recentHistory = history.slice(-3).map((msg: any) => 
+          `${msg.sender === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+        ).join('\n')
+        
+        const recentProducts = userAttachedProducts || []
+        const productContext = recentProducts.length > 0 
+          ? `Recent products discussed in this conversation: ${recentProducts.map((p: any) => `"${p.title}" by ${p.brand}`).join(', ')}`
+          : ''
+        
+        const optimizationResult = await generateText({
+          model: model,
+          messages: [{
+            role: "user", 
+            content: `
+You are optimizing search queries for product finding. 
+
+${recentHistory ? `Conversation context:\n${recentHistory}\n` : ''}
+${productContext ? `${productContext}\n` : ''}
+
+User message: "${message}"
+
+Extract the EXACT product type and key attributes for searching. 
+- If they say "similar to" or "like this", focus on finding similar items from DIFFERENT brands
+- If they reference "that item" from conversation, understand what they mean
+- For vague requests, be specific about what product category they likely want
+
+Return only a clean search query (2-4 words max) that will find exactly what they want.
+Examples: "blue jeans men", "white sneakers women", "black leather jacket"
+
+Just return the search query, nothing else:`
+          }]
+        })
+        
+        const cleaned = optimizationResult.text.trim().replace(/['"]/g, '').toLowerCase()
+        if (cleaned.length > 0 && cleaned.length < 50) {
+          optimizedSearchQuery = cleaned
+          hasOptimizedIntent = true
+          console.log(`[Chat] Optimized search: "${message}" → "${optimizedSearchQuery}"`)
+        }
+      } catch (error) {
+        console.error('[Chat] Search optimization failed:', error)
+      }
+    }
 
     // Check if API key is available
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ 
         message: "I'm temporarily unavailable due to API configuration. Please try again later!",
         products: [],
-        suggestions: ["What's your style goal?", "Tell me about your preferences", "How can I help you today?"]
+        suggestions: ["What are you looking for?", "Tell me about your preferences", "How can I help you today?"]
       }, { status: 200 })
     }
     
@@ -266,11 +355,11 @@ export async function POST(request: Request) {
 NOTE: This appears to be a guest user. If they have profile information saved locally, suggest they sign in or mention that they can tell you their preferences directly in chat for personalized recommendations.
 
 You should ask them about:
-- Their style preferences (casual, formal, streetwear, etc.)
+- Their product preferences (electronics, home goods, tools, etc.)
 - Their budget range
-- Their body type and measurements
+- Their use cases and specific needs
 - Their lifestyle (office worker, student, etc.)
-- What they're shopping for`
+- What specific products they're shopping for`
     } else if (userProfile) {
       const context = []
       
@@ -287,10 +376,10 @@ You should ask them about:
       if (userProfile.hipSize) context.push(`• Hip size: ${userProfile.hipSize}`)
       if (userProfile.shoeSize && userProfile.shoeSizeUnit) context.push(`• Shoe size: ${userProfile.shoeSize} ${userProfile.shoeSizeUnit}`)
       
-      // Style preferences
-      if (userProfile.style?.length > 0) context.push(`• Style preferences: ${userProfile.style.join(', ')} (THESE ARE THEIR CONFIRMED STYLE PREFERENCES)`)
+      // Product preferences
+      if (userProfile.style?.length > 0) context.push(`• Product preferences: ${userProfile.style.join(', ')} (THESE ARE THEIR CONFIRMED PREFERENCES)`)
       if (userProfile.lifestyle) context.push(`• Lifestyle: ${userProfile.lifestyle}`)
-      if (userProfile.goals?.length > 0) context.push(`• Style goals: ${userProfile.goals.join(', ')}`)
+      if (userProfile.goals?.length > 0) context.push(`• Shopping goals: ${userProfile.goals.join(', ')}`)
       
       // Budget and shopping
       if (userProfile.budgetRange?.length > 0) context.push(`• Budget ranges: ${userProfile.budgetRange.join(', ')} (ONLY RECOMMEND ITEMS IN THESE PRICE RANGES)`)
@@ -309,14 +398,14 @@ ${savedItems.length > 0 ? `
 USER'S SAVED ITEMS (${savedItems.length} items in their collection):
 ${savedItems.map((item: any) => `• ${item.title} - ${item.brand} ($${item.price}) - ${item.category}`).join('\n')}
 
-You can reference these saved items to understand their style preferences and suggest similar items or complementary pieces.` : ''}
+You can reference these saved items to understand their product preferences and suggest similar items or complementary pieces.` : ''}
 
 CRITICAL INSTRUCTIONS:
 - You KNOW all this information about the user - never ask for details you already have
 - Always reference their specific preferences when making recommendations
 - NEVER suggest items outside their budget ranges
-- ONLY recommend styles that match their confirmed style preferences
-- Use their measurements to suggest appropriate fits and sizes
+- ONLY recommend products that match their confirmed preferences
+- Use their specifications to suggest appropriate options and features
 - Reference their lifestyle when making practical recommendations
 - Use their saved items to understand their taste and suggest similar or complementary pieces`
       } else {
@@ -341,26 +430,28 @@ CRITICAL INSTRUCTIONS:
     console.log(`[Chat] Using AI tone: ${aiTone}`)
     console.log(`[Chat] Personality applied: ${getPersonality(aiTone)}`)
 
-    // Generate memory context for enhanced conversation continuity
-    const memoryContext = chatMemoryService.generateContextualPrompt(userId || undefined)
+    // Generate memory context for enhanced conversation continuity (USER-ATTACHED PRODUCTS ONLY)
+    const memoryContext = userAttachedProducts.length > 0 
+      ? `You remember discussing these products that the user shared: ${userAttachedProducts.map((p: Product) => p.title).join(', ')}`
+      : ''
     
-    // Add recent products context for "that jacket" type references
+    // Add user-attached products context for "that jacket" type references
     let recentProductsContext = ""
-    if (previousContext?.discussedProducts && previousContext.discussedProducts.length > 0) {
-      const recentProducts = previousContext.discussedProducts.slice(-3) // Last 3 products
-      recentProductsContext = `\nRECENT PRODUCTS DISCUSSED:
-${recentProducts.map((product: any, index: number) => 
+    if (userAttachedProducts && userAttachedProducts.length > 0) {
+      const recentProducts = userAttachedProducts.slice(-3) // Last 3 user-attached products
+      recentProductsContext = `\nUSER-SHARED PRODUCTS IN THIS CONVERSATION:
+${recentProducts.map((product: Product, index: number) => 
         `${index + 1}. "${product.title}" - ${product.brand} ($${product.price}) - ${product.category}`
       ).join('\n')}
       
-When user says "that jacket", "the watch", "that item", etc., they're referring to these recent products. Reference them naturally.`
+When user says "competitors", "alternatives", "similar", "different brand", etc., they're referring to these user-shared products from our current conversation. Reference them naturally.`
     }
 
-    const systemPrompt = `${getPersonality(aiTone)} You have COMPLETE ACCESS to the user's personal profile information AND conversation history. You have their style preferences, budget, measurements, shopping history, and previous conversations stored in your memory.
+    const systemPrompt = `${getPersonality(aiTone)} You are an intelligent AI shopping assistant and product discovery expert for ANY type of product. You help users find, research, and purchase electronics, home goods, tools, accessories, clothing, and any other products they need.
 
 CRITICAL RESPONSE LENGTH RULE: ALL responses must be maximum 3 sentences. No exceptions. Be concise and impactful.
 
-IMPORTANT: You have FULL ACCESS to the user's profile data and conversation history. Never ask for information that's already in their profile or previous conversations - reference it naturally.
+CONVERSATION CONTEXT AWARENESS: You have full access to our conversation history above. Reference previous messages, products discussed, and user preferences naturally. Build upon our ongoing discussion seamlessly.
 
 ${profileContext ? `\n${profileContext}\n` : ''}
 
@@ -368,13 +459,13 @@ ${memoryContext ? `\nCONVERSATION MEMORY:\n${memoryContext}\n` : ''}
 
 ${recentProductsContext}
 
-MEMORY CAPABILITIES:
-- You remember all products we've discussed before - reference them naturally
-- You know their previous search queries and preferences 
-- You can suggest items that complement what we've talked about before
-- You can refer back to previous styling advice you've given them
-- Use memory to provide consistent, personalized recommendations
-- When user says "that jacket" or "the watch", you know exactly what they mean from recent conversation
+CORE CAPABILITIES:
+- Product research and comparison across all categories (tech, home, automotive, etc.)
+- Price analysis and deal finding
+- Brand research and competitor alternatives
+- Reselling and market value assessment
+- Purchase decision support
+- Product authenticity and quality evaluation
 
 FILE HANDLING CAPABILITIES:
 - You can analyze product images and identify what items they contain
@@ -384,29 +475,25 @@ FILE HANDLING CAPABILITIES:
 - When users attach files, they want specific advice about those items
 - Always reference attached files directly in your response
 
-PERSONALITY:
-- Conversational and warm, like chatting with a knowledgeable friend who can help find anything
-- Proactive in using their profile info to make personalized suggestions
-- Share insights based on their specific preferences and needs
-- Remember and reference their saved preferences naturally
-- When files are attached, focus on giving specific advice about those items
-
 CONVERSATION STYLE:
-- Reference their profile information naturally (don't ask for info you already have)
-- Make personalized recommendations based on their budget, interests, and preferences
-- Give specific, actionable advice tailored to their needs
-- Suggest items that match their exact preferences and budget range
-- Be proactive about helping them based on what you know about them
-- When users attach products/images, provide detailed analysis and suggestions
+- Be helpful, knowledgeable, and conversational about products and shopping
+- Reference conversation history and previous products discussed naturally
+- Make recommendations based on user preferences, budget, and context from our conversation
+- Help users make informed purchase decisions across any product category
+- Suggest alternatives, competitors, and better deals when relevant
+- Use conversation context to provide more relevant responses
 
 PROFILE AWARENESS:
-- You KNOW their budget range, preferences, and interests
-- You KNOW their preferred shopping sources and lifestyle
-- You can reference their saved items and search history
-- Never say "I don't have access" - you have ALL their information
+- You KNOW their budget range, preferences, and interests (when available)
+- You can reference their saved items and previous conversations
 - Use their profile data to filter and suggest appropriate items
+- If no profile data, use conversation context to understand preferences
 
-WHEN TO USE SEARCH TOOL:
+PRODUCT RECOMMENDATION APPROACH:
+- Consider conversation history when making suggestions
+- Reference previously discussed products when suggesting alternatives
+- Filter results by stated budget and preferences
+- Provide specific product details including prices, brands, and key features
 - User explicitly asks to "show", "find", "list", mentions competitors, similiar items, etc
 - User asks "what should I buy" or "where can I get this"
 - When showing actual products would be genuinely helpful
@@ -438,10 +525,11 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
     
     // AGGRESSIVE product search - show products for almost any shopping conversation
     const productKeywords = [
-      'show me', 'competitors', 'look like', 'dupe', 'find me', 'where can i get', 'i want to buy', 'looking for',
+      'show me', 'show', 'find me', 'find', 'list', 'search', 'where', 'look for',
+      'competitors', 'look like', 'dupe', 'where can i get', 'i want to buy', 'looking for',
       'need some', 'recommend', 'suggest', 'shopping for', 'buy', 'purchase',
       'where to buy', 'help me find', 'i need a', 'i need some', 'what should i get',
-      'product', 'item', 'similar', 'like this', 'get', 'shop', 'store'
+      'product', 'item', 'similar', 'like this', 'get', 'shop', 'store', 'browse'
     ]
     
     // Add competitor analysis keywords
@@ -468,10 +556,17 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
       userMessage.includes(keyword)
     ) || attachedFiles.some((file: any) => file.type === 'product') // Always search for competitors if product attached
     
+    // Debug logging to understand why search isn't triggering
+    console.log(`[Chat] hasProductRequest: ${hasProductRequest} (user message: "${userMessage}")`)
+    console.log(`[Chat] hasCompetitorRequest: ${hasCompetitorRequest}`)
+    console.log(`[Chat] serperApiKey available: ${!!serperApiKey}`)
+    
     // If there are attached product files and they're asking about competitors/worth it
     const attachedProduct = attachedFiles.find((file: any) => file.type === 'product')
     
     if ((hasProductRequest || hasCompetitorRequest) && serperApiKey) {
+      console.log(`[Chat] PRODUCT SEARCH TRIGGERED - hasProductRequest: ${hasProductRequest}, hasCompetitorRequest: ${hasCompetitorRequest}`)
+      
       // Priority 1: Use visual search products directly if available
       if (visualSearchProducts.length > 0) {
         console.log(`[Chat] Using VISUAL SEARCH PRODUCTS directly: ${visualSearchProducts.length} products found`)
@@ -487,163 +582,304 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
       }
       // Priority 2: Fall back to text-based search if no visual search results
       else {
-        let searchQuery = message
+        let searchQuery = hasOptimizedIntent ? optimizedSearchQuery : message
         
         // Priority 2a: Use text analysis if available (from images that couldn't be visually searched)
         if (imageAnalysisQuery) {
           searchQuery = imageAnalysisQuery
           console.log(`[Chat] Using text-based image analysis for search: "${searchQuery}"`)
         }
-        // Priority 2b: Check for context references like "that jacket", "find that watch", etc.
-        else if ((message.toLowerCase().includes('that ') || message.toLowerCase().includes('the ')) && 
-                 previousContext?.discussedProducts && previousContext.discussedProducts.length > 0) {
-          // Find the most recently discussed product
-          const recentProduct = previousContext.discussedProducts[previousContext.discussedProducts.length - 1]
-          searchQuery = recentProduct.title || recentProduct.category || 'similar products'
+        // Priority 2b: Use dedicated competitor search for user-attached products
+        else if ((message.toLowerCase().includes('competitor') || 
+                  message.toLowerCase().includes('alternative') || 
+                  message.toLowerCase().includes('different brand')) && 
+                 mostRecentUserProduct) {
           
-          // Extract budget if mentioned
-          const budgetMatch = message.match(/under (\d+)|below (\d+)|less than (\d+)/i)
-          if (budgetMatch) {
-            const budget = budgetMatch[1] || budgetMatch[2] || budgetMatch[3]
-            searchQuery = `${searchQuery} under $${budget}`
-          }
+          console.log(`[Chat] USING DEDICATED COMPETITOR SEARCH for: ${mostRecentUserProduct.title}`)
           
-          console.log(`[Chat] Using memory context for search: "${searchQuery}" (from recent product: ${recentProduct.title})`)
-        }
-        // Priority 2c: If asking about competitors/similar and there's an attached product, use the product info
-        else if ((hasCompetitorRequest || message.toLowerCase().includes('similar') || message.toLowerCase().includes('find similar') || message.toLowerCase().includes('similiar')) && attachedProduct?.metadata && !imageAnalysisQuery) {
-          const product = attachedProduct.metadata
+          // Use the new competitor search function instead of broken text search
+          const searchType = message.toLowerCase().includes('similar') ? 'similar' : 
+                           (message.toLowerCase().includes('competitor') ? 'competitors' : 'alternatives')
           
-          // Try to use AI-extracted keywords if available, otherwise use title/category
-          let searchTerms = []
+          products = await searchForCompetitorProducts(
+            mostRecentUserProduct,
+            searchType,
+            hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit,
+            userId || undefined
+          )
           
-          // Check if this product has AI-extracted keywords (from URL analysis)
-          if (product.description && product.description.includes('keywords:')) {
-            const keywordsMatch = product.description.match(/keywords:\s*\[(.*?)\]/i)
-            if (keywordsMatch) {
-              try {
-                searchTerms = JSON.parse(`[${keywordsMatch[1]}]`).slice(0, 3)
-              } catch (e) {
-                searchTerms = keywordsMatch[1].split(',').map((k: string) => k.trim().replace(/"/g, '')).slice(0, 3)
-              }
-            }
-          }
+          console.log(`[Chat] Competitor search returned ${products.length} products`)
           
-          // Fallback to product title/category
-          if (searchTerms.length === 0) {
-            searchTerms = [product.title || product.category || 'similar products']
-          }
-          
-          searchQuery = searchTerms.join(' ')
-          console.log(`[Chat] Using attached product for similar items search: "${searchQuery}" (from ${product.title || 'unknown product'})`)
-        } else {
-          // Clean up user query for text search
-          searchQuery = searchQuery.replace(/\b(show me|find me|where can i get|i want to buy|looking for|need some|recommend|suggest|shopping for|buy|purchase|what|how|where|when|why|can you|could you|please|help me|i need|is this worth it|competitors|alternatives|find similiar|similar|find similar)\b/gi, '')
-          searchQuery = searchQuery.trim()
-          
-          // If query is too short or empty, use attached product info or generic search
-          if (searchQuery.length < 3) {
-            if (attachedProduct?.metadata) {
-              const product = attachedProduct.metadata
-              searchQuery = `${product.title || product.category || 'similar products'}`
-              console.log(`[Chat] Using attached product for empty query search: "${searchQuery}"`)
-            } else if (attachedFiles.length > 0) {
-              // Check if any attached file has useful metadata
-              const fileWithData = attachedFiles.find((file: any) => file.metadata?.title || file.metadata?.category)
-              if (fileWithData?.metadata) {
-                searchQuery = `${fileWithData.metadata.title || fileWithData.metadata.category || 'similar products'}`
-                console.log(`[Chat] Using attached file metadata for search: "${searchQuery}"`)
-              } else {
-                searchQuery = "product alternatives"
-              }
-            } else {
-              searchQuery = "popular products"
-            }
-          }
-          console.log(`[Chat] Using processed user message for search: "${searchQuery}"`)
-        }
-        
-        // DON'T ADD PROFILE ENHANCEMENTS - Keep search queries clean and specific
-        console.log(`[Chat] Final search query: "${searchQuery}"`)
-        const searchLimit = hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit
-        
-        // Skip broken RealSearch service, go directly to working ProductsService
-        try {
-          console.log(`[Chat] Using direct product search (RealSearch disabled)...`)
-          products = await searchForProducts(searchQuery, searchLimit, userId || undefined, !!imageAnalysisQuery)
-          
-          // Track search in memory
+          // Track competitor search in memory (but don't add results to memory - only user attachments)
           chatMemoryService.addSearchQuery(
             userId || undefined, 
-            searchQuery, 
-            'Direct search', 
-            products
+            `${searchType} for ${mostRecentUserProduct.title}`, 
+            'Competitor search', 
+            []  // Don't pollute memory with AI-generated results
           )
-        } catch (searchError) {
-          console.error(`[Chat] Direct product search error:`, searchError)
-          products = []
+        }
+        // Priority 2c: CONTEXT-AWARE SEARCH - If user has attached a product, use it as context for ANY search request
+        else if (mostRecentUserProduct && (
+                  message.toLowerCase().includes('find') ||
+                  message.toLowerCase().includes('search') ||
+                  message.toLowerCase().includes('show') ||
+                  message.toLowerCase().includes('similar') ||
+                  message.toLowerCase().includes('like') ||
+                  message.toLowerCase().includes('second hand') ||
+                  message.toLowerCase().includes('used') ||
+                  message.toLowerCase().includes('cheap') ||
+                  message.toLowerCase().includes('alternative') ||
+                  message.toLowerCase().includes('other') ||
+                  message.toLowerCase().includes('dupe ') ||
+                  message.toLowerCase().includes('competitors ') ||
+                  hasProductRequest || hasCompetitorRequest
+                )) {
+          
+          console.log(`[Chat] CONTEXT-AWARE SEARCH using attached product: ${mostRecentUserProduct.title}`)
+          
+          // Determine search intent from user message
+          let contextualSearchQuery: string | null = ""
+          const userMsg = message.toLowerCase()
+          
+          if (userMsg.includes('second hand') || userMsg.includes('used') || userMsg.includes('refurbished')) {
+            contextualSearchQuery = `used ${mostRecentUserProduct.title} refurbished secondhand`
+            console.log(`[Chat] SECOND-HAND search: "${contextualSearchQuery}"`)
+          }
+          else if (userMsg.includes('cheap') || userMsg.includes('budget') || userMsg.includes('affordable')) {
+            contextualSearchQuery = `cheap ${mostRecentUserProduct.title} affordable budget alternative`
+            console.log(`[Chat] BUDGET search: "${contextualSearchQuery}"`)
+          }
+          else if (userMsg.includes('similar') || userMsg.includes('like') || userMsg.includes('find similar')) {
+            contextualSearchQuery = `${mostRecentUserProduct.title} similar alternatives`
+            console.log(`[Chat] SIMILAR search: "${contextualSearchQuery}"`)
+          }
+          else if (userMsg.includes('different') || userMsg.includes('alternative') || userMsg.includes('other')) {
+            // Use competitor search for different/alternative requests
+            const searchType = 'alternatives'
+            products = await searchForCompetitorProducts(
+              mostRecentUserProduct,
+              searchType,
+              hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit,
+              userId || undefined
+            )
+            console.log(`[Chat] ALTERNATIVE search returned ${products.length} products`)
+            
+            // Skip text search since we already have results
+            contextualSearchQuery = null
+          }
+          else {
+            // Generic context search - find more of the same type
+            const productKeywords = mostRecentUserProduct.title.split(' ').slice(0, 4).join(' ')
+            contextualSearchQuery = productKeywords // Don't add brand - just use the product name
+            console.log(`[Chat] CONTEXTUAL search: "${contextualSearchQuery}"`)
+          }
+          
+          // Execute text search if we have a query (and didn't use competitor search)
+          if (contextualSearchQuery) {
+            searchQuery = contextualSearchQuery
+            console.log(`[Chat] Final contextual search query: "${searchQuery}"`)
+            const searchLimit = hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit
+            
+            try {
+              console.log(`[Chat] Using contextual product search...`)
+              products = await searchForProducts(searchQuery, searchLimit, userId || undefined, false)
+              
+              // Track search in memory
+              chatMemoryService.addSearchQuery(
+                userId || undefined, 
+                searchQuery, 
+                'Contextual search', 
+                []
+              )
+            } catch (searchError) {
+              console.error(`[Chat] Contextual product search error:`, searchError)
+              products = []
+            }
+          }
+        }
+        // Priority 2d: Continue with text-based search for other cases (no user product context)
+        else {
+          let searchQuery = hasOptimizedIntent ? optimizedSearchQuery : message
+          
+          // Priority 2d-1: Use text analysis if available (from images that couldn't be visually searched)
+          if (imageAnalysisQuery) {
+            searchQuery = imageAnalysisQuery
+            console.log(`[Chat] Using text-based image analysis for search: "${searchQuery}"`)
+          }
+          // Priority 2d-2: If asking about competitors/similar and there's an attached product, use the product info
+          else if ((hasCompetitorRequest || message.toLowerCase().includes('similar') || message.toLowerCase().includes('find similar') || message.toLowerCase().includes('similiar')) && attachedProduct?.metadata && !imageAnalysisQuery) {
+            const product = attachedProduct.metadata
+            
+            // Try to use AI-extracted keywords if available, otherwise use title/category
+            let searchTerms = []
+            
+            // Check if this product has AI-extracted keywords (from URL analysis)
+            if (product.description && product.description.includes('keywords:')) {
+              const keywordsMatch = product.description.match(/keywords:\s*\[(.*?)\]/i)
+              if (keywordsMatch) {
+                try {
+                  searchTerms = JSON.parse(`[${keywordsMatch[1]}]`).slice(0, 3)
+                } catch (e) {
+                  searchTerms = keywordsMatch[1].split(',').map((k: string) => k.trim().replace(/"/g, '')).slice(0, 3)
+                }
+              }
+            }
+            
+            // Fallback to product title/category
+            if (searchTerms.length === 0) {
+              searchTerms = [product.title || product.category || 'similar products']
+            }
+            
+            searchQuery = searchTerms.join(' ')
+            console.log(`[Chat] Using attached product for similar items search: "${searchQuery}" (from ${product.title || 'unknown product'})`)
+          } else {
+            // Clean up user query for text search
+            searchQuery = searchQuery.replace(/\b(show me|find me|where can i get|i want to buy|looking for|need some|recommend|suggest|shopping for|buy|purchase|what|how|where|when|why|can you|could you|please|help me|i need|is this worth it|competitors|alternatives|find similiar|similar|find similar)\b/gi, '')
+            searchQuery = searchQuery.trim()
+            
+            // If query is too short or empty, use attached product info or generic search
+            if (searchQuery.length < 3) {
+              if (attachedProduct?.metadata) {
+                const product = attachedProduct.metadata
+                searchQuery = `${product.title || product.category || 'similar products'}`
+                console.log(`[Chat] Using attached product for empty query search: "${searchQuery}"`)
+              } else if (attachedFiles.length > 0) {
+                // Check if any attached file has useful metadata
+                const fileWithData = attachedFiles.find((file: any) => file.metadata?.title || file.metadata?.category)
+                if (fileWithData?.metadata) {
+                  searchQuery = `${fileWithData.metadata.title || fileWithData.metadata.category || 'similar products'}`
+                  console.log(`[Chat] Using attached file metadata for search: "${searchQuery}"`)
+                } else {
+                  searchQuery = "product alternatives"
+                }
+              } else {
+                searchQuery = "popular products"
+              }
+            }
+            console.log(`[Chat] Using processed user message for search: "${searchQuery}"`)
+          }
+          
+          // DON'T ADD PROFILE ENHANCEMENTS - Keep search queries clean and specific
+          console.log(`[Chat] Final search query: "${searchQuery}"`)
+          const searchLimit = hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit
+          
+          // Skip broken RealSearch service, go directly to working ProductsService
+          try {
+            console.log(`[Chat] Using direct product search (RealSearch disabled)...`)
+            products = await searchForProducts(searchQuery, searchLimit, userId || undefined, !!imageAnalysisQuery)
+            
+            // Track search in memory
+            chatMemoryService.addSearchQuery(
+              userId || undefined, 
+              searchQuery, 
+              'Direct search', 
+              products
+            )
+          } catch (searchError) {
+            console.error(`[Chat] Direct product search error:`, searchError)
+            products = []
+          }
         }
       }
 
-      // Add found products to memory for future reference
+      // DON'T ADD AI SEARCH RESULTS TO MEMORY - Only track user queries, not generated products
+      // Memory should only contain products the user explicitly shared/attached
       const queryUsed = visualSearchProducts.length > 0 ? (imageAnalysisQuery || 'Visual search') : 'Product search'
-      products.forEach(product => {
-        chatMemoryService.addDiscussedProduct(userId || undefined, product, `Search result for "${queryUsed}"`)
-      })
+      console.log(`[Chat] Search completed with ${products.length} results. Memory pollution avoided.`)
     }
 
-    // Generate more conversational suggestions
-    const generateSuggestions = (userMsg: string, aiResponse: string) => {
+    // Generate dynamic suggestions based on AI response and products mentioned
+    const generateSuggestions = (userMsg: string, aiResponse: string, foundProducts: Product[]) => {
       const msgLower = userMsg.toLowerCase()
       const responseLower = aiResponse.toLowerCase()
+      const suggestions: string[] = []
 
-      // More conversational suggestions based on context
-      if (msgLower.includes("trend") || responseLower.includes("trend")) {
-        return [
-          "What trends should I avoid?",
-          "How do I make trends work for my age?", 
-          "Show me some trending pieces",
-          "What's coming next season?",
-        ]
+      // Extract product names and brands mentioned in AI response
+      const extractedProducts: string[] = []
+      const extractedBrands: string[] = []
+      
+      // Extract from found products if available
+      if (foundProducts && foundProducts.length > 0) {
+        foundProducts.slice(0, 3).forEach(product => {
+          if (product.title) extractedProducts.push(product.title)
+          if (product.brand) extractedBrands.push(product.brand)
+        })
+      }
+      
+      // Extract brands and products mentioned in AI response text
+      const brandMatches = aiResponse.match(/\b([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]*)*)\b/g) || []
+      const potentialBrands = brandMatches.filter(match => 
+        match.length > 2 && 
+        !['The', 'And', 'For', 'With', 'This', 'That', 'Here', 'There', 'These', 'Those', 'What', 'When', 'Where', 'Why', 'How', 'You', 'Your', 'They', 'Their', 'Some', 'Many', 'Most', 'Best', 'Good', 'Great', 'Perfect'].includes(match)
+      )
+      
+      // Add unique brands and products
+      potentialBrands.slice(0, 2).forEach(brand => {
+        if (!extractedBrands.includes(brand)) extractedBrands.push(brand)
+      })
+
+      // Create dynamic suggestions based on extracted content
+      if (extractedProducts.length > 0) {
+        const product = extractedProducts[0]
+        suggestions.push(`Find ${product} alternatives`)
+        suggestions.push(`Show me ${product} reviews`)
+        if (extractedProducts[1]) {
+          suggestions.push(`Compare ${extractedProducts[0]} vs ${extractedProducts[1]}`)
+        }
       }
 
-      if (msgLower.includes("work") || msgLower.includes("office") || responseLower.includes("professional")) {
-        return [
-          "How casual can I go at work?",
-          "Show me work-appropriate shoes",
-          "What about work bags?",
-          "Help me transition work to dinner",
-        ]
+      if (extractedBrands.length > 0) {
+        const brand = extractedBrands[0]
+        suggestions.push(`Find more ${brand} products`)
+        suggestions.push(`Show me ${brand} competitors`)
+        if (extractedBrands[1]) {
+          suggestions.push(`Compare ${extractedBrands[0]} vs ${extractedBrands[1]}`)
+        }
       }
 
-      if (msgLower.includes("color") || responseLower.includes("color")) {
-        return [
-          "What colors make me look younger?",
-          "How do I wear bold colors?",
-          "What's my best neutral?",
-          "Show me colorful accessories",
-        ]
+      // Context-based suggestions
+      if (msgLower.includes("price") || responseLower.includes("price") || responseLower.includes("$")) {
+        suggestions.push("Find cheaper alternatives")
+        suggestions.push("Show me deals and discounts")
       }
 
-      if (msgLower.includes("body") || msgLower.includes("fit") || responseLower.includes("flattering")) {
-        return [
-          "What styles flatter my body type?",
-          "How do I find the right fit?",
-          "What should I avoid wearing?",
-          "Show me flattering silhouettes",
-        ]
+      if (msgLower.includes("review") || responseLower.includes("review") || responseLower.includes("rating")) {
+        suggestions.push("Show me customer reviews")
+        suggestions.push("What are the pros and cons?")
       }
 
-      // Default conversational suggestions
-      return [
-        "What's your styling philosophy?",
-        "How do I develop my personal style?",
-        "What are some styling mistakes to avoid?",
-        "Show me versatile wardrobe staples",
-      ]
+      if (msgLower.includes("compare") || responseLower.includes("compare") || msgLower.includes("vs")) {
+        suggestions.push("Find more comparisons")
+        suggestions.push("Show me detailed specs")
+      }
+
+      if (msgLower.includes("buy") || msgLower.includes("purchase") || responseLower.includes("buy")) {
+        suggestions.push("Where can I buy this?")
+        suggestions.push("Find the best deals")
+      }
+
+      // Fill remaining slots with generic helpful suggestions if needed
+      while (suggestions.length < 4) {
+        const genericSuggestions = [
+          "Find similar products",
+          "Show me alternatives",
+          "What are the best brands?",
+          "Find better deals",
+          "Compare features",
+          "Show me reviews",
+          "Find competitors",
+          "What's trending now?"
+        ]
+        
+        const unused = genericSuggestions.find(s => !suggestions.includes(s))
+        if (unused) suggestions.push(unused)
+        else break
+      }
+
+      return suggestions.slice(0, 4) // Return max 4 suggestions
     }
 
-    const suggestions = generateSuggestions(message, text)
+    const suggestions = generateSuggestions(message, text, products)
 
     return NextResponse.json({
       message: text,
@@ -656,12 +892,12 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
     // Check if it's a quota exceeded error
     if (error.message?.includes("quota") || error.message?.includes("RESOURCE_EXHAUSTED")) {
       return NextResponse.json({
-        message: "I've reached my daily chat limit! ✨ Please try again tomorrow, or in the meantime, feel free to browse our fashion collections and save items you like!",
+        message: "I've reached my daily chat limit! ✨ Please try again tomorrow, or in the meantime, feel free to browse our product collections and save items you like!",
         products: [],
         suggestions: [
-          "Browse trending fashion items",
-          "Check out our style collections", 
-          "Save items for later discussion",
+          "Browse popular products",
+          "Check out our collections", 
+          "Save items for later",
           "Return tomorrow for more chat!"
         ],
       })
@@ -669,13 +905,13 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
 
     return NextResponse.json({
       message:
-        "Oh no, I'm having a little technical hiccup! But I'm still here and excited to chat about fashion with you. What's on your style mind today? I love talking about everything from everyday outfits to special occasion looks!",
+        "Oh no, I'm having a little technical hiccup! But I'm still here and excited to help you find great products. What are you looking for today? I can help with electronics, home goods, tools, accessories, or anything else!",
       products: [],
       suggestions: [
-        "What's your biggest style challenge?",
-        "Tell me about your personal style", 
-        "What's in your dream closet?",
-        "How can I help you feel more confident?",
+        "What products are you looking for?",
+        "Tell me about your budget and needs", 
+        "Help me find the best deals",
+        "Show me popular products",
       ],
     })
   }

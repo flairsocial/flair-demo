@@ -7,6 +7,8 @@ import CategoryFilter from "@/components/CategoryFilter"
 import SearchBar from "@/components/SearchBar"
 import ProductDetail from "@/components/ProductDetail"
 import { useProfile } from "@/lib/profile-context"
+import { useCredits } from "@/lib/credit-context"
+import { showOutOfCreditsModal } from "@/components/CreditGuard"
 import type { Product } from "@/lib/types"
 
 export default function Home() {
@@ -20,6 +22,7 @@ export default function Home() {
 
   // Get profile context for personalized product search
   const { getSearchContext, profile, isLoaded: profileLoaded } = useProfile()
+  const { useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -48,6 +51,12 @@ export default function Home() {
   }, [searchQuery, selectedCategory, hasInitialLoad])
 
   const fetchProducts = async (query = "", category = "All", isRefresh = false) => {
+    // Check credits before making any request (except initial load)
+    if ((query || category !== "All" || isRefresh) && !checkCreditsAvailable(1)) {
+      showOutOfCreditsModal()
+      return
+    }
+    
     if (isRefresh) {
       setIsRefreshing(true)
     } else {
@@ -88,6 +97,17 @@ export default function Home() {
 
       const response = await fetch(url)
       const data = await response.json()
+      
+      // Check if credits were used and deduct them
+      const creditsUsedHeader = response.headers.get('X-Credits-Used')
+      if (creditsUsedHeader) {
+        const creditsUsed = parseInt(creditsUsedHeader)
+        // Product searches consume 1 credit each (builds up to 10 after 10-15 searches)
+        if (!consumeCredits(creditsUsed)) {
+          showOutOfCreditsModal()
+          return // Exit early if not enough credits
+        }
+      }
       
       // Ensure we always set an array to products state
       if (Array.isArray(data)) {

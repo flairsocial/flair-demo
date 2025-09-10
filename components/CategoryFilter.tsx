@@ -8,7 +8,17 @@ interface CategoryFilterProps {
 }
 
 export default function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFilterProps) {
-  const categories = ["All", "Tops", "Bottoms", "Dresses", "Shoes", "Accessories", "Outerwear"]
+  const categories = [
+    "All", 
+    "Tops", 
+    "Bottoms", 
+    "Dresses", 
+    "Shoes", 
+    "Accessories", 
+    "Outerwear",
+    "Beauty",
+    "Tech"
+  ]
 
   return (
     <div className="overflow-x-auto scrollbar-hide">

@@ -3,6 +3,15 @@ import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
 import { searchForProducts } from "@/lib/products-service"
 
+// Credit tracking for API usage
+function trackCreditUsage(request: Request) {
+  // Product search uses 1 credit (so 10-15 searches = 10-15 credits, consumes 10 after accumulation)
+  const creditsUsed = 1
+  
+  // Add credit usage header for frontend to track
+  return creditsUsed
+}
+
 export async function GET(request: Request) {
   const serperApiKey = process.env.SERPER_API_KEY
   if (!serperApiKey) {
@@ -36,6 +45,9 @@ export async function GET(request: Request) {
   console.log(`LOG: Fetching ${effectiveLimit} items`)
 
   try {
+    // Track credit usage
+    const creditsUsed = trackCreditUsage(request)
+    
     // Use the shared products service
     const products = await searchForProducts(
       searchQuery || `${categoryParam || 'fashion'} trending`, 
@@ -46,7 +58,10 @@ export async function GET(request: Request) {
 
     console.log(`LOG: Final product count: ${products.length}`)
 
-    return NextResponse.json(products)
+    // Return products with credit usage info
+    const response = NextResponse.json(products)
+    response.headers.set('X-Credits-Used', creditsUsed.toString())
+    return response
   } catch (error: any) {
     console.error(
       `CRITICAL: Error in product fetching route:`,

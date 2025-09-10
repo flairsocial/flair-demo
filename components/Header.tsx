@@ -7,6 +7,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { useMobile } from "@/hooks/use-mobile"
 import InfoPopup from "./InfoPopup"
 import PricingModal from "./PricingModal"
+import CreditCounter from "./CreditCounter"
 import Image from "next/image"
 import Link from "next/link"
 
@@ -41,13 +42,14 @@ export default function Header() {
   return (
     <>
       <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-md px-4 py-4 flex items-center border-b border-zinc-900 h-16 relative">
-        {/* Left side: Logo on mobile, empty on desktop to align with sidebar */}
-        <div className="flex items-center justify-start flex-1">
+        {/* Left side: Logo and Credit Counter */}
+        <div className="flex items-center justify-start flex-1 gap-3">
           {isMobile && (
             <Link href="/" className="flex items-center">
               <Image src="/flair-logo.png" alt="Flair Logo" width={32} height={32} className="object-contain" />
             </Link>
           )}
+          <CreditCounter />
         </div>
 
         {/* Center: Page Title - Absolutely positioned for perfect centering */}

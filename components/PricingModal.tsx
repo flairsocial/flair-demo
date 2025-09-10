@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import { useCredits } from "@/lib/credit-context"
 
 interface PricingModalProps {
   isOpen: boolean
@@ -63,6 +64,8 @@ const customerReviews = [
 export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
   const [selectedTab, setSelectedTab] = useState<"personal" | "business">("personal")
   const [currentReviewIndex, setCurrentReviewIndex] = useState(0)
+  const [selectedPlan, setSelectedPlan] = useState<'free' | 'plus' | 'pro' | null>(null)
+  const { setPlan, currentPlan } = useCredits()
 
   // Auto-scroll reviews
   useEffect(() => {
@@ -71,6 +74,18 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     }, 4000)
     return () => clearInterval(interval)
   }, [])
+
+  // Initialize selected plan to current plan
+  useEffect(() => {
+    if (!selectedPlan) {
+      setSelectedPlan(currentPlan)
+    }
+  }, [currentPlan, selectedPlan])
+
+  const handleUpgrade = (planType: 'plus' | 'pro') => {
+    setPlan(planType)
+    onClose() // Close modal after upgrade
+  }
 
   const ReviewsCarousel = () => (
     <div className="relative overflow-hidden py-6 bg-zinc-900/30 rounded-lg border border-zinc-800/50 mb-8">
@@ -124,16 +139,17 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       period: "forever",
       description: "Limited access for everyday tasks",
       features: [
-        "Limited 50 Daily Credit Usage",
+        "50 Daily Credits",
         "50-75% AI accuracy only",
         "Limited product discovery",
         "Limited file navigation",
         "Limited search functionality"
       ],
-      buttonText: "Current Plan",
-      buttonDisabled: true,
+      buttonText: currentPlan === "free" ? "Current Plan" : "Switch to Free",
+      buttonDisabled: false,
       icon: null,
-      popular: false
+      popular: false,
+      planType: "free" as const
     },
     {
       name: "Plus",
@@ -141,17 +157,18 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       period: "USD / month",
       description: "Full AI access for Individuals",
       features: [
-        "500 Daily Credit Usage",
+        "500 Daily Credits",
         "Deep link generation",
         "Competitive Pricing Analysis",
         "Exclusive AI Deal Discovery",
         "Fraud / Product Scam Detection",
         "Marketplaces, Vendors, and Suppliers"
       ],
-      buttonText: "Get Started",
+      buttonText: currentPlan === "plus" ? "Current Plan" : "Upgrade to Plus",
       buttonDisabled: false,
       icon: <Sparkles className="w-4 h-4" />,
-      popular: true
+      popular: currentPlan === "free", // Popular if user is on free
+      planType: "plus" as const
     },
     {
       name: "Pro",
@@ -159,7 +176,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       period: "USD / Month",
       description: "Professional features for resellers",
       features: [
-        "10,000 Daily Credits",
+        "5,000 Daily Credits",
         "Everything in Plus",
         "Advanced Resale Analytics",
         "ROI and Listings Dashboard",
@@ -167,10 +184,11 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         "24/7 Customer Support",
  
       ],
-      buttonText: "Get Started",
-      buttonDisabled: true,
+      buttonText: currentPlan === "pro" ? "Current Plan" : "Upgrade to Pro",
+      buttonDisabled: false,
       icon: <Crown className="w-4 h-4" />,
-      popular: false
+      popular: currentPlan === "plus", // Popular if user is on plus
+      planType: "pro" as const
     }
   ]
 
@@ -178,7 +196,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     {
       name: "Business",
       price: "$50",
-      period: "USD / Annually",
+      period: "USD / Month",
       description: "Everything Plus has, with business-grade features",
       features: [
         "Everything in Plus",
@@ -194,7 +212,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       buttonDisabled: false,
       icon: <Building2 className="w-4 h-4" />,
       popular: true,
-      contactEmail: "admin@flair.social"
+      contactEmail: "admin@flair.social",
+      planType: undefined
     }
   ]
 
@@ -268,16 +287,31 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
           {(selectedTab === "personal" ? personalPlans : businessPlans).map((plan) => (
             <div
               key={plan.name}
-              className={`relative p-6 rounded-2xl border-2 transition-all ${
-                plan.popular
+              className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${
+                plan.planType === selectedPlan
                   ? "border-blue-500 bg-gradient-to-b from-blue-950/50 to-zinc-900"
-                  : "border-zinc-800 bg-zinc-900"
+                  : plan.planType === currentPlan
+                  ? "border-green-500 bg-gradient-to-b from-green-950/30 to-zinc-900"
+                  : "border-zinc-800 bg-zinc-900 hover:border-zinc-700"
               }`}
+              onClick={() => {
+                if (plan.planType) {
+                  setSelectedPlan(plan.planType)
+                }
+              }}
             >
-              {plan.popular && (
+              {(plan.planType === selectedPlan && plan.planType !== currentPlan) && (
                 <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                   <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
-                    POPULAR
+                    SELECTED
+                  </span>
+                </div>
+              )}
+
+              {plan.planType === currentPlan && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    CURRENT PLAN
                   </span>
                 </div>
               )}
@@ -305,16 +339,30 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
               <Button
                 className={`w-full ${
-                  plan.popular
+                  plan.planType === currentPlan
+                    ? "bg-green-600 hover:bg-green-700 text-white cursor-default"
+                    : plan.planType === selectedPlan
                     ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : plan.buttonDisabled
-                    ? "bg-zinc-800 text-zinc-500 cursor-not-allowed"
                     : "bg-white text-black hover:bg-zinc-200"
                 }`}
-                disabled={plan.buttonDisabled}
-                onClick={plan.name === "Business" ? handleContactAdmin : undefined}
+                disabled={plan.planType === currentPlan}
+                onClick={(e) => {
+                  e.stopPropagation() // Prevent card click when button is clicked
+                  if (plan.name === "Business") {
+                    handleContactAdmin()
+                  } else if (plan.planType && plan.planType !== currentPlan) {
+                    if (plan.planType === 'free') {
+                      setPlan('free')
+                      onClose()
+                    } else {
+                      handleUpgrade(plan.planType)
+                    }
+                  }
+                }}
               >
-                {plan.buttonText}
+                {plan.planType === currentPlan ? "Current Plan" : 
+                 plan.planType === selectedPlan ? `Switch to ${plan.name}` : 
+                 plan.buttonText}
               </Button>
             </div>
           ))}
