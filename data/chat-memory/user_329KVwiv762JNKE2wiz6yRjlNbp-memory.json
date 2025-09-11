@@ -241,134 +241,61 @@
     }
   ],
   "searchQueries": [
-    "H&M Men's Slim-Fit Jacket",
-    "air force 1s",
-    "jeans",
-    "\"Carhartt Men's Short Sleeve Pocket T Shirt similar alternatives",
-    "**ANALYZE:**\n\n1.  **Exact product type:** Low-top athletic sneakers (or trainers).\n2.  **Materials:** The main upper is a shiny, reflective metallic material, likely metallic leather or a high-shine synthetic leather. The heel collar appears to be a matte, smooth white leather. The laces are flat, made of fabric. The outsole is clearly made of gum rubber, characterized by its translucent brownish appearance and textured grip.\n3.  **Main colors:** The dominant color is metallic silver. The outsole is a distinct gum brown. The heel collar is white, and the laces are a light grey or taupe color.\n4.  **Style:** It's a retro/vintage athletic style, reminiscent of classic indoor court or handball shoes, but updated with a modern, bold metallic finish. It's a casual, fashion-oriented sneaker.\n5.  **Brand markings or distinctive features:** The brand name \"ALOHAS\" is clearly visible embossed on the side of the gum sole near the heel, and also appears to be on the tongue or a side panel of the upper. Distinctive features include perforations on the toe box and side panels, and a textured striped overlay detail on the side.\n\n**RESPOND with a detailed search query:**\n\n\"ALOHAS silver metallic leather low-top sneakers gum sole white heel perforated toe grey laces\"",
-    "'s trending this season?",
     "nike air force 1",
     "jeans",
     "wide baggy jeans",
-    "apc jeans"
+    "apc jeans",
+    "competitors for Apple Watch Series 5",
+    "competitors for Apple Watch Series 5",
+    "a black dress for a wedding",
+    "business casual outfits",
+    "riley trousers reviews",
+    "Edikted Women's Wild Speed"
   ],
   "userIntents": [
-    "Contextual search",
-    "Direct search",
-    "Direct search",
-    "Contextual search",
-    "Visual search (Google Vision/Bing/SerpApi)",
     "Direct search",
     "Direct search",
     "Direct search",
     "Direct search",
-    "Direct search"
+    "Competitor search",
+    "Competitor search",
+    "Direct search",
+    "Direct search",
+    "Direct search",
+    "Contextual search"
   ],
   "stylePreferences": [],
-  "lastSearchResults": [
-    {
-      "id": "123656401806192920",
-      "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTCdp47JDyVvBTp4m_bI1obViPlUiYXAb3x8XGRgTvcRFXhQZnvziQCk1kBrYMX4sm5Iq0_T62EgYwV1MjvE25TUkaz6IxdXpgUuJnFRZHKkIKyDPjwdlvcGQqW",
-      "title": "A.P.C. New Standard Men Jeans",
-      "price": 295,
-      "brand": "A.P.C.",
-      "category": "Product",
-      "description": "A.P.C. New Standard Men Jeans from A.P.C.",
-      "hasAiInsights": false,
-      "saved": false,
-      "link": "https://google.com/shopping/product/123656401806192920?gl=us"
-    },
-    {
-      "id": "15787348779281298660",
-      "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRyiDToKf8G7cdBuEvC68u_VYVqGe_D81V0-trVlWakPnM4sivwDLUnRFwPF0Jp_G5QLNayGJEq86OsrnUBh0sMV_gml5c-xScghAr93ol6aeFavbsNo-VEPg",
-      "title": "A.P.C Men's. Standard Jeans",
-      "price": 295,
-      "brand": "A.P.C",
-      "category": "Product",
-      "description": "A.P.C Men's. Standard Jeans from A.P.C",
-      "hasAiInsights": false,
-      "saved": false,
-      "link": "https://google.com/shopping/product/15787348779281298660?gl=us"
-    },
-    {
-      "id": "3844532302371037347",
-      "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTDJQ-MQi15w-i0jn6-pEfboYB8k373ZbWlplEl2Bb8t0bdh_Qzk100FDAc2D1aGXqCdhAPiB06wFsjS3JIXBiBsS5tXbxqm6wduvK85wE",
-      "title": "A.P.C. Blue Fairfax Jeans",
-      "price": 172,
-      "brand": "A.P.C.",
-      "category": "Product",
-      "description": "A.P.C. Blue Fairfax Jeans from A.P.C.",
-      "hasAiInsights": false,
-      "saved": false,
-      "link": "https://google.com/shopping/product/3844532302371037347?gl=us"
-    },
-    {
-      "id": "10155708519467504360",
-      "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQaiF5H1vUejrwnGEjB2kO6lfgBofHz3jpubQ2IsMLYOyLY7Dec59qonX-SzTtKNPCuIkmVkpbpElqzcgI_hPCdjI7mCOanytujdV1VkHm6QFM3x2PqNtHmKRQ",
-      "title": "A.P.C. Indigo Petit New Standard Men Jeans",
-      "price": 295,
-      "brand": "A.P.C.",
-      "category": "Product",
-      "description": "A.P.C. Indigo Petit New Standard Men Jeans from A.P.C.",
-      "hasAiInsights": false,
-      "saved": false,
-      "link": "https://google.com/shopping/product/10155708519467504360?gl=us"
-    },
-    {
-      "id": "2884674305740002370",
-      "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTx1m8s3F2YY3j6MAy6WyrX3hBWyuMRmC334bOCGbEkbDzyfGui1X5M2SadFDWN9LDzoF9kVn5A3qnkygEZ6QgN2krkszF28uqSXQPvQmSjIduV_tXhjgzzgg",
-      "title": "A.P.C. Men's Fairfax Baggy Wide Leg Jeans",
-      "price": 295,
-      "brand": "A.P.C.",
-      "category": "Product",
-      "description": "A.P.C. Men's Fairfax Baggy Wide Leg Jeans from A.P.C.",
-      "hasAiInsights": false,
-      "saved": false,
-      "link": "https://google.com/shopping/product/2884674305740002370?gl=us"
-    },
-    {
-      "id": "11670384377635334478",
-      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSQgSQ4nsOntM0OsTdoRsF_Ha0J4J8mn1y2WB2kdPRZHVi-_6XBtpHTlOlm-Znjorqi4YGEfJc9vVOq-pkwkc3XGvE0g0y5gh2M5XTIdEVLQIrIb3yiseOr",
-      "title": "A.P.C Petit Standard Men Jeans",
-      "price": 295,
-      "brand": "A.P.C",
-      "category": "Product",
-      "description": "A.P.C Petit Standard Men Jeans from A.P.C",
-      "hasAiInsights": false,
-      "saved": false,
-      "link": "https://google.com/shopping/product/11670384377635334478?gl=us"
-    }
-  ],
+  "lastSearchResults": [],
   "conversationThemes": [
-    "Showed products: H&M Men's Slim-Fit Jacket, H&M Men's Slim Fit Jacket, H&M Men's Slim Fit Jersey Jacket",
-    "Showed products: Nike Men's Air Force 1 07, Nike Men's Air Force 1 07 LV8, NIKE Men's Air Force 1 '07 Vamps",
-    "Showed products: Vice Jean, AE Dreamy Drape Stretch Super High-Waisted Baggy Wide-Leg Jean, Hollister Women's Low-Rise Relaxed Straight Jeans",
     "Showed products: Carhartt Men's Loose Fit Heavyweight Short-Sleeve Pocket T-Shirt, \"Carhartt Men's Short Sleeve Pocket T Shirt, Carhartt Men's K87 Heavyweight Short-Sleeve Pocket T-Shirt",
     "Showed products: Athletic Works Men's Core Jogger Sneakers, On Women's Cloudtilt, Asics Men's Versablast 4 Running Shoes",
     "Showed products: Reformation Clea Dress, Anthropologie Fisherman Sandals, Karen Millen Women's Figure Form Knit Woven Jacket",
     "Showed products: Nike Women's Air Force 1 '07 Shoes, Nike Women's Air Force 1 '07 Shoes, Nike Air Force 1 Basketball Sneaker",
     "Showed products: AE Dreamy Drape Stretch Ripped Low-Rise Baggy Wide-Leg Jeans, Old Navy Women's Mid-Rise Baggy Wide-Leg Jeans, Fashion Nova Women's Posted Stretch Ripped Straight Leg Jeans",
     "Showed products: Levi's Baggy Dad Women's Jeans, Citizens of Humanity Loli Jeans Women, Frame Le Baggy wide-leg jeans women",
-    "Showed products: A.P.C. New Standard Men Jeans, A.P.C Men's. Standard Jeans, A.P.C. Blue Fairfax Jeans"
+    "Showed products: A.P.C. New Standard Men Jeans, A.P.C Men's. Standard Jeans, A.P.C. Blue Fairfax Jeans",
+    "Showed products: White House Black Market Women's High-Rise Riley Trousers, Donna Karan Women's Floral Print Scuba Knit Sheath Dress, White House Black Market Women's Studio Blazer",
+    "Showed products: Riley Trousers, Riley Women's Slim Leg Pants, Riley Wide Leg Pants",
+    "Showed products: Edikted Women's Wild Speed Patch Jacket, Edikted Women's Nikki Nylon Shorts, Edikted Women's Retro Rides Hoodie"
   ],
   "aiResponses": [
-    "User: \"What's trending this season?\" | AI: \"This season,  wide-leg trousers and cargo pants remain popular, reflecting your existing preferences.  Also trending are  bold metallic accessories and  vintage-inspired pieces, aligning perfectly with your saved items and style profile.\n\"",
-    "User: \"Analyze my collection \"test \". This collection contains 1 items: Nike Air Force 1 Low 07 LV8 Men's by Nike ($89.99), Nike Air Force 1 Low 07 LV8 Men's by Nike ($89.99). Please provide insights about this collection, suggest similar items, or help me understand the style theme.\" | AI: \"Your collection features two pairs of Nike Air Force 1 Low 07 LV8 Men's sneakers, suggesting a preference for classic, versatile footwear.  To diversify, consider exploring similar styles from brands like Adidas or Converse, or branching out into different sneaker silhouettes like high-tops or running shoes.  These could complement your existing collection while maintaining a sporty aesthetic.\n\"",
-    "User: \"Help me find the perfect jeans\" | AI: \"Considering your preference for wide-leg styles (like the Boohoo and Micas jeans in your saved items), and your love of both business and casual styles, I suggest looking at high-quality wide-leg jeans from brands like AGOLDE or Frame Denim.  These offer a sophisticated yet versatile look suitable for various occasions.\n\"",
-    "User: \"I dont like these can you find wide and baggy\" | AI: \"Okay, for wide and baggy jeans, check out brands like  Re/Done (known for their vintage-inspired styles which align with your preferences) and  A.P.C. (for a more minimalist approach).  Both offer high-quality, sustainably made options in various washes and fabrics.\n\"",
-    "User: \"yeah look for APC then\" | AI: \"A.P.C. offers several wide-leg and baggy jean styles.  To help me narrow it down, could you tell me what wash or fabric you prefer (e.g., dark wash, light wash, denim, corduroy)?  Knowing this will help me find the perfect pair for you.\n\""
+    "User: \"I need a black dress for a wedding\" | AI: \"Considering your preferences for luxury brands and classic styles, I suggest exploring black dresses from brands like Stella McCartney or The Row.  Their designs often feature high-quality materials and timeless silhouettes, perfect for a wedding.\n\"",
+    "User: \"Show me Considering competitors\" | AI: \"I need more information to understand which product you're looking for competitors of. Please specify the product category or brand.\n\"",
+    "User: \"Show me business casual looks\" | AI: \"Given your preference for luxury brands and minimalist style, consider a tailored blazer from Stella McCartney paired with  wide-leg trousers from The Row.  Alternatively, a sleek A-line skirt and a crisp, high-quality silk blouse would create a sophisticated business casual look.\n\"",
+    "User: \"Show me White House Black Market Women's High-Rise Riley Trousers reviews\" | AI: \"I don't have access to real-time reviews. To find reviews for the White House Black Market Women's High-Rise Riley Trousers, I recommend checking the product page on the White House Black Market website, or searching for reviews on sites like Google Shopping or Trustpilot.\n\"",
+    "User: \"Find all similiar\" | AI: \"The Edikted Women's Wild Speed Patch Jacket is a cool, edgy piece.  To find similar jackets, I'd suggest looking at other brands known for streetwear and vintage styles like R13,  or  A.P.C.  These brands often feature similar patched designs and unique details.\n\""
   ],
   "recentTopics": [
-    "sneakers",
-    "Considering",
-    "Boohoo",
-    "Micas",
-    "Okay",
-    "Done",
-    "Both",
-    "bag",
-    "Knowing",
-    "bag"
+    "Please",
+    "Given",
+    "Stella McCartney",
+    "The Row",
+    "White House Black Market Women",
+    "High",
+    "Rise Riley Trousers",
+    "The Edikted Women",
+    "Wild Speed Patch Jacket",
+    "jacket"
   ],
-  "timestamp": "2025-09-11T00:47:08.229Z"
+  "timestamp": "2025-09-11T03:07:56.464Z"
 }

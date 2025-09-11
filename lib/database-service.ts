@@ -354,6 +354,49 @@ export class DatabaseService {
     }
   }
 
+  async deleteChatConversation(userId: string, conversationId: string) {
+    try {
+      await this.ensureUserExists(userId);
+      
+      // Delete all messages in the conversation first
+      await db.delete(schema.chatMessages)
+        .where(eq(schema.chatMessages.conversationId, conversationId));
+      
+      // Delete the conversation
+      const result = await db.delete(schema.chatConversations)
+        .where(and(
+          eq(schema.chatConversations.id, conversationId),
+          eq(schema.chatConversations.userId, userId)
+        ));
+      
+      return true;
+    } catch (error) {
+      console.error('Error deleting chat conversation:', error);
+      return false;
+    }
+  }
+
+  async renameChatConversation(userId: string, conversationId: string, newTitle: string) {
+    try {
+      await this.ensureUserExists(userId);
+      
+      const result = await db.update(schema.chatConversations)
+        .set({ 
+          title: newTitle,
+          updatedAt: new Date()
+        })
+        .where(and(
+          eq(schema.chatConversations.id, conversationId),
+          eq(schema.chatConversations.userId, userId)
+        ));
+      
+      return true;
+    } catch (error) {
+      console.error('Error renaming chat conversation:', error);
+      return false;
+    }
+  }
+
   async updateChatHistory(history: any[], userId: string) {
     // For backward compatibility - this will create a new conversation
     if (!userId || !history.length) return false;

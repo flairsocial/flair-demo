@@ -18,11 +18,9 @@ async function getUserProfile(userId?: string) {
     const savedProfile = getProfile(userId || undefined)
     
     if (savedProfile && Object.keys(savedProfile).length > 0) {
-      console.log('[Chat] Found user profile in storage:', userId || 'anonymous')
       return savedProfile
     }
     
-    console.log('[Chat] No profile found in storage for:', userId || 'anonymous')
     return null
   } catch (error) {
     console.error('[Chat] Error accessing profile storage:', error)
@@ -162,13 +160,6 @@ Just return the search query, nothing else:`
 
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ error: "AI service unavailable" }, { status: 500 })
-    }
-
-    console.log(`[Chat] Processing message: "${message}" with product limit: ${productLimit}`)
-    console.log(`[Chat] User has ${savedItems.length} saved items for context`)
-    console.log(`[Chat] User profile data:`, userProfile ? 'Profile loaded' : 'No profile data')
-    if (userProfile) {
-      console.log(`[Chat] Profile contains: age=${userProfile.age}, gender=${userProfile.gender}, styles=${userProfile.style?.length || 0}, budget=${userProfile.budgetRange?.length || 0}`)
     }
 
     // Build conversation history for Google AI (reduced for efficiency)
@@ -340,37 +331,15 @@ Just return the search query, nothing else:`
     }
 
     // INTEGRATE REAL-TIME DATA FETCHING FOR URLS AND ATTACHED PRODUCTS
-    console.log(`[Chat] === REAL-TIME DATA INTEGRATION START ===`)
     const dataRequests = ChatRealTimeService.detectRealTimeDataRequest(message)
-    console.log(`[Chat] Detected real-time data requests:`, dataRequests)
-    console.log(`[Chat] User attached products: ${userAttachedProducts.length}`)
-
     let realTimeContext = ""
     let enhancedProducts: Product[] = [...userAttachedProducts]
 
     // Expanded triggers: fetch real-time data if user asks about reviews, specs, availability, pricing,
     // OR asks about worth/value/quality/reputation, OR has attached products to discuss
     const triggerRealTimeData = Object.values(dataRequests).some(Boolean) || userAttachedProducts.length > 0
-    console.log(`[Chat] Trigger real-time data fetch: ${triggerRealTimeData}`)
 
     if (triggerRealTimeData) {
-      console.log(`[Chat] Fetching real-time data for ${userAttachedProducts.length} products`)
-
-      // Enrich context message with what user is asking about
-      const askContextParts = []
-      if (dataRequests.requestsValue || dataRequests.requestsQuality || dataRequests.requestsReputation) {
-        const contextQueries = []
-        if (dataRequests.requestsValue) contextQueries.push('worth/value assessment')
-        if (dataRequests.requestsQuality) contextQueries.push('quality evaluation')
-        if (dataRequests.requestsReputation) contextQueries.push('reputation/seller trust assessment')
-        if (contextQueries.length > 0) {
-          askContextParts.push(`User is asking about: ${contextQueries.join(', ')}`)
-        }
-      }
-
-      console.log(`[Chat] Context for real-time data: ${askContextParts.join('; ')}`)
-      console.log(`[Chat] Fetching real-time data for ${userAttachedProducts.length} products`)
-
       try {
         const realTimeResponse = await ChatRealTimeService.generateRealTimeResponse(
           message,
@@ -379,12 +348,9 @@ Just return the search query, nothing else:`
         )
 
         realTimeContext = realTimeResponse.contextualMessage
-        console.log(`[Chat] Real-time context generated: ${realTimeContext.substring(0, 100)}...`)
 
         // Update products with real-time data
         if (realTimeResponse.realTimeData && Object.keys(realTimeResponse.realTimeData).length > 0) {
-          console.log(`[Chat] Real-time data available for ${Object.keys(realTimeResponse.realTimeData).length} products`)
-
           // Enhance existing products with real-time data
           enhancedProducts = userAttachedProducts.map(product => {
             const realTimeData = realTimeResponse.realTimeData?.[product.id]
@@ -407,8 +373,6 @@ Just return the search query, nothing else:`
         console.error('[Chat] Real-time data fetch failed:', realTimeError)
         // Continue without real-time data - don't let this break the chat
       }
-
-      console.log(`[Chat] === REAL-TIME DATA INTEGRATION END ===`)
     }
 
     // Add current user message with file context

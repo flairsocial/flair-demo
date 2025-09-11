@@ -188,7 +188,7 @@ export async function searchForCompetitorProducts(
       }),
     }
 
-    const response = await fetch("https://google.serper.dev/search", requestOptions)
+    const response = await fetch("https://google.serper.dev/shopping", requestOptions)
     
     if (!response.ok) {
       console.log("[ProductsService] Serper API error:", response.status, response.statusText)
@@ -306,10 +306,13 @@ export async function searchForProducts(
     
     if (!response.ok) {
       console.log("[ProductsService] Serper API error:", response.status, response.statusText)
+      const errorText = await response.text()
+      console.log("[ProductsService] Error response:", errorText)
       return []
     }
 
     const data = await response.json()
+    console.log(`[ProductsService] Full Serper response:`, JSON.stringify(data, null, 2).substring(0, 500))
     const rawShoppingResults = data.shopping || []
     console.log(`[ProductsService] Received ${rawShoppingResults.length} raw results from Serper`)
 

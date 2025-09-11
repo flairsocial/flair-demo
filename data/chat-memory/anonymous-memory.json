@@ -1,0 +1,94 @@
+{
+  "userId": "anonymous",
+  "sessionId": "1757559000047",
+  "discussedProducts": [],
+  "searchQueries": [
+    "jeans"
+  ],
+  "userIntents": [
+    "Direct search"
+  ],
+  "stylePreferences": [],
+  "lastSearchResults": [
+    {
+      "id": "4691033781501740895",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQJLRSeO5WvlTNsHeRzp3qEjNkINyoXawk8gVPCZt8pVG8aGtLOg4CiSHqomFBmFj7gS9GeU5Ea7f3ONi1QG8GEyRabbD9ht4zw7AWguq1dJd5J2cOWiCU4iw",
+      "title": "Vice Jean",
+      "price": 125,
+      "brand": "Vice",
+      "category": "Product",
+      "description": "Vice Jean from Vice",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/4691033781501740895?gl=us"
+    },
+    {
+      "id": "14444593017546727728",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSvISU3uGbBF5qL2g4fhOHLSSW_0W0uWo1l-6z478MHofTxiuSaukKPwkPN2Y2YwjBTc4fhlrVxNud-oINgD_0M0yw_HaOIq5RayZ3LAREed7ae1aonwHPl",
+      "title": "AE Stretch Super High-Waisted Straight Jean",
+      "price": 44.96,
+      "brand": "AE",
+      "category": "Product",
+      "description": "AE Stretch Super High-Waisted Straight Jean from AE",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/14444593017546727728?gl=us"
+    },
+    {
+      "id": "9727433311451439958",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRq_KboxfaJZFZnhZ3l3sgDlQMsfru3nqYafXdR1BsoaYfPDgbcETix8mcEF8MhK6aj5eirviKMQdNUlhu4G-OPrbXTWGrqsDtDN8KVXL51gKu7WknreDgpzg",
+      "title": "Hollister Women's Low-Rise Relaxed Straight Jeans",
+      "price": 19.99,
+      "brand": "Hollister",
+      "category": "Product",
+      "description": "Hollister Women's Low-Rise Relaxed Straight Jeans from Hollister",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/9727433311451439958?gl=us"
+    },
+    {
+      "id": "3163794457546574420",
+      "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQgk68HhOzSSYbOuM_Dns6Etr703sPk_c5CO2auqzAFCm13AQRcZioq1m_McW3vyWt0kWgGESZ_TGC2mJouWJ6XF4A10zpB4K5NVELmggHZ",
+      "title": "7 For All Mankind Women's Dojo Jeans",
+      "price": 218,
+      "brand": "7 For All Mankind",
+      "category": "Product",
+      "description": "7 For All Mankind Women's Dojo Jeans from 7 For All Mankind",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/3163794457546574420?gl=us"
+    },
+    {
+      "id": "932961247451957508",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ68pPCO1Hn9LvpFRw5B7zYIy1MIHig9UmOhMGA6sZmGidKPmUV8dG0W61yLVfl6KXRoMkjONyXtaFAgegype2EFSZvRluua3JkORIKyyAwbo-1PCaoT0oo",
+      "title": "AE Dreamy Drape Stretch Super High-Waisted Baggy Wide-Leg Jean",
+      "price": 59.95,
+      "brand": "AE",
+      "category": "Product",
+      "description": "AE Dreamy Drape Stretch Super High-Waisted Baggy Wide-Leg Jean from AE",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/932961247451957508?gl=us"
+    },
+    {
+      "id": "16576263394191777208",
+      "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR3Zak9Jb2adDTdomxpeW9l24u5n5WRoRyeGqeNnn6l4IPcpNI885-mwmE30yt2bumKUoPaMN7p-3LjhJ8qEURhw-xbd8ZvpRlZXlwYcIfPtBBMcIH96wMEUsY8",
+      "title": "Lee Women's Stretch Relaxed Fit Straight Leg Jean",
+      "price": 45.56,
+      "brand": "Lee",
+      "category": "Product",
+      "description": "Lee Women's Stretch Relaxed Fit Straight Leg Jean from Lee",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/16576263394191777208?gl=us"
+    }
+  ],
+  "conversationThemes": [
+    "Showed products: Vice Jean, AE Stretch Super High-Waisted Straight Jean, Hollister Women's Low-Rise Relaxed Straight Jeans"
+  ],
+  "aiResponses": [
+    "User: \"Help me find the perfect jeans\" | AI: \"To help you find the perfect jeans, I need some more information!  What style are you looking for (e.g., skinny, straight, bootcut)? What's your budget, and what is your preferred brand (if any)?\n\""
+  ],
+  "recentTopics": [],
+  "timestamp": "2025-09-11T02:50:01.348Z"
+}

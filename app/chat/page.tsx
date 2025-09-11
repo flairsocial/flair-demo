@@ -411,7 +411,8 @@ export default function ChatPage() {
         // Reload the chat history
         loadChatHistory()
       } else {
-        console.error('Failed to delete chat')
+        const errorData = await response.json()
+        console.error('Failed to delete chat:', errorData.error || 'Unknown error')
       }
     } catch (error) {
       console.error('Error deleting chat:', error)
@@ -433,7 +434,8 @@ export default function ChatPage() {
       if (response.ok) {
         loadChatHistory() // Reload to show updated title
       } else {
-        console.error('Failed to rename chat')
+        const errorData = await response.json()
+        console.error('Failed to rename chat:', errorData.error || 'Unknown error')
       }
     } catch (error) {
       console.error('Error renaming chat:', error)

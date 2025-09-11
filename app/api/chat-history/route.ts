@@ -97,6 +97,52 @@ export async function POST(request: Request) {
         }
         break
 
+      case 'delete':
+        if (chatId) {
+          const success = await databaseService.deleteChatConversation(userId, chatId)
+          if (success) {
+            await databaseService.logActivity(userId, 'delete_chat', 'conversation', chatId)
+            const duration = Date.now() - startTime
+            return NextResponse.json({ 
+              success: true, 
+              message: 'Chat deleted successfully',
+              responseTime: `${duration}ms`,
+              source: 'database'
+            })
+          }
+        }
+        break
+
+      case 'rename':
+        if (chatId && title) {
+          const success = await databaseService.renameChatConversation(userId, chatId, title)
+          if (success) {
+            const duration = Date.now() - startTime
+            return NextResponse.json({ 
+              success: true, 
+              message: 'Chat renamed successfully',
+              responseTime: `${duration}ms`,
+              source: 'database'
+            })
+          }
+        }
+        break
+
+      case 'share':
+        if (chatId) {
+          // For now, just return a success response for share functionality
+          // This can be expanded to implement actual sharing features later
+          const duration = Date.now() - startTime
+          return NextResponse.json({ 
+            success: true, 
+            message: 'Chat sharing link generated',
+            shareUrl: `${process.env.AUTH0_BASE_URL || 'http://localhost:3000'}/chat/shared/${chatId}`,
+            responseTime: `${duration}ms`,
+            source: 'database'
+          })
+        }
+        break
+
       default:
         return NextResponse.json({ error: 'Invalid action or action not supported' }, { status: 400 })
     }
