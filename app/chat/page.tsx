@@ -59,8 +59,14 @@ export default function ChatPage() {
   const isMobile = useMobile()
   const { attachedFiles, removeFile, clearFiles } = useFiles()
   const { tone } = useAITone()
-  const { credits, useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
+  const { credits, useCredits: consumeCredits, checkCreditsAvailable, currentPlan, setPlan } = useCredits()
   const autoMessageSentRef = useRef(false) // Track if auto-message has been sent
+
+  // Debug function to switch to pro plan
+  const switchToPro = () => {
+    setPlan('pro')
+    console.log('Switched to Pro plan! Current plan:', 'pro')
+  }
 
   // Load chat history on component mount
   useEffect(() => {
@@ -276,6 +282,7 @@ export default function ChatPage() {
           productLimit: productCount, // Include the product limit
           attachedFiles: attachedFiles, // Include attached files
           aiTone: tone, // Send just the tone preference
+          userPlan: currentPlan, // Include current plan for AI model selection
         }),
       })
 
@@ -359,6 +366,7 @@ export default function ChatPage() {
           message: lastProductQuery,
           history: messages.slice(-8),
           productLimit: productCount, // Send the new product limit
+          userPlan: currentPlan, // Include current plan for AI model selection
         }),
       })
 
@@ -496,6 +504,7 @@ export default function ChatPage() {
             </div>
           </div>
           <div className="flex items-center space-x-2">
+       
             <button
               onClick={() => setShowPricing(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-blue-400/50 rounded-lg text-blue-400 hover:text-blue-300 font-medium text-xs transition-all duration-300 group"

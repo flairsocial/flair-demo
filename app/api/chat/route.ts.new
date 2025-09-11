@@ -6,6 +6,7 @@ import { auth } from '@clerk/nextjs/server'
 import { getProfile, getSavedItems } from "@/lib/profile-storage"
 import { searchForProducts, searchForCompetitorProducts } from "@/lib/products-service"
 import { ImageAnalysisService } from "@/lib/image-analysis-service"
+import { chatMemoryService, type ProductMention } from "@/lib/chat-memory-service"
 
 const serperApiKey = process.env.SERPER_API_KEY
 
@@ -38,11 +39,10 @@ async function getUserSavedItems(userId?: string) {
 
 export async function POST(request: Request) {
   try {
-    const { message, history = [], productLimit = 6, attachedFiles = [], aiTone = "casual", userPlan = "free" } = await request.json()
+    const { message, history = [], productLimit = 6, attachedFiles = [], aiTone = "casual" } = await request.json()
 
     console.log(`[Chat API] Processing message: "${message}"`)
     console.log(`[Chat API] Attached files: ${attachedFiles.length}`)
-    console.log(`[Chat API] Received user plan: "${userPlan}"`)
 
     // Get user authentication and profile
     const { userId } = await auth()
@@ -57,13 +57,9 @@ export async function POST(request: Request) {
     if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       return NextResponse.json({ error: "AI service unavailable" }, { status: 500 })
     }
-    
-    // Check Azure OpenAI availability for pro users
-    if ((userPlan === 'plus' || userPlan === 'pro') && !process.env.AZURE_OPENAI_API_KEY) {
-      return NextResponse.json({ error: "Pro AI service unavailable" }, { status: 500 })
-    }
 
     // Get the appropriate model based on user plan
+    const userPlan = userProfile?.plan || 'free'
     const selectedModel = getModelForUser(userPlan)
 
     // Extract user-attached products from conversation
@@ -110,7 +106,7 @@ export async function POST(request: Request) {
       for (const file of attachedFiles) {
         if (file.type === 'image' && file.url) {
           try {
-            const analysisResult = await ImageAnalysisService.findVisuallySimilarProducts(
+            const analysisResult = await ImageAnalysisService.analyzeImageForProducts(
               file.url,
               selectedModel,
               { min: 10, max: 500 }
@@ -193,7 +189,7 @@ You should ask them about:
     console.log(`[Chat] User message: "${message}"`)
     console.log(`[Chat] Most recent user product: ${mostRecentUserProduct ? `${mostRecentUserProduct.title} by ${mostRecentUserProduct.brand}` : 'NONE'}`)
     console.log(`[Chat] Conversation history length: ${history.length}`)
-    console.log(`[Chat] Using model: ${userPlan === 'plus' || userPlan === 'pro' ? 'GPT-4 Mini (Azure)' : 'Gemini Flash'}`)
+    console.log(`[Chat] Using model: ${userPlan === 'plus' || userPlan === 'pro' ? 'Gemini Pro' : 'Gemini Flash'}`)
 
     // Check if user is asking for products
     const hasProductRequest = /\b(?:find|show|search|look|want|need|get|buy|purchase|recommend)\b.*\b(?:product|item|thing|clothing|dress|shirt|pants|shoes|bag|accessory|jewelry|watch|electronics|phone|laptop|headphones|speaker|home|kitchen|tool|book|game)\b/i.test(message) ||
@@ -222,7 +218,7 @@ You should ask them about:
             mostRecentUserProduct,
             'alternatives',
             productLimit,
-            userId || undefined,
+            userId,
             userProfile?.budgetRange ? {
               min: parseInt(userProfile.budgetRange[0]?.split('-')[0]?.replace(/\D/g, '') || '0'),
               max: parseInt(userProfile.budgetRange[0]?.split('-')[1]?.replace(/\D/g, '') || '1000')
@@ -246,7 +242,7 @@ You should ask them about:
             searchResults = await searchForProducts(
               message,
               productLimit,
-              userId || undefined,
+              userId,
               false,
               userProfile?.budgetRange ? {
                 min: parseInt(userProfile.budgetRange[0]?.split('-')[0]?.replace(/\D/g, '') || '0'),
@@ -289,7 +285,39 @@ Context: User is chatting with you about shopping and style preferences. Help th
 
       const aiResponse = result.text
 
-      // TODO: Add conversation memory storage back when needed
+      // Save conversation to memory if user is signed in
+      if (userId) {
+        try {
+          await chatMemoryService.addMessage(userId, sessionId, {
+            role: 'user',
+            content: message,
+            timestamp: Date.now(),
+            attachedFiles,
+            products: searchResults.length > 0 ? searchResults.slice(0, 3).map((p): ProductMention => ({
+              id: p.id,
+              title: p.title,
+              brand: p.brand || '',
+              price: p.price || 0,
+              context: 'search_result'
+            })) : undefined
+          })
+
+          await chatMemoryService.addMessage(userId, sessionId, {
+            role: 'assistant',
+            content: aiResponse,
+            timestamp: Date.now(),
+            products: searchResults.length > 0 ? searchResults.slice(0, 3).map((p): ProductMention => ({
+              id: p.id,
+              title: p.title,
+              brand: p.brand || '',
+              price: p.price || 0,
+              context: 'recommendation'
+            })) : undefined
+          })
+        } catch (memoryError) {
+          console.error('[Chat] Memory storage failed:', memoryError)
+        }
+      }
 
       return NextResponse.json({
         message: aiResponse,
