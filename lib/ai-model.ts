@@ -6,10 +6,10 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 })
 
-// Create Azure OpenAI instance - matching Azure documentation pattern
+// Create Azure OpenAI instance - using full deployment endpoint URL
 const azure = createOpenAI({
   apiKey: process.env.AZURE_OPENAI_API_KEY,
-  baseURL: "https://flairai.openai.azure.com/openai/deployments/o4-mini/chat/completions?api-version=2025-01-01-preview",
+  baseURL: "https://flairai.openai.azure.com/openai/v1/",
 })
 
 // Default model for free users

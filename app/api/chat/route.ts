@@ -38,7 +38,7 @@ async function getUserSavedItems(userId?: string) {
 
 export async function POST(request: Request) {
   try {
-    const { message, history = [], productLimit = 6, attachedFiles = [], aiTone = "casual", userPlan = "free" } = await request.json()
+    const { message, history = [], productLimit = 6, attachedFiles = [], aiTone = "casual", userPlan = "plus" } = await request.json()
 
     console.log(`[Chat API] Processing message: "${message}"`)
     console.log(`[Chat API] Attached files: ${attachedFiles.length}`)
@@ -179,10 +179,20 @@ You should ask them about:
       savedItemsContext = `\n\nRecently saved items: ${savedItemsText}.`
     }
 
+    // Build attached products context
+    let attachedProductsContext = ""
+    const allAttachedProducts = [...userAttachedProducts, ...visualSearchProducts]
+    if (allAttachedProducts.length > 0) {
+      const attachedProductsText = allAttachedProducts.map((product: any) => 
+        `"${product.title || 'Product'}" by ${product.brand || 'Unknown'} ($${product.price || 'N/A'}) - ${product.description || 'No description'}`
+      ).join('\n- ')
+      attachedProductsContext = `\n\nUser has attached/referenced these products:\n- ${attachedProductsText}\n\nThe user may be asking about these specific products. Pay special attention to their questions about reviews, quality, pricing, alternatives, or general opinions about these items.`
+    }
+
     // Apply AI tone personality
     const tonePersonalities = {
-      casual: "You are Flair, a conversational AI shopping assistant. CRITICAL: Keep ALL responses to maximum 3 sentences. Use a balanced, helpful tone.",
-      friendly: "You are Flair, a warm and friendly AI shopping assistant. CRITICAL: Keep ALL responses to maximum 3 sentences. Be enthusiastic but not overwhelming.",
+      casual: "You are Flair, a conversational AI shopping assistant. Use a balanced, helpful tone.",
+      friendly: "You are Flair, a warm and friendly AI shopping assistant. Be enthusiastic but not overwhelming.",
       professional: "You are Flair, a professional AI shopping consultant. CRITICAL: Keep ALL responses to maximum 3 sentences. Use precise, expert language."
     }
 
@@ -195,17 +205,34 @@ You should ask them about:
     console.log(`[Chat] Conversation history length: ${history.length}`)
     console.log(`[Chat] Using model: ${userPlan === 'plus' || userPlan === 'pro' ? 'GPT-4 Mini (Azure)' : 'Gemini Flash'}`)
 
-    // Check if user is asking for products
-    const hasProductRequest = /\b(?:find|show|search|look|want|need|get|buy|purchase|recommend)\b.*\b(?:product|item|thing|clothing|dress|shirt|pants|shoes|bag|accessory|jewelry|watch|electronics|phone|laptop|headphones|speaker|home|kitchen|tool|book|game)\b/i.test(message) ||
-                            /\b(?:i need|i want|looking for|searching for|show me|find me|get me)\b/i.test(message) ||
-                            visualSearchProducts.length > 0
+    // Check if user is asking for products or has product context
+    const hasProductRequest = 
+      // Traditional product search queries
+      /\b(?:find|show|search|look|want|need|get|buy|purchase|recommend)\b.*\b(?:product|item|thing|clothing|dress|shirt|pants|shoes|bag|accessory|jewelry|watch|electronics|phone|laptop|headphones|speaker|home|kitchen|tool|book|game)\b/i.test(message) ||
+      /\b(?:i need|i want|looking for|searching for|show me|find me|get me)\b/i.test(message) ||
+      // Visual search results (attached images)
+      visualSearchProducts.length > 0 ||
+      // Has attached files (product images)
+      attachedFiles.length > 0 ||
+      // Has product context and asks about it
+      (mostRecentUserProduct && (
+        /\b(?:this|that|it|the)\b.*\b(?:item|product|thing|shoe|sneaker|dress|shirt|pants|bag|watch|phone|item)\b/i.test(message) ||
+        /\b(?:review|reviews|rating|ratings|feedback|opinion|opinions|quality|worth|good|bad|price|cost|value)\b/i.test(message) ||
+        /\b(?:tell me about|what do you think|how is|is it|what about)\b/i.test(message) ||
+        /\b(?:look up|research|check|analyze|compare|find|look|search|)\b/i.test(message)
+      ))
 
     const hasCompetitorRequest = mostRecentUserProduct && 
-                               (/\b(?:similar|alternative|competitor|dupe|knockoff|like this|comparable|equivalent)\b/i.test(message) ||
-                                /\b(?:other|different|another)\b.*\b(?:brand|option|choice)\b/i.test(message))
+                               (/\b(?:similar|similiar|alternative|competitor|dupe|knockoff|like this|comparable|equivalent|match|matching|same)\b/i.test(message) ||
+                                /\b(?:other|different|another)\b.*\b(?:brand|option|choice)\b/i.test(message) ||
+                                /\b(?:show|find|get|search)\s+(?:similar|similiar|like|matching|alternative)/i.test(message))
 
     console.log(`[Chat] === SEARCH TRIGGER EVALUATION ===`)
     console.log(`[Chat] hasProductRequest: ${hasProductRequest}`)
+    console.log(`[Chat] - Traditional search patterns: ${/\b(?:find|show|search|look|want|need|get|buy|purchase|recommend)\b.*\b(?:product|item|thing|clothing|dress|shirt|pants|shoes|bag|accessory|jewelry|watch|electronics|phone|laptop|headphones|speaker|home|kitchen|tool|book|game)\b/i.test(message)}`)
+    console.log(`[Chat] - Visual search results: ${visualSearchProducts.length > 0} (${visualSearchProducts.length} products)`)
+    console.log(`[Chat] - Attached files: ${attachedFiles.length > 0} (${attachedFiles.length} files)`)
+    console.log(`[Chat] - Product context queries: ${mostRecentUserProduct && (/\b(?:this|that|it|the)\b.*\b(?:item|product|thing|shoe|sneaker|dress|shirt|pants|bag|watch|phone|laptop)\b/i.test(message) || /\b(?:review|reviews|rating|ratings|feedback|opinion|opinions|quality|worth|good|bad|price|cost|value)\b/i.test(message) || /\b(?:tell me about|what do you think|how is|is it|what about)\b/i.test(message) || /\b(?:look up|research|check|analyze|compare)\b/i.test(message))}`)
     console.log(`[Chat] hasCompetitorRequest: ${hasCompetitorRequest}`)
     console.log(`[Chat] serperApiKey available: ${!!serperApiKey}`)
     console.log(`[Chat] Most recent user product available: ${!!mostRecentUserProduct}`)
@@ -240,11 +267,23 @@ You should ask them about:
           console.log(`[Chat] Using VISUAL SEARCH results: ${visualSearchProducts.length} products`)
           searchResults = visualSearchProducts
         } else {
-          console.log(`[Chat] Using TEXT SEARCH for: "${message}"`)
+          // Check if user is asking for similar items to their attached product
+          const isSimilarRequest = mostRecentUserProduct && 
+                                 /\b(?:similar|similiar|like|same|equivalent|alternative|comparable|match|matching)\b/i.test(message)
+          
+          let searchQuery = message
+          if (isSimilarRequest) {
+            // Construct a better search query using the attached product context
+            searchQuery = `${mostRecentUserProduct.title} ${mostRecentUserProduct.brand} similar alternative ${mostRecentUserProduct.category || 'clothing'}`
+            console.log(`[Chat] SIMILAR PRODUCT REQUEST - searching for alternatives to: ${mostRecentUserProduct.title}`)
+            console.log(`[Chat] Enhanced search query: "${searchQuery}"`)
+          } else {
+            console.log(`[Chat] Using TEXT SEARCH for: "${message}"`)
+          }
           
           try {
             searchResults = await searchForProducts(
-              message,
+              searchQuery,
               productLimit,
               userId || undefined,
               false,
@@ -274,7 +313,7 @@ Core Guidelines:
 - Keep responses conversational and natural
 - CRITICAL: Maximum 3 sentences total
 
-${profileContext}${savedItemsContext}
+${profileContext}${savedItemsContext}${attachedProductsContext}
 
 Context: User is chatting with you about shopping and style preferences. Help them find great products and make good decisions.`
 
