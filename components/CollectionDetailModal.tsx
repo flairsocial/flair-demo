@@ -244,7 +244,7 @@ export default function CollectionDetailModal({
                 ) : (
                   <div className="grid grid-cols-2 h-full">
                     {getCollectionBanner().map((item, index) => (
-                      <div key={item.id} className="relative">
+                      <div key={`${item.id}-banner-${index}`} className="relative">
                         <Image
                           src={item.image || "/placeholder.svg"}
                           alt={item.title}
@@ -403,8 +403,8 @@ export default function CollectionDetailModal({
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {collection.items.map((item) => (
-                    <div key={item.id} className="group relative">
+                  {collection.items.map((item, index) => (
+                    <div key={`${collection.id}-${item.id}-${index}`} className="group relative">
                       <div className="aspect-[3/4] bg-zinc-800 rounded-lg overflow-hidden relative">
                         <Image
                           src={item.image || "/placeholder.svg"}

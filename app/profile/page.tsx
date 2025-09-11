@@ -41,6 +41,7 @@ import BulkAddToCollectionModal from "@/components/BulkAddToCollectionModal"
 import type { Product } from "@/lib/types"
 import type { Collection, SavedItemWithMetadata } from "@/lib/profile-storage"
 import { useMobile } from "@/hooks/use-mobile"
+import { useSavedItems } from "@/lib/saved-items-context"
 import Link from "next/link"
 
 // Define a SavedItem type that extends Product with additional saved-specific properties
@@ -50,16 +51,11 @@ interface SavedItem extends Product {
   collectionIds?: string[]
 }
 
-// Define a SavedItem type that extends Product with additional saved-specific properties
-interface SavedItem extends Product {
-  savedAt: string
-  notes?: string
-  collectionIds?: string[]
-}
-
 export default function ProfilePage() {
-  const [savedItems, setSavedItems] = useState<SavedItem[]>([])
+  // Use the saved items context with lazy loading
+  const { savedItems, savedItemsWithMetadata, isLoading: loadingSavedItems, hasLoaded, loadSavedItems } = useSavedItems()
   const [loading, setLoading] = useState(true)
+  const [loadingItems, setLoadingItems] = useState(false) // Prevent multiple simultaneous calls
   const [activeTab, setActiveTab] = useState("saved")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [sortOption, setSortOption] = useState("recent")
@@ -289,39 +285,26 @@ export default function ProfilePage() {
     },
   ]
 
+  // Set loading state based on context
+  useEffect(() => {
+    setLoading(loadingSavedItems)
+  }, [loadingSavedItems])
+
   useEffect(() => {
     // Scroll to top when component mounts
     window.scrollTo(0, 0)
 
-    // Load actual saved items and collections from API
-    loadSavedItems()
-    loadCollections()
-  }, [])
+    console.log('[Profile] Component mounted, loading data...')
 
-  const loadSavedItems = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/saved')
-      if (response.ok) {
-        const items = await response.json()
-        // Convert Product[] to SavedItem[] by adding savedAt property
-        const savedItemsWithDate = items.map((item: Product) => ({
-          ...item,
-          savedAt: new Date().toISOString(), // In a real app, this would come from the backend
-          collectionIds: [] // This would also come from the backend
-        }))
-        setSavedItems(savedItemsWithDate)
-      } else {
-        console.error('Failed to load saved items')
-        setSavedItems([]) // Set empty array on error
-      }
-    } catch (error) {
-      console.error('Error loading saved items:', error)
-      setSavedItems([]) // Set empty array on error
-    } finally {
-      setLoading(false)
+    // Load collections from API
+    loadCollections()
+    
+    // LAZY LOAD saved items when profile page loads (Instagram-style)
+    if (!hasLoaded && !loadingSavedItems) {
+      console.log('[Profile] Triggering lazy load of saved items...')
+      loadSavedItems()
     }
-  }
+  }, []) // 🔥 FIXED: Empty dependency array prevents infinite loop
 
   const loadCollections = async () => {
     try {
@@ -368,7 +351,7 @@ export default function ProfilePage() {
   ]
 
   // Filter saved items based on category and search query
-  const filteredItems = savedItems.filter((item) => {
+  const filteredItems = savedItemsWithMetadata.filter((item) => {
     const matchesCategory = selectedCategory === "All" || item.category === selectedCategory
     const matchesSearch =
       !searchQuery ||
@@ -462,8 +445,8 @@ export default function ProfilePage() {
         }
       }
       
-      // Update local state
-      setSavedItems(savedItems.filter((item) => !selectedItems.includes(item.id)))
+      // Refresh saved items from context
+      await loadSavedItems()
       setSelectedItems([])
       setShowBulkActions(false)
     } catch (error) {
@@ -786,7 +769,7 @@ export default function ProfilePage() {
                 // Grid View - Mobile Optimized
                 <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {sortedItems.map((item, index) => (
-                    <div key={item.id || `grid-item-${index}`} className="relative group">
+                    <div key={`${item.id}-${index}-${item.savedAt || ''}`} className="relative group">
                       <div
                         className={`absolute top-2 left-2 z-10 w-5 h-5 rounded-full border touch-manipulation ${
                           selectedItems.includes(item.id)
@@ -876,7 +859,7 @@ export default function ProfilePage() {
                 <div className="p-4 space-y-3">
                   {sortedItems.map((item, index) => (
                     <div
-                      key={item.id || `list-item-${index}`}
+                      key={`${item.id}-${index}-list-${item.savedAt || ''}`}
                       className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors"
                     >
                       <div className="flex">
@@ -994,8 +977,8 @@ export default function ProfilePage() {
 
                     <div className="p-3 sm:p-4">
                       <div className="space-y-3">
-                        {order.items.map((item) => (
-                          <div key={item.id} className="flex items-center">
+                        {order.items.map((item, itemIndex) => (
+                          <div key={`${item.id}-order-${itemIndex}`} className="flex items-center">
                             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-800 rounded-lg overflow-hidden relative mr-2 sm:mr-3">
                               <Image
                                 src={item.image || "/placeholder.svg"}
@@ -1095,7 +1078,7 @@ export default function ProfilePage() {
                               .filter((item) => collection.itemIds.includes(item.id))
                               .slice(0, 4)
                               .map((item, index) => (
-                                <div key={item.id} className="relative">
+                                <div key={`${item.id}-collection-preview-${index}`} className="relative">
                                   <Image
                                     src={item.image || "/placeholder.svg"}
                                     alt={item.title}

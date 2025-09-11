@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Heart, Plus, Share2 } from "lucide-react"
 import type { Product } from "@/lib/types"
 import CollectionModal from "./CollectionModal"
+import { useSavedItems } from "@/lib/saved-items-context"
 
 interface ProductCardProps {
   product: Product
@@ -14,7 +15,8 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
-  const [isSaved, setIsSaved] = useState(false)
+  // Use context instead of direct API calls - this is the performance fix
+  const { isSaved, toggleSaved } = useSavedItems()
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
   const [showCollectionModal, setShowCollectionModal] = useState(false)
@@ -27,43 +29,15 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
     // Reset image state when product prop changes
     setCurrentImageSrc(product.image || placeholderImage)
     setIsImageLoading(false) // No automatic scraping, so loading is false
-    
-    // Check if this product is already saved
-    checkIfSaved()
-  }, [product.image, product.id]) // Re-run if product image or ID changes
-
-  const checkIfSaved = async () => {
-    try {
-      const response = await fetch('/api/saved')
-      if (response.ok) {
-        const savedItems = await response.json()
-        const isProductSaved = savedItems.some((item: Product) => item.id === product.id)
-        setIsSaved(isProductSaved)
-      }
-    } catch (error) {
-      console.error('Error checking saved status:', error)
-    }
-  }
+  }, [product.image]) // Removed product.id dependency - no more API calls per card!
 
   const handleSaveToSaved = async (e: React.MouseEvent) => {
     e.stopPropagation()
     
     try {
-      const action = isSaved ? 'remove' : 'add'
-      const response = await fetch('/api/saved', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          item: product
-        })
-      })
-
-      if (response.ok) {
-        setIsSaved(!isSaved)
-        console.log(`Product ${action}ed successfully`)
+      const success = await toggleSaved(product)
+      if (success) {
+        console.log(`Product ${isSaved(product.id) ? 'removed from' : 'added to'} saved successfully`)
       } else {
         console.error('Failed to update saved status')
       }
@@ -136,9 +110,9 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           <button
             className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"
             onClick={handleSaveToSaved}
-            aria-label={isSaved ? "Remove from saved" : "Save item"}
+            aria-label={isSaved(product.id) ? "Remove from saved" : "Save item"}
           >
-            <Heart className="w-4 h-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2} />
+            <Heart className="w-4 h-4" fill={isSaved(product.id) ? "currentColor" : "none"} strokeWidth={2} />
           </button>
           <button
             className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"

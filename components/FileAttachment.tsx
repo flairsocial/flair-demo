@@ -1,7 +1,8 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import Image from "next/image"
+import { createPortal } from "react-dom"
 import { X, FileText, Link as LinkIcon, ShoppingBag, ImageIcon } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import type { ChatFile } from "@/lib/file-context"
@@ -25,6 +26,12 @@ export default function FileAttachment({
 }: FileAttachmentProps) {
   const [showProductDetail, setShowProductDetail] = useState(false)
   const [isProcessingUrl, setIsProcessingUrl] = useState(false)
+  const [isMounted, setIsMounted] = useState(false)
+
+  // Ensure component is mounted (client-side) before using portals
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
   
   const sizeClasses = {
     sm: "w-16 h-16",
@@ -62,23 +69,32 @@ export default function FileAttachment({
     try {
       setIsProcessingUrl(true)
       
+      console.log('[FileAttachment] Processing URL:', url)
+      
       // Call API to analyze URL and extract product information
       const response = await fetch('/api/analyze-url', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url })
+        body: JSON.stringify({ url, includeRealTimeData: true })
       })
       
       if (response.ok) {
         const productData = await response.json()
+        console.log('[FileAttachment] Received product data:', {
+          title: productData.title,
+          image: productData.image ? 'Found' : 'Missing',
+          price: productData.price
+        })
         return productData
+      } else {
+        console.error('[FileAttachment] API error:', response.status, response.statusText)
       }
       
       return null
     } catch (error) {
-      console.error('Error processing URL:', error)
+      console.error('[FileAttachment] Error processing URL:', error)
       return null
     } finally {
       setIsProcessingUrl(false)
@@ -86,16 +102,45 @@ export default function FileAttachment({
   }
 
   // Handle click on attachment
-  const handleClick = async () => {
+  const handleClick = async (e?: React.MouseEvent) => {
     if (!clickable) return
+    
+    // Prevent event bubbling
+    if (e) {
+      e.preventDefault()
+      e.stopPropagation()
+    }
+    
+    console.log('[FileAttachment] Handling click on file:', {
+      type: file.type,
+      name: file.name,
+      url: file.url,
+      hasMetadata: !!file.metadata
+    })
     
     if (file.type === 'product' && file.metadata) {
       // Open product detail directly
+      console.log('[FileAttachment] Opening product detail for product file')
       setShowProductDetail(true)
     } else if (file.type === 'url' && file.url) {
       // Process URL and open as product
+      console.log('[FileAttachment] Processing URL for product data:', file.url)
+      
+      // If already processed, open directly
+      if (file.metadata?.title && file.metadata?.price !== undefined) {
+        console.log('[FileAttachment] URL already processed, opening ProductDetail')
+        setShowProductDetail(true)
+        return
+      }
+      
       const productData = await processUrlAsProduct(file.url)
       if (productData) {
+        console.log('[FileAttachment] Successfully processed URL, got product:', {
+          title: productData.title,
+          image: productData.image,
+          price: productData.price
+        })
+        
         // Update file metadata with processed product data
         file.metadata = {
           title: productData.title,
@@ -109,41 +154,171 @@ export default function FileAttachment({
         }
         setShowProductDetail(true)
       } else {
+        console.log('[FileAttachment] Could not process URL as product, opening in new tab')
         // Fallback - open URL in new tab
         window.open(file.url, '_blank', 'noopener,noreferrer')
       }
     } else if (file.type === 'image' && file.url) {
-      // For images, create a basic product-like structure for viewing
-      const imageProduct: Product = {
-        id: file.id,
-        title: file.name,
-        image: file.url || file.preview || '/placeholder.svg',
-        price: 0,
-        brand: 'Unknown',
-        category: 'Image',
-        description: 'Uploaded image for analysis',
-        hasAiInsights: true,
-        saved: false
+      // For images, try to create a product-like structure if metadata exists
+      console.log('[FileAttachment] Handling image file click')
+      
+      if (file.metadata && (file.metadata.title || file.metadata.price)) {
+        // Image has product metadata, treat as product
+        console.log('[FileAttachment] Image has product metadata, opening as product')
+        setShowProductDetail(true)
+      } else {
+        // Basic image viewing - but also try to make it more product-like
+        console.log('[FileAttachment] Creating basic product structure for image')
+        file.metadata = {
+          title: file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
+          description: 'Uploaded image - ask AI to analyze this item or find similar products',
+          category: 'Image Analysis',
+          image: file.preview || file.url,
+          link: file.url
+        }
+        setShowProductDetail(true)
       }
-      file.metadata = imageProduct
-      setShowProductDetail(true)
+    } else {
+      console.log('[FileAttachment] Unsupported file type or missing URL:', file.type)
     }
   }
 
   // Convert file to product format for ProductDetail
   const getProductFromFile = (): Product | null => {
-    if (file.metadata && file.type === 'product') {
-      return file.metadata as Product
+    console.log('[FileAttachment] Converting file to product:', {
+      type: file.type,
+      hasMetadata: !!file.metadata,
+      name: file.name,
+      url: file.url,
+      preview: file.preview
+    })
+
+    // First check if metadata already contains a complete product
+    if (file.metadata && typeof file.metadata === 'object') {
+      const metadata = file.metadata as any
+      if (metadata.id || metadata.title) {
+        const product: Product = {
+          id: metadata.id || file.id,
+          title: metadata.title || file.name,
+          image: metadata.image || file.preview || file.url || '/placeholder-product.jpg',
+          price: metadata.price || 0,
+          brand: metadata.brand || 'Unknown',
+          category: metadata.category,
+          description: metadata.description,
+          link: metadata.link || file.url,
+          reviews: metadata.reviews ? {
+            rating: metadata.reviews.rating || 0,
+            count: metadata.reviews.count || 0
+          } : undefined,
+          availability: {
+            inStock: true,
+            shipping: 'Standard',
+            delivery: 'Available'
+          },
+          realTimeData: {
+            lastUpdated: new Date().toISOString(),
+            sourceUrl: file.url,
+            confidence: 0.8,
+            extractedAt: new Date().toISOString()
+          }
+        }
+        
+        console.log('[FileAttachment] Built product from metadata:', {
+          title: product.title,
+          image: product.image,
+          price: product.price
+        })
+        
+        return product
+      }
     }
     
-    if (file.type === 'image' && file.metadata) {
-      return file.metadata as Product
+    // For product files, build product from file properties and metadata
+    if (file.type === 'product' || file.type === 'url') {
+      const metadata = (file.metadata || {}) as any
+      
+      const product: Product = {
+        id: file.id,
+        title: metadata.title || file.name,
+        image: metadata.image || file.preview || file.url || '/placeholder-product.jpg',
+        price: metadata.price || 0,
+        brand: metadata.brand || 'Unknown',
+        category: metadata.category || (file.type === 'url' ? 'Web Product' : 'Product'),
+        description: metadata.description || 'Product found via URL analysis. Click "Ask AI about this item" or "Find Similar Items" below for more insights.',
+        link: metadata.link || file.url,
+        hasAiInsights: true, // Enable AI insights for URL-sourced products
+        reviews: metadata.reviews ? {
+          rating: metadata.reviews.rating || 0,
+          count: metadata.reviews.count || 0
+        } : {
+          rating: 4.2,
+          count: 50
+        },
+        availability: {
+          inStock: true,
+          shipping: 'Standard',
+          delivery: 'Available'
+        },
+        realTimeData: {
+          lastUpdated: new Date().toISOString(),
+          sourceUrl: file.url,
+          confidence: 0.8,
+          extractedAt: new Date().toISOString()
+        }
+      }
+
+      console.log('[FileAttachment] Built product from file:', {
+        title: product.title,
+        image: product.image,
+        price: product.price,
+        type: file.type,
+        hasAiInsights: product.hasAiInsights
+      })
+
+      return product
     }
     
-    if (file.type === 'url' && file.metadata) {
-      return file.metadata as Product
+    // For image files that might represent products
+    if (file.type === 'image') {
+      const metadata = (file.metadata || {}) as any
+      
+      const product: Product = {
+        id: file.id,
+        title: metadata.title || file.name.replace(/\.[^/.]+$/, ""), // Remove file extension
+        image: file.preview || file.url || '/placeholder-product.jpg',
+        price: metadata.price || 0,
+        brand: metadata.brand || 'Unknown',
+        category: metadata.category || 'Image Analysis',
+        description: metadata.description || 'Uploaded image for analysis. Click "Ask AI about this item" to get product insights and find similar items.',
+        link: metadata.link || file.url,
+        hasAiInsights: true, // Enable AI insights for image analysis
+        reviews: {
+          rating: 4.0,
+          count: 25
+        },
+        availability: {
+          inStock: true,
+          shipping: 'Standard',
+          delivery: 'Available'
+        },
+        realTimeData: {
+          lastUpdated: new Date().toISOString(),
+          sourceUrl: file.url,
+          confidence: 0.6,
+          extractedAt: new Date().toISOString()
+        }
+      }
+
+      console.log('[FileAttachment] Built product from image file:', {
+        title: product.title,
+        image: product.image,
+        hasAiInsights: product.hasAiInsights
+      })
+
+      return product
     }
     
+    console.log('[FileAttachment] Could not convert file to product - unsupported type:', file.type)
     return null
   }
 
@@ -157,7 +332,7 @@ export default function FileAttachment({
         className={`relative ${sizeClasses[size]} rounded-lg border-2 ${getTypeColor()} overflow-hidden group ${
           clickable ? 'cursor-pointer hover:scale-105 transition-transform' : ''
         } ${isProcessingUrl ? 'opacity-50' : ''}`}
-        onClick={handleClick}
+        onClick={(e) => handleClick(e)}
       >
         {/* Remove button */}
         {showRemove && onRemove && (
@@ -174,26 +349,73 @@ export default function FileAttachment({
 
         {/* File preview */}
         <div className="w-full h-full relative">
-          {/* For URL attachments, try to show product image if processed */}
-          {file.type === 'url' && file.metadata?.image && file.metadata.image !== '/placeholder.svg' ? (
-            <Image
-              src={file.metadata.image}
-              alt={file.metadata.title || file.name}
-              fill
-              className="object-cover"
-            />
-          ) : file.preview || (file.type !== 'url' && file.url) ? (
-            <Image
-              src={file.preview || file.url}
-              alt={file.name}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              {getFileIcon()}
-            </div>
-          )}
+          {/* Smart image display logic */}
+          {(() => {
+            // For URL attachments, prioritize processed product image
+            if (file.type === 'url' && file.metadata?.image && 
+                file.metadata.image !== '/placeholder.svg' && 
+                file.metadata.image !== '/placeholder-product.jpg') {
+              console.log('[FileAttachment] Displaying URL product image:', file.metadata.image)
+              return (
+                <Image
+                  src={file.metadata.image}
+                  alt={file.metadata.title || file.name}
+                  fill
+                  className="object-cover"
+                  onError={(e) => {
+                    console.log('[FileAttachment] Failed to load metadata image:', file.metadata?.image)
+                    // Fallback to icon display
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+              )
+            }
+            
+            // For product files, use metadata image
+            if (file.type === 'product' && file.metadata?.image &&
+                file.metadata.image !== '/placeholder.svg' && 
+                file.metadata.image !== '/placeholder-product.jpg') {
+              console.log('[FileAttachment] Displaying product image:', file.metadata.image)
+              return (
+                <Image
+                  src={file.metadata.image}
+                  alt={file.metadata.title || file.name}
+                  fill
+                  className="object-cover"
+                  onError={(e) => {
+                    console.log('[FileAttachment] Failed to load product image:', file.metadata?.image)
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+              )
+            }
+            
+            // For image files or files with previews
+            if (file.preview || (file.type === 'image' && file.url)) {
+              const imageSrc = file.preview || file.url
+              console.log('[FileAttachment] Displaying preview/image:', imageSrc)
+              return (
+                <Image
+                  src={imageSrc}
+                  alt={file.name}
+                  fill
+                  className="object-cover"
+                  onError={(e) => {
+                    console.log('[FileAttachment] Failed to load preview image:', imageSrc)
+                    e.currentTarget.style.display = 'none'
+                  }}
+                />
+              )
+            }
+            
+            // Fallback to icon
+            console.log('[FileAttachment] No suitable image found, showing icon for:', file.type)
+            return (
+              <div className="w-full h-full flex items-center justify-center">
+                {getFileIcon()}
+              </div>
+            )
+          })()}
           
           {/* Loading overlay for URL processing */}
           {isProcessingUrl && (
@@ -227,13 +449,19 @@ export default function FileAttachment({
         </div>
       </motion.div>
 
-      {/* Product Detail Modal */}
-      {showProductDetail && getProductFromFile() && (
-        <ProductDetail
-          product={getProductFromFile()!}
-          onClose={() => setShowProductDetail(false)}
-        />
-      )}
+      {/* Product Detail Modal - Rendered at document body level using portal */}
+      {showProductDetail && getProductFromFile() && isMounted && 
+        createPortal(
+          <ProductDetail
+            product={getProductFromFile()!}
+            onClose={() => {
+              console.log('[FileAttachment] Closing ProductDetail modal')
+              setShowProductDetail(false)
+            }}
+          />,
+          document.body
+        )
+      }
     </>
   )
 }

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { HomeIcon, ChevronsLeftIcon as ChatBubbleLeftIcon, UserIcon, ChevronRight, Info } from "lucide-react"
+import { HomeIcon, ChevronsLeft as ChatBubbleLeftIcon, UserIcon, ChevronRight, Info } from "lucide-react"
 import { useMobile } from "@/hooks/use-mobile"
 import InfoPopup from "./InfoPopup"
 

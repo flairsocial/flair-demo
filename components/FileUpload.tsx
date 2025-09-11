@@ -91,12 +91,22 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: urlInput.trim() })
+        body: JSON.stringify({ url: urlInput.trim(), includeRealTimeData: true })
       })
       
       if (response.ok) {
         const productData = await response.json()
-        console.log('[FileUpload] URL processed successfully:', productData.title)
+        console.log('[FileUpload] URL processed successfully:', {
+          title: productData.title,
+          hasImage: !!productData.image,
+          price: productData.price
+        })
+        
+        // If we successfully extracted product data, change type to "product"
+        if (productData.title && productData.price !== undefined) {
+          chatFile.type = "product"
+          console.log('[FileUpload] Changed file type to product due to successful extraction')
+        }
         
         // Update the chat file with extracted product data
         chatFile.name = productData.title || chatFile.name
@@ -106,15 +116,28 @@ export default function FileUpload({ onFileAdded }: FileUploadProps) {
           brand: productData.brand,
           description: productData.description,
           category: productData.category,
-          link: productData.link,
+          link: productData.link || urlInput.trim(),
           productId: productData.id,
           image: productData.image
         }
         
         // Use the extracted image as preview if available
-        if (productData.image && productData.image !== '/placeholder.svg') {
+        if (productData.image && productData.image !== '/placeholder-product.jpg' && productData.image !== '/placeholder.svg') {
           chatFile.preview = productData.image
+          // Also store the original image URL in metadata for fallback
+          if (chatFile.metadata) {
+            chatFile.metadata.image = productData.image
+          }
+          console.log('[FileUpload] Using extracted image as preview:', productData.image)
         }
+        
+        console.log('[FileUpload] Final chat file:', {
+          type: chatFile.type,
+          name: chatFile.name,
+          hasMetadata: !!chatFile.metadata,
+          preview: chatFile.preview,
+          extractedImage: productData.image
+        })
       } else {
         console.log('[FileUpload] URL processing failed, using basic URL attachment')
       }

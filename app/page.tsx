@@ -19,6 +19,7 @@ export default function Home() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [hasInitialLoad, setHasInitialLoad] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [currentStyleIndex, setCurrentStyleIndex] = useState(0) // For style rotation
 
   // Get profile context for personalized product search
   const { getSearchContext, profile, isLoaded: profileLoaded } = useProfile()
@@ -47,6 +48,10 @@ export default function Home() {
   useEffect(() => {
     if (hasInitialLoad && (searchQuery || selectedCategory !== "All")) {
       fetchProducts(searchQuery, selectedCategory)
+    } else if (hasInitialLoad && !searchQuery && selectedCategory === "All") {
+      // When search is cleared, fetch random products
+      console.log('[Discover] Search cleared, fetching random products')
+      fetchProducts("", "All")
     }
   }, [searchQuery, selectedCategory, hasInitialLoad])
 
@@ -67,28 +72,68 @@ export default function Home() {
       let url = "/api/products"
       const params = new URLSearchParams()
 
-      // Enhanced query building with profile context
+      // Enhanced query building with comprehensive profile context
       let enhancedQuery = query
       
       // For "All" category with no search query, use profile preferences to enhance search
-      if (!query && category === "All") {
-        const profileContext = getSearchContext()
-        if (profileContext) {
-          // Extract style preferences from profile context
-          const styleMatch = profileContext.match(/Style preferences: ([^.]+)/)
-          const budgetMatch = profileContext.match(/Budget: ([^.]+)/)
-          
-          if (styleMatch && styleMatch[1]) {
-            enhancedQuery = styleMatch[1].split(',')[0].trim() + " fashion clothing"
-          }
-          
-          console.log('[Discover] Enhanced query for "All" tab with profile:', enhancedQuery)
+      if (!query && category === "All" && profileLoaded && profile) {
+        console.log('[Discover] Building profile-aware search query')
+        
+        // Apply gender-specific search (except for Beauty, Tech, Collectables)
+        const genderNeutralCategories = ['Beauty', 'Tech', 'Collectables']
+        const useGenderFilter = !genderNeutralCategories.includes(category)
+        
+        let genderTerm = ""
+        if (useGenderFilter && profile.gender && profile.gender !== "Prefer not to say") {
+          genderTerm = profile.gender.toLowerCase() === "male" ? "men" : 
+                     profile.gender.toLowerCase() === "female" ? "women" : ""
         }
+        
+        // Rotate through style preferences on refresh for variety
+        let styleTerm = ""
+        if (profile.style && profile.style.length > 0) {
+          if (isRefresh) {
+            // Advance to next style in rotation
+            const nextIndex = (currentStyleIndex + 1) % profile.style.length
+            setCurrentStyleIndex(nextIndex)
+            styleTerm = profile.style[nextIndex]
+          } else {
+            styleTerm = profile.style[currentStyleIndex] || profile.style[0]
+          }
+        }
+        
+        // Build the search query with profile context
+        const searchParts = []
+        if (genderTerm) searchParts.push(genderTerm)
+        if (styleTerm) searchParts.push(styleTerm)
+        
+        // Add appropriate product category based on gender and style
+        if (genderTerm && styleTerm) {
+          const productTypes = ['clothing', 'apparel', 'fashion', 'outfit', 'wear']
+          const randomType = productTypes[Math.floor(Math.random() * productTypes.length)]
+          searchParts.push(randomType)
+        } else if (styleTerm) {
+          searchParts.push('fashion')
+        } else {
+          // Fallback to general trending items
+          searchParts.push('trending', 'popular')
+        }
+        
+        enhancedQuery = searchParts.join(' ')
+        console.log(`[Discover] Enhanced query: "${enhancedQuery}" (gender: ${genderTerm}, style: ${styleTerm})`)
       }
 
       if (enhancedQuery) params.append("query", enhancedQuery)
       if (category !== "All") params.append("category", category)
       params.append("limit", "50")
+      
+      // Pass profile context for budget/measurement filtering
+      if (profileLoaded && profile) {
+        const profileContext = getSearchContext()
+        if (profileContext) {
+          params.append("profileContext", profileContext)
+        }
+      }
       
       // Add a timestamp to force fresh data on refresh
       if (isRefresh) params.append("t", Date.now().toString())
@@ -166,7 +211,7 @@ export default function Home() {
       <div className="sticky top-0 z-10 bg-black pt-0 pb-2 px-3 sm:px-4 border-b border-zinc-900">
         <div className="py-3 flex items-center gap-3">
           <div className="flex-1">
-            <SearchBar onSearch={handleSearch} />
+            <SearchBar onSearch={handleSearch} initialValue={searchQuery} />
           </div>
           <button
             onClick={handleRefresh}

@@ -5,13 +5,13 @@ import type { Product } from "@/lib/types"
 
 export async function POST(request: Request) {
   try {
-    const { url } = await request.json()
-    
+    const { url, includeRealTimeData = true } = await request.json()
+
     if (!url) {
       return NextResponse.json({ error: "URL is required" }, { status: 400 })
     }
 
-    console.log(`[AnalyzeURL] Analyzing URL: ${url}`)
+    console.log(`[AnalyzeURL] Analyzing URL: ${url}, real-time enhancement: ${includeRealTimeData}`)
 
     // Universal webpage scraping - no hardcoding
     let pageTitle = ""

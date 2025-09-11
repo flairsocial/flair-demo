@@ -1,25 +1,29 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
-import { 
-  getCollections, 
-  addCollection, 
-  removeCollection, 
-  addItemToCollection, 
-  removeItemFromCollection 
-} from "@/lib/profile-storage"
-import type { Collection } from "@/lib/profile-storage"
+import { databaseService } from "@/lib/database-service"
 
 export async function GET() {
   try {
     const { userId } = await auth()
     
-    // Get user's collections from storage
-    const collections = getCollections(userId || undefined)
-    
     console.log(`[Collections API] GET request - User ID: ${userId || 'anonymous'}`)
-    console.log(`[Collections API] Found ${collections.length} collections`)
+    
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+    
+    const startTime = Date.now()
+    const collections = await databaseService.getCollections(userId)
+    const duration = Date.now() - startTime
+    
+    console.log(`[Collections API] Found ${collections.length} collections in ${duration}ms`)
 
-    return NextResponse.json(collections)
+    return NextResponse.json(collections, {
+      headers: {
+        'X-Response-Time': `${duration}ms`,
+        'X-Source': 'database'
+      }
+    })
   } catch (error) {
     console.error("[Collections API] Error fetching collections:", error)
     return NextResponse.json({ error: "Failed to fetch collections" }, { status: 500 })
@@ -34,41 +38,67 @@ export async function POST(request: Request) {
     console.log(`[Collections API] POST request - User ID: ${userId || 'anonymous'}`)
     console.log(`[Collections API] Action: ${action}`)
 
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const startTime = Date.now()
+
     switch (action) {
       case 'create':
         if (collection) {
-          const newCollection: Collection = {
-            id: `col-${Date.now()}`,
-            name: collection.name,
-            color: collection.color || 'bg-blue-500',
-            createdAt: new Date().toISOString(),
-            itemIds: [],
-            description: collection.description || undefined,
-            customBanner: collection.customBanner || undefined
+          const newCollection = await databaseService.createCollection(
+            collection.name, 
+            userId, 
+            collection.color || '#3b82f6',
+            collection.description
+          )
+          
+          if (newCollection) {
+            await databaseService.logActivity(userId, 'create_collection', 'collection', newCollection.id)
+            
+            const duration = Date.now() - startTime
+            return NextResponse.json({ 
+              success: true, 
+              collection: newCollection,
+              responseTime: `${duration}ms`,
+              source: 'database'
+            })
           }
-          addCollection(newCollection, userId || undefined)
-          return NextResponse.json({ success: true, collection: newCollection })
-        }
-        break
-
-      case 'delete':
-        if (collectionId) {
-          removeCollection(collectionId, userId || undefined)
-          return NextResponse.json({ success: true, message: 'Collection deleted successfully' })
         }
         break
 
       case 'addItem':
         if (itemId && collectionId) {
-          addItemToCollection(itemId, collectionId, userId || undefined)
-          return NextResponse.json({ success: true, message: 'Item added to collection' })
+          const success = await databaseService.addItemToCollection(collectionId, itemId, userId)
+          if (success) {
+            await databaseService.logActivity(userId, 'add_to_collection', 'collection', collectionId, { itemId })
+            
+            const duration = Date.now() - startTime
+            return NextResponse.json({ 
+              success: true, 
+              message: 'Item added to collection',
+              responseTime: `${duration}ms`,
+              source: 'database'
+            })
+          }
         }
         break
 
       case 'removeItem':
         if (itemId && collectionId) {
-          removeItemFromCollection(itemId, collectionId, userId || undefined)
-          return NextResponse.json({ success: true, message: 'Item removed from collection' })
+          const success = await databaseService.removeItemFromCollection(collectionId, itemId, userId)
+          if (success) {
+            await databaseService.logActivity(userId, 'remove_from_collection', 'collection', collectionId, { itemId })
+            
+            const duration = Date.now() - startTime
+            return NextResponse.json({ 
+              success: true, 
+              message: 'Item removed from collection',
+              responseTime: `${duration}ms`,
+              source: 'database'
+            })
+          }
         }
         break
 
@@ -76,47 +106,9 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
 
-    return NextResponse.json({ error: 'Missing required parameters' }, { status: 400 })
+    return NextResponse.json({ error: 'Missing required parameters or operation failed' }, { status: 400 })
   } catch (error) {
     console.error("[Collections API] Error:", error)
     return NextResponse.json({ error: "Failed to update collections" }, { status: 500 })
-  }
-}
-
-export async function PUT(request: Request) {
-  try {
-    const { userId } = await auth()
-    const { id, name, description, customBanner } = await request.json()
-    
-    console.log(`[Collections API] PUT request - User ID: ${userId || 'anonymous'}`)
-    console.log(`[Collections API] Updating collection: ${id}`)
-
-    // Get current collections
-    const collections = getCollections(userId || undefined)
-    const collectionIndex = collections.findIndex(col => col.id === id)
-    
-    if (collectionIndex === -1) {
-      return NextResponse.json({ error: 'Collection not found' }, { status: 404 })
-    }
-
-    // Update the collection
-    const updatedCollection = {
-      ...collections[collectionIndex],
-      name: name || collections[collectionIndex].name,
-      description: description !== undefined ? description : collections[collectionIndex].description,
-      customBanner: customBanner !== undefined ? customBanner : collections[collectionIndex].customBanner
-    }
-
-    collections[collectionIndex] = updatedCollection
-
-    // Save updated collections
-    // Note: This is a simplified approach. In a real app, you'd have a proper update function
-    removeCollection(id, userId || undefined)
-    addCollection(updatedCollection, userId || undefined)
-
-    return NextResponse.json(updatedCollection)
-  } catch (error) {
-    console.error("[Collections API] Error updating collection:", error)
-    return NextResponse.json({ error: "Failed to update collection" }, { status: 500 })
   }
 }

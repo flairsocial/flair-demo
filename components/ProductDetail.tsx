@@ -11,6 +11,7 @@ import AnalyzeWithAIButton from "./AnalyzeWithAIButton"
 import AIAnalysis from "./AIAnalysis"
 import CollectionModal from "./CollectionModal"
 import { useFiles } from "@/lib/file-context"
+import { useSavedItems } from "@/lib/saved-items-context"
 
 interface ProductDetailProps {
   product: Product
@@ -18,7 +19,8 @@ interface ProductDetailProps {
 }
 
 export default function ProductDetail({ product, onClose }: ProductDetailProps) {
-  const [liked, setLiked] = useState(false)
+  // Use context instead of direct API calls
+  const { isSaved, toggleSaved } = useSavedItems()
   const [selectedSize, setSelectedSize] = useState("")
   const [showAiInsights, setShowAiInsights] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -37,15 +39,15 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   useEffect(() => {
     document.body.style.overflow = "hidden"
     
-    // Check if product is already saved/liked
-    checkIfSaved()
-    
     // Check if this product is from URL or image attachment
     const fromUrlOrImage = (product.id?.startsWith('url-') || false) || 
                           product.category === 'Image' || 
                           product.category === 'Link' ||
+                          product.category === 'Image Analysis' ||
+                          product.category === 'Web Product' ||
                           (product.description?.includes('Uploaded image') || false) ||
-                          (product.description?.includes('from http') || false)
+                          (product.description?.includes('from http') || false) ||
+                          (product.description?.includes('URL analysis') || false)
     
     setIsFromUrlOrImage(fromUrlOrImage)
     
@@ -61,36 +63,11 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
     }
   }, [product, addProductAsFile])
 
-  const checkIfSaved = async () => {
-    try {
-      const response = await fetch('/api/saved')
-      if (response.ok) {
-        const savedItems = await response.json()
-        const isProductSaved = savedItems.some((item: Product) => item.id === product.id)
-        setLiked(isProductSaved)
-      }
-    } catch (error) {
-      console.error('Error checking saved status:', error)
-    }
-  }
-
   const handleLike = async () => {
     try {
-      const action = liked ? 'remove' : 'add'
-      const response = await fetch('/api/saved', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          item: product
-        })
-      })
-
-      if (response.ok) {
-        setLiked(!liked)
-        console.log(`Product ${action}ed successfully`)
+      const success = await toggleSaved(product)
+      if (success) {
+        console.log(`Product ${isSaved(product.id) ? 'removed from' : 'added to'} saved successfully`)
       } else {
         console.error('Failed to update saved status')
       }
@@ -160,7 +137,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
         onClick={onClose}
       >
         <motion.div
-          className="bg-black w-full max-w-md h-full overflow-y-auto md:h-auto md:max-h-[90vh] md:rounded-xl"
+          className="bg-black w-full max-w-md h-full overflow-y-auto md:h-auto md:max-h-[90vh] md:rounded-xl mx-auto"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
@@ -177,9 +154,9 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                 <button
                   className="p-2 rounded-full bg-black/40 backdrop-blur-sm"
                   onClick={handleLike}
-                  aria-label={liked ? "Remove from saved" : "Save item"}
+                  aria-label={isSaved(product.id) ? "Remove from saved" : "Save item"}
                 >
-                  <Heart className="w-5 h-5 text-white" fill={liked ? "white" : "none"} strokeWidth={1.5} />
+                  <Heart className="w-5 h-5 text-white" fill={isSaved(product.id) ? "white" : "none"} strokeWidth={1.5} />
                 </button>
                 <button
                   className="p-2 rounded-full bg-black/40 backdrop-blur-sm"

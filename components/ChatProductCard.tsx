@@ -1,55 +1,28 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Image from "next/image"
 import { Heart, Plus, Share2, LinkIcon } from "lucide-react"
 import type { Product } from "@/lib/types"
 import CollectionModal from "./CollectionModal"
+import { useSavedItems } from "@/lib/saved-items-context"
 
 interface ChatProductCardProps {
   product: Product
 }
 
 export default function ChatProductCard({ product }: ChatProductCardProps) {
-  const [isSaved, setIsSaved] = useState(false)
+  // Use context instead of direct API calls
+  const { isSaved, toggleSaved } = useSavedItems()
   const [showCollectionModal, setShowCollectionModal] = useState(false)
-
-  useEffect(() => {
-    checkIfSaved()
-  }, [product.id])
-
-  const checkIfSaved = async () => {
-    try {
-      const response = await fetch('/api/saved')
-      if (response.ok) {
-        const savedItems = await response.json()
-        const isProductSaved = savedItems.some((item: Product) => item.id === product.id)
-        setIsSaved(isProductSaved)
-      }
-    } catch (error) {
-      console.error('Error checking saved status:', error)
-    }
-  }
 
   const handleSaveToSaved = async (e: React.MouseEvent) => {
     e.stopPropagation()
     
     try {
-      const action = isSaved ? 'remove' : 'add'
-      const response = await fetch('/api/saved', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          item: product
-        })
-      })
-
-      if (response.ok) {
-        setIsSaved(!isSaved)
-        console.log(`Product ${action}ed successfully`)
+      const success = await toggleSaved(product)
+      if (success) {
+        console.log(`Product ${isSaved(product.id) ? 'removed from' : 'added to'} saved successfully`)
       } else {
         console.error('Failed to update saved status')
       }
@@ -90,9 +63,9 @@ export default function ChatProductCard({ product }: ChatProductCardProps) {
           <button
             className="p-1 rounded-full bg-black/60 backdrop-blur-sm hover:bg-white hover:text-black transition-colors"
             onClick={handleSaveToSaved}
-            aria-label={isSaved ? "Remove from saved" : "Save item"}
+            aria-label={isSaved(product.id) ? "Remove from saved" : "Save item"}
           >
-            <Heart className="w-3 h-3" fill={isSaved ? "currentColor" : "none"} strokeWidth={2} />
+            <Heart className="w-3 h-3" fill={isSaved(product.id) ? "currentColor" : "none"} strokeWidth={2} />
           </button>
           <button
             className="p-1 rounded-full bg-black/60 backdrop-blur-sm hover:bg-white hover:text-black transition-colors"

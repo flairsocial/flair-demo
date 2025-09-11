@@ -2,16 +2,22 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Search, X } from "lucide-react"
 
 interface SearchBarProps {
   onSearch: (query: string) => void
+  initialValue?: string
 }
 
-export default function SearchBar({ onSearch }: SearchBarProps) {
-  const [query, setQuery] = useState("")
+export default function SearchBar({ onSearch, initialValue = "" }: SearchBarProps) {
+  const [query, setQuery] = useState(initialValue)
   const [isFocused, setIsFocused] = useState(false)
+
+  // Sync with parent state changes
+  useEffect(() => {
+    setQuery(initialValue)
+  }, [initialValue])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,7 +28,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   const clearSearch = () => {
     setQuery("")
-    onSearch("")
+    onSearch("") // This will trigger the useEffect in the parent to fetch random products
   }
 
   return (

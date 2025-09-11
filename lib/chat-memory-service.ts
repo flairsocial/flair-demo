@@ -20,6 +20,8 @@ export interface ChatContext {
   stylePreferences: string[]
   lastSearchResults: Product[]
   conversationThemes: string[]
+  aiResponses: string[]  // Track AI responses for context
+  recentTopics: string[] // Track topics mentioned
   timestamp: string
 }
 
@@ -49,7 +51,22 @@ export class ChatMemoryService {
       const memoryPath = this.getUserMemoryPath(userId || 'anonymous')
       if (fs.existsSync(memoryPath)) {
         const data = fs.readFileSync(memoryPath, 'utf-8')
-        return JSON.parse(data)
+        const memory = JSON.parse(data)
+        
+        // Ensure all required fields exist (for backward compatibility)
+        return {
+          userId: memory.userId || userId || 'anonymous',
+          sessionId: memory.sessionId || Date.now().toString(),
+          discussedProducts: memory.discussedProducts || [],
+          searchQueries: memory.searchQueries || [],
+          userIntents: memory.userIntents || [],
+          stylePreferences: memory.stylePreferences || [],
+          lastSearchResults: memory.lastSearchResults || [],
+          conversationThemes: memory.conversationThemes || [],
+          aiResponses: memory.aiResponses || [], // NEW: Ensure this exists
+          recentTopics: memory.recentTopics || [], // NEW: Ensure this exists
+          timestamp: memory.timestamp || new Date().toISOString()
+        }
       }
     } catch (error) {
       console.error('[Memory] Error loading user memory:', error)
@@ -96,6 +113,8 @@ export class ChatMemoryService {
       stylePreferences: [],
       lastSearchResults: [],
       conversationThemes: [],
+      aiResponses: [],
+      recentTopics: [],
       timestamp: new Date().toISOString()
     }
 
@@ -123,6 +142,8 @@ export class ChatMemoryService {
       stylePreferences: [],
       lastSearchResults: [],
       conversationThemes: [],
+      aiResponses: [],
+      recentTopics: [],
       timestamp: new Date().toISOString()
     }
 
@@ -134,6 +155,98 @@ export class ChatMemoryService {
     if (memory.searchQueries.length > 10) {
       memory.searchQueries = memory.searchQueries.slice(-10)
       memory.userIntents = memory.userIntents.slice(-10)
+    }
+
+    this.saveUserMemory(userId, memory)
+  }
+
+  // Add AI response to memory for context
+  addAIResponse(userId: string | undefined, aiResponse: string, userQuery: string): void {
+    const memory = this.loadUserMemory(userId) || {
+      userId: userId || 'anonymous',
+      sessionId: Date.now().toString(),
+      discussedProducts: [],
+      searchQueries: [],
+      userIntents: [],
+      stylePreferences: [],
+      lastSearchResults: [],
+      conversationThemes: [],
+      aiResponses: [],
+      recentTopics: [],
+      timestamp: new Date().toISOString()
+    }
+
+    // Safety check: Ensure arrays exist (backward compatibility)
+    if (!memory.aiResponses) memory.aiResponses = []
+    if (!memory.recentTopics) memory.recentTopics = []
+
+    // Store the AI response for future context
+    memory.aiResponses.push(`User: "${userQuery}" | AI: "${aiResponse}"`)
+    
+    // Extract topics/brands/products mentioned in AI response for better context
+    const extractedTopics = this.extractTopicsFromText(aiResponse)
+    memory.recentTopics.push(...extractedTopics)
+    
+    // Keep only last 5 AI responses and 10 topics to prevent memory bloat
+    if (memory.aiResponses.length > 5) {
+      memory.aiResponses = memory.aiResponses.slice(-5)
+    }
+    if (memory.recentTopics.length > 10) {
+      memory.recentTopics = memory.recentTopics.slice(-10)
+    }
+
+    this.saveUserMemory(userId, memory)
+  }
+
+  // Extract meaningful topics from AI responses
+  private extractTopicsFromText(text: string): string[] {
+    const topics: string[] = []
+    
+    // Extract brand names (capitalized words)
+    const brandMatches = text.match(/\b[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]*)*\b/g) || []
+    const commonWords = ['The', 'These', 'This', 'That', 'When', 'Where', 'What', 'How', 'Why', 'You', 'Your', 'They', 'Their', 'Some', 'Many', 'Most', 'Here', 'There', 'From', 'With', 'For', 'And', 'But', 'Also', 'Can', 'Will', 'Should', 'Would']
+    
+    const potentialBrands = brandMatches
+      .filter(match => !commonWords.includes(match) && match.length > 2)
+      .slice(0, 3)
+    
+    topics.push(...potentialBrands)
+    
+    // Extract product categories
+    const productTerms = ['bag', 'handbag', 'purse', 'wallet', 'jacket', 'dress', 'shoes', 'sneakers', 'boots', 'watch', 'jewelry', 'sunglasses', 'scarf', 'belt', 'phone', 'laptop', 'headphones']
+    const foundProducts = productTerms.filter(term => 
+      text.toLowerCase().includes(term)
+    ).slice(0, 2)
+    
+    topics.push(...foundProducts)
+    
+    return [...new Set(topics)] // Remove duplicates
+  }
+
+  // Add conversation theme to memory
+  addConversationTheme(userId: string | undefined, theme: string): void {
+    const memory = this.loadUserMemory(userId) || {
+      userId: userId || 'anonymous',
+      sessionId: Date.now().toString(),
+      discussedProducts: [],
+      searchQueries: [],
+      userIntents: [],
+      stylePreferences: [],
+      lastSearchResults: [],
+      conversationThemes: [],
+      aiResponses: [],
+      recentTopics: [],
+      timestamp: new Date().toISOString()
+    }
+
+    // Safety check: Ensure arrays exist (backward compatibility)
+    if (!memory.conversationThemes) memory.conversationThemes = []
+
+    memory.conversationThemes.push(theme)
+    
+    // Keep only last 10 themes
+    if (memory.conversationThemes.length > 10) {
+      memory.conversationThemes = memory.conversationThemes.slice(-10)
     }
 
     this.saveUserMemory(userId, memory)
@@ -153,6 +266,18 @@ export class ChatMemoryService {
       context += recentProducts.map(p => 
         `• ${p.title} by ${p.brand} ($${p.price}) - ${p.category || 'Fashion item'}`
       ).join('\n')
+    }
+
+    // Add recent AI responses for context continuity
+    if (memory.aiResponses && memory.aiResponses.length > 0) {
+      context += `\n\nRECENT CONVERSATION CONTEXT (last 3 exchanges):\n`
+      context += memory.aiResponses.slice(-3).join('\n')
+    }
+
+    // Add recent topics mentioned for context
+    if (memory.recentTopics && memory.recentTopics.length > 0) {
+      context += `\n\nRECENTLY MENTIONED TOPICS/BRANDS:\n`
+      context += memory.recentTopics.slice(-5).map(topic => `• ${topic}`).join('\n')
     }
 
     // Add recent search queries

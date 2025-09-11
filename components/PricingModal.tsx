@@ -164,7 +164,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         "Fraud / Product Scam Detection",
         "Marketplaces, Vendors, and Suppliers"
       ],
-      buttonText: currentPlan === "plus" ? "Current Plan" : "Upgrade to Plus",
+      buttonText: currentPlan === "plus" ? "Current Plan" : "Get Started",
       buttonDisabled: false,
       icon: <Sparkles className="w-4 h-4" />,
       popular: currentPlan === "free", // Popular if user is on free
@@ -184,7 +184,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         "24/7 Customer Support",
  
       ],
-      buttonText: currentPlan === "pro" ? "Current Plan" : "Upgrade to Pro",
+      buttonText: currentPlan === "pro" ? "Current Plan" : "Get Started",
       buttonDisabled: false,
       icon: <Crown className="w-4 h-4" />,
       popular: currentPlan === "plus", // Popular if user is on plus

@@ -1,6 +1,2034 @@
 {
   "user_329KVwiv762JNKE2wiz6yRjlNbp": [
     {
+      "id": "chat-1757535656784",
+      "title": "Men's 3-Piece Single Breasted Suit styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T20:18:15.577Z"
+        },
+        {
+          "id": "user-1757535502732",
+          "content": "is this worth? can you find alternatives",
+          "sender": "user",
+          "timestamp": "2025-09-10T20:18:22.732Z",
+          "attachedFiles": [
+            {
+              "id": "product-626084523042507601",
+              "name": "Men's 3-Piece Single Breasted Suit",
+              "type": "product",
+              "url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTUG4cVA2v5TCj_pGR7WIJFFiIi937ZQk47I7c9-PuTvSWVnnqgvt-r71wanTQ9G_QUBZB80Fp0YFe1WlWi5y4UmHjP6J7rMHIQcsVaBJFrg9k3IfoGpNFz",
+              "preview": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTUG4cVA2v5TCj_pGR7WIJFFiIi937ZQk47I7c9-PuTvSWVnnqgvt-r71wanTQ9G_QUBZB80Fp0YFe1WlWi5y4UmHjP6J7rMHIQcsVaBJFrg9k3IfoGpNFz",
+              "metadata": {
+                "title": "Men's 3-Piece Single Breasted Suit",
+                "price": 122.99,
+                "brand": "Men's",
+                "description": "Men's 3-Piece Single Breasted Suit from Men's",
+                "category": "Product",
+                "link": "https://google.com/shopping/product/626084523042507601?gl=us",
+                "productId": "626084523042507601"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757535515895",
+          "content": "The Men's 3-Piece Single Breasted Suit at $122.99 seems reasonably priced for a three-piece suit.  To find better alternatives, I need to know your preferred fabric and desired level of formality.  Providing more details will help me locate comparable suits from luxury brands or boutiques matching your style.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T20:18:35.895Z",
+          "products": []
+        },
+        {
+          "id": "user-1757535651497",
+          "content": "find alternatives",
+          "sender": "user",
+          "timestamp": "2025-09-10T20:20:51.497Z"
+        },
+        {
+          "id": "ai-1757535655762",
+          "content": "Considering your preferences for business and classic styles, along with your liking for three-piece suits, I recommend exploring options from brands like Canali, Brioni, or Ermenegildo Zegna.  These offer high-quality alternatives in various fabrics and fits within your budget.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T20:20:55.762Z",
+          "products": []
+        },
+        {
+          "id": "user-1757535696072",
+          "content": "Find alternatives from carnali then",
+          "sender": "user",
+          "timestamp": "2025-09-10T20:21:36.072Z"
+        },
+        {
+          "id": "ai-1757535699521",
+          "content": "Canali offers several excellent three-piece suits.  To give you the best recommendations, could you specify your preferred fabric (e.g., wool, linen) and desired level of formality?  This will help me narrow down the options to those perfectly suited to your needs.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T20:21:39.521Z",
+          "products": []
+        },
+        {
+          "id": "user-1757535715060",
+          "content": "3 pieces from carnali and looks similiar to above",
+          "sender": "user",
+          "timestamp": "2025-09-10T20:21:55.060Z"
+        },
+        {
+          "id": "ai-1757535719095",
+          "content": "To find Canali three-piece suits similar to the one you mentioned, please specify the style details you liked (e.g., color, lapel type, fabric). This will help me locate the closest matches from Canali's collection within your budget.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T20:21:59.095Z",
+          "products": []
+        },
+        {
+          "id": "user-1757536004548",
+          "content": "3 pieces from carnali and looks similiar to above",
+          "sender": "user",
+          "timestamp": "2025-09-10T20:26:44.548Z"
+        },
+        {
+          "id": "ai-1757536010764",
+          "content": "To help me find similar Canali three-piece suits, please describe the style details of the suit you liked (e.g., color, lapel type, fabric).  Knowing this will ensure I find the perfect match for you within your budget.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T20:26:50.764Z",
+          "products": []
+        }
+      ],
+      "createdAt": "2025-09-10T20:20:56.784Z",
+      "updatedAt": "2025-09-10T20:27:43.451Z"
+    },
+    {
+      "id": "chat-1757532177355",
+      "title": "Loro Piana Tennis Walk Pecora Nera styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T19:22:31.786Z"
+        },
+        {
+          "id": "user-1757532162308",
+          "content": "find similiar looknig items",
+          "sender": "user",
+          "timestamp": "2025-09-10T19:22:42.308Z",
+          "attachedFiles": [
+            {
+              "id": "product-10527085756790991920",
+              "name": "Loro Piana Tennis Walk Pecora Nera",
+              "type": "product",
+              "url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSEB7uD3toXDbe9MHEZRW52iAl0LK2NC9ukbUmp5Vp59EUPmDHA9-jHRcGFDDi0Jwf_RN9mvakgZLdUzIY3FisjoXKPVCIS6Sl4dFTuSNq61Z0MK5sDVqRIHw",
+              "preview": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSEB7uD3toXDbe9MHEZRW52iAl0LK2NC9ukbUmp5Vp59EUPmDHA9-jHRcGFDDi0Jwf_RN9mvakgZLdUzIY3FisjoXKPVCIS6Sl4dFTuSNq61Z0MK5sDVqRIHw",
+              "metadata": {
+                "title": "Loro Piana Tennis Walk Pecora Nera",
+                "price": 1120,
+                "brand": "Loro",
+                "description": "Loro Piana Tennis Walk Pecora Nera from Loro",
+                "category": "Product",
+                "link": "https://google.com/shopping/product/10527085756790991920?gl=us",
+                "productId": "10527085756790991920"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757532165099",
+          "content": "The Loro Piana Tennis Walk Pecora Nera are luxurious suede sneakers.  To find similar-looking items, could you specify preferred colors, materials (e.g., suede, leather), and style details?  This will help me locate comparable options from other high-end brands.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T19:22:45.099Z",
+          "products": [
+            {
+              "id": "5690069281737068538",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQEVCUlY5C6LmJh6bwp3Ol7DB_CuP0xdd-VYaeKNZTcXkemEExuZEfz4rFpdhw_xwCYmqYuLW-nKfeZgefEXOZl1d9PXS93aRMmtEbprHQpilZAiYu14BHwOw",
+              "title": "Loro Piana Men's Tennis Walk Suede",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Suede from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5690069281737068538?gl=us"
+            },
+            {
+              "id": "4909204019465612955",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSuaPdHRMKnATq_lNB8oIhJpZXTDNuRV4bMAE_KFH6Qw6SIEZvZzBeffWcFd6aBqh_rppY-XIJmXlIHN0X7J-YneoqEq7rLr57WVF4uqVfzkI-CTUaBWNka5Q",
+              "title": "Loro Piana Tennis Walk Suede",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk Suede from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4909204019465612955?gl=us"
+            },
+            {
+              "id": "18017889862965632009",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ18hcxYW0RKdfgF1zlnQ-nKB66F_h-Tg0XoP2AtGo1CLTUQP2JAhL6cNsLlgk6XI_0FxU0aiEa0SHwMlTrdpJ0-FqMRVPgGNsBHNmVP006WNxKzphGKdxT",
+              "title": "Loro Piana Tennis Walk Cervo",
+              "price": 1155,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk Cervo from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/18017889862965632009?gl=us"
+            },
+            {
+              "id": "11847575057611044269",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTrBtUVV8bh441OiK8al_4Ka-hcLybRAwkAvwJTVmBfNCGBR8QhQP567WDP8Tb4nKp8oBkfN9rhqbZe36LU32zmkR1K9C9CYTGuGNAtbY_LFNxGBrxfBHahyA",
+              "title": "Loro Piana Men's Tennis Walk Suede Nabuk Alligator",
+              "price": 5470,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Suede Nabuk Alligator from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11847575057611044269?gl=us"
+            },
+            {
+              "id": "5641901717876204294",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSMS9TM2QCarkLiO1UF0dZfxcDGd9FYury0VjTFH-GHR5oB2JevrUTaBDM-gVtyU7FX-v2iJ4n8ELFHWbikc_KK5gnfoxRcEKdPPTwQd3-No9GM0FnoHuKVM3w",
+              "title": "Loro Piana Men's Tennis Walk Pecora Nera",
+              "price": 1120,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Pecora Nera from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5641901717876204294?gl=us"
+            },
+            {
+              "id": "10218373153152581585",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ-2cVdsPSmH4c1Vsu2VB4f5HyYJGdkBp08f76IHkQ9CJWJ-ykTPhjPmnOXS2kkxVpomDLCthezCokbTloLcR7mCjWv9Fjd4ewAeRm24DtRYILdT38Ui1PLe9U",
+              "title": "Loro Piana Men's Tennis Walk in Cash Silk",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk in Cash Silk from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10218373153152581585?gl=us"
+            },
+            {
+              "id": "1176379511591432091",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTHPbHnvkubdT-xNcXujPyISOdxTtTaJzO-PbFFuDZygUlKYFclPuVRLO4a10Zi8BxUVsYVIP9XFPnRq-JAgLykFuSyA8fK813XrkJT-aB5SdVLNL1kuEqWAzo",
+              "title": "Loro Piana Tennis Walk Denim Flower",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk Denim Flower from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1176379511591432091?gl=us"
+            },
+            {
+              "id": "3766309417689275511",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSFs-t7ON0saEPdSZK5bHlRt2bbMMFgJD4G_XOkyJ9dxEP6Gw82YuDZAIIzoxMp8yOM8JCPKnDq0-RuA-cfia94Jd0Pmu2OzSbEFtFSXgYdYqChJoIPqJcHlw",
+              "title": "Loro Piana Tennis Walk in Cash Silk",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk in Cash Silk from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3766309417689275511?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757532175922",
+          "content": "different brands ?",
+          "sender": "user",
+          "timestamp": "2025-09-10T19:22:55.922Z"
+        },
+        {
+          "id": "ai-1757532177227",
+          "content": "To find similar styles from different brands, please describe the key features you like about the Loro Piana Tennis Walk Pecora Nera (e.g., color, material, silhouette). This will help me locate comparable options from brands aligning with your preferences for luxury and sustainable options.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T19:22:57.227Z",
+          "products": []
+        },
+        {
+          "id": "user-1757532224950",
+          "content": "looks similiar but not loro paina",
+          "sender": "user",
+          "timestamp": "2025-09-10T19:23:44.950Z"
+        },
+        {
+          "id": "ai-1757532227638",
+          "content": "Okay, to find similar-looking sneakers to the Loro Piana Tennis Walk Pecora Nera from different brands,  tell me your preferred color and material (e.g., suede, leather).  Knowing your preferred style details (e.g., low-top, high-top) will also help narrow down options.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T19:23:47.638Z",
+          "products": [
+            {
+              "id": "1998049978554992883",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTRvsq57E-jSmpxmyBhv4XokTT5Cqo1Uit1Kjkp_Xnr_nlz-Jg_OfU7C_61iYoxwOiTupjM-CeiaOtsiiH5h6NN68zR3tJ_wrDgXOsIIx2-V8NSRwwHNa33HBQ",
+              "title": "Loro Piana Men's 410 LP Walk Wish",
+              "price": 1450,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's 410 LP Walk Wish from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1998049978554992883?gl=us"
+            },
+            {
+              "id": "4909204019465612955",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSuaPdHRMKnATq_lNB8oIhJpZXTDNuRV4bMAE_KFH6Qw6SIEZvZzBeffWcFd6aBqh_rppY-XIJmXlIHN0X7J-YneoqEq7rLr57WVF4uqVfzkI-CTUaBWNka5Q",
+              "title": "Loro Piana Tennis Walk Suede",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk Suede from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4909204019465612955?gl=us"
+            },
+            {
+              "id": "4819472566008141395",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTUTUAgFo4MqFSAzwcoCLwUrkLgybN81mYc_h41OBXJTPOJe4f_o3xHXAg4K56f0nIdyqS9viBABqPqulhhaEquR-pH_TH2fEGavKJx7dzvao9QR6GJsYpQ4KM",
+              "title": "Loro Piana Tennis Walk Leather-trimmed Suede Sneakers",
+              "price": 1050,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk Leather-trimmed Suede Sneakers from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:4819472566008141395"
+            },
+            {
+              "id": "13286605131857510880",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRANFxZnCzkYStPmN_kBLv2tTP9Tm-kMpGcMIVGZsQUsVazNBnhIR4Z-joqVP6zyj8S_b6wJI-drPATAe-iCHnofeJCzXBZ7MmVowLRlm--SxiPFjISDfDhEVw",
+              "title": "Loro Piana Men's Tennis Walk Suede Low-Top Sneakers",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Suede Low-Top Sneakers from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/13286605131857510880?gl=us"
+            },
+            {
+              "id": "12499619574153642461",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRDWH_6E_gVPNSrrZgOn49nMd2KxkAikHhu8Mn2rPIt2w8aZKPc14xCrbAYKIlZd9jx1ECNcqkKAsXmr6drS9qtyWIyt0iNCNkTqLuIiK4",
+              "title": "Loro Piana Men's Tennis Walk Suede Sneakers",
+              "price": 1115,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Suede Sneakers from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:12499619574153642461"
+            },
+            {
+              "id": "387336270678706236",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRQpMtAzYUzFBcz9WhiM88ptTUWnR3IVOv7f9Sl6QkErHgUmoOWwjyQCJupjK42u2942fzpZmMHfsoqZTbeHZgjRkAlRZu17fc-UDzULn9RetYOGVN-_JrmNQ",
+              "title": "Loro Piana, Tennis Walk suede sneakers, Women, Green, US 8, Sneakers, Leather",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana, Tennis Walk suede sneakers, Women, Green, US 8, Sneakers, Leather from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:387336270678706236"
+            }
+          ]
+        },
+        {
+          "id": "user-1757532247504",
+          "content": "low top, not expensive under 200 but looks like this",
+          "sender": "user",
+          "timestamp": "2025-09-10T19:24:07.504Z"
+        },
+        {
+          "id": "ai-1757532249504",
+          "content": "Considering your preference for low-top sneakers similar in style to the Loro Piana shoes, but under $200, I need more information on preferred color and material.  Providing these details will help me suggest suitable alternatives from various brands.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T19:24:09.504Z",
+          "products": [
+            {
+              "id": "10223729625418717911",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQOZWOuwFXq-Xc3gU5zdQxEFWyf7Ud1iExBg7VIoq4T9qRFBdXTVFwnYJ3dYtbFSnEs4Ly4YFCaQdMxeYeoo_axo9G7aWGRM9y-aj9ooEQ4YKPWPiaTx1DvedY",
+              "title": "Loro Piana Men's Tennis Walk Pecora Nera",
+              "price": 1120,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Pecora Nera from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10223729625418717911?gl=us"
+            },
+            {
+              "id": "15451732809174440759",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSEB7uD3toXDbe9MHEZRW52iAl0LK2NC9ukbUmp5Vp59EUPmDHA9-jHRcGFDDi0Jwf_RN9mvakgZLdUzIY3FisjoXKPVCIS6Sl4dFTuSNq61Z0MK5sDVqRIHw",
+              "title": "Loro Piana Tennis Walk Pecora Nera",
+              "price": 1120,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk Pecora Nera from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15451732809174440759?gl=us"
+            },
+            {
+              "id": "9254617509776775060",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSoO33UACvkkT2PxvJx02BFzGU02eA4f2iQ9jYQxI3k7mGDjwWABGPCEp_ARkJp0NgNzdW3X56AGaB7Coykv_oVoGcM_Fge3NhIFxSFaFWVMnDg0wCSCc6v3A",
+              "title": "Loro Piana Men's Tennis Walk Suede",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Suede from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9254617509776775060?gl=us"
+            },
+            {
+              "id": "16726483784615886661",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT1BIJKKymCOkAI-3kW-WfrFmG-ojFNQPuncriuLeUSQQtdKhcld2PiyEjixJfX8VJw-17_vwDdJmn21lFF4LCA7HcTKPeSLdXg04MhCXJExViatQY3Z6FUVA",
+              "title": "Loro Piana Week_end Walk Evo Pecora Nera Man",
+              "price": 1120,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Week_end Walk Evo Pecora Nera Man from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/16726483784615886661?gl=us"
+            },
+            {
+              "id": "15315094346351471292",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTwitkazySWngp8MxpiSV31V7XV72LYieEfUHYWzjHkPU4sXRDf8dywGKmqAUBOBV4CJeLR8IZg8MVlOVACPkUaXK1FA8A4cm_zif-IN3vc9Yu6lUEZU0TIZQ",
+              "title": "Loro Piana Tennis Walk Suede",
+              "price": 1085,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Tennis Walk Suede from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15315094346351471292?gl=us"
+            },
+            {
+              "id": "11847575057611044269",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTrBtUVV8bh441OiK8al_4Ka-hcLybRAwkAvwJTVmBfNCGBR8QhQP567WDP8Tb4nKp8oBkfN9rhqbZe36LU32zmkR1K9C9CYTGuGNAtbY_LFNxGBrxfBHahyA",
+              "title": "Loro Piana Men's Tennis Walk Suede Nabuk Alligator",
+              "price": 5470,
+              "brand": "Loro",
+              "category": "Product",
+              "description": "Loro Piana Men's Tennis Walk Suede Nabuk Alligator from Loro",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11847575057611044269?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757533184220",
+          "content": "find alterantives uner 200",
+          "sender": "user",
+          "timestamp": "2025-09-10T19:39:44.220Z"
+        },
+        {
+          "id": "ai-1757533188732",
+          "content": "To find alternatives under $200 similar to the Loro Piana Tennis Walk Pecora Nera,  I need your preferred color and material preferences (e.g., suede, leather). Specifying preferred style details (low-top, etc.) will further refine the search.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T19:39:48.732Z",
+          "products": [
+            {
+              "id": "4623016157294831795",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS1oWT1BHNttlBPji8E_21qw_F-rgeVlXrFmy2sQ4jyAQTH0cMNKe3kLTsfnUMqUsQA13APTcIzd3imecST2imuYFWmVEj3Egdovb8cbSI",
+              "title": "On Women's Cloud 6",
+              "price": 159.99,
+              "brand": "On",
+              "category": "Product",
+              "description": "Alternative to Loro Piana Tennis Walk Pecora Nera",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4623016157294831795?gl=us"
+            },
+            {
+              "id": "6278087032254271263",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQpsX8KXLIQgIqFyF462fKYV82e89WACf7T1dQw1aSAXPFRjKHI_B3EWY9_tRP-FSJKPGshtrT7WCFrV9xGBXfH4BOOmOMuvE_kXx4aWXs",
+              "title": "Nike Men's Court Vision Low Next Nature Shoes",
+              "price": 79.99,
+              "brand": "Nike",
+              "category": "Product",
+              "description": "Alternative to Loro Piana Tennis Walk Pecora Nera",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6278087032254271263?gl=us"
+            },
+            {
+              "id": "13879676521246577305",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTezUlr4DyjnVIKaIlCoBSU5diNoM-qrDMYhgYODV6lX43XfUcFubyBZvY1c3RbvnznbAXhuEiPvYDjDufugocMdu10Q98D1gCXFGXKOjFb",
+              "title": "Men's New Balance Made in USA 990v4",
+              "price": 190,
+              "brand": "Men's",
+              "category": "Product",
+              "description": "Alternative to Loro Piana Tennis Walk Pecora Nera",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/13879676521246577305?gl=us"
+            },
+            {
+              "id": "12086736624911585733",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTBwYSLaULmaQXxW0rYjNckjNa5k5l7VsTTcodVYRR6YwTzY7z6IpiFy0zeQwucuPf81QYmONy6mipkREpkCFVzyRYfWiwD5t5qPux6o7cBGEWOLqIGF6Dm",
+              "title": "Reebok Men's x OBEY BB 4000 II",
+              "price": 109.99,
+              "brand": "Reebok",
+              "category": "Product",
+              "description": "Alternative to Loro Piana Tennis Walk Pecora Nera",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12086736624911585733?gl=us"
+            },
+            {
+              "id": "17547249195637699574",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRmT0YTcLBxNe4gLcaoUzB0hLNXypZWRVKquRrYPLRw8IdCm1Cchx6c6Y_TKySr9ggZ6TFtOP8kOkWrlqUHw7mUIGGyds7KBBxbKKCk1cBN",
+              "title": "\"Skechers Men's Slip-ins Work Nampa",
+              "price": 76,
+              "brand": "\"Skechers",
+              "category": "Product",
+              "description": "Alternative to Loro Piana Tennis Walk Pecora Nera",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17547249195637699574?gl=us"
+            },
+            {
+              "id": "11576848119082367857",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQtEomF-bKf_8mMLEj6k_ko2WazPXlkMFOI5dPzdkBp9kJ6es639Q4Bzfk7bQ0tsBEuySVIIFUa8eS-QznoI1lrUzjgm9ng0h5PIbH1ZpaRNEnC3tAaQQjnQw",
+              "title": "Converse One Star 95 Men",
+              "price": 80,
+              "brand": "Converse",
+              "category": "Product",
+              "description": "Alternative to Loro Piana Tennis Walk Pecora Nera",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11576848119082367857?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-10T19:22:57.355Z",
+      "updatedAt": "2025-09-10T23:06:23.234Z"
+    },
+    {
+      "id": "chat-1757528545739",
+      "title": "Dress shopping",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing deals, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:20:54.948Z"
+        },
+        {
+          "id": "user-1757528461840",
+          "content": "https://www.thereformation.com/products/aiko-dress/1314682.html?showTutorial=true",
+          "sender": "user",
+          "timestamp": "2025-09-10T18:21:01.840Z"
+        },
+        {
+          "id": "ai-1757528464624",
+          "content": "That Reformation Aiko dress is lovely!  The minimalist design and classic silhouette align perfectly with your saved items and style preferences.  It would be a versatile addition to your wardrobe for both business and casual occasions.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:21:04.624Z",
+          "products": [
+            {
+              "id": "8550964014206587560",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSZ5Pu06fOOWq8WTRRsx_UyNjZsQvhkTrEGNSPp0_lv9aai9xgSHPDj5NoXJiTGi34FmpnB4yKUYELy4ezS0dFgiAikZMeZu2mVvD0xm8pFJd12gzk9ubQC",
+              "title": "Reformation Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8550964014206587560?gl=us"
+            },
+            {
+              "id": "3642715110462890205",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTh8X3NylPfeIvZ0qctd9rSLBIo-BCPeXlGvLEoI0EvIrcqGQSMPRi-ICVrzV5j_xE6Q8nAHCRf9j0LqNt0l0cuTig1eF8MltWmobwRek4P0GOL9kguijrW",
+              "title": "Reformation Petites Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Petites Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3642715110462890205?gl=us"
+            },
+            {
+              "id": "10734552229982062360",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTG2EO7qVC8E0Nd7SjrQaWvMaWfudW2MxnGMLGqysWnZIbRxWJXI8Q9F-BCHSJeR0NyKXwRkQWIckJkNw6C9FlyGNJHm0HXRkTCpBVUlzLxjeFjCmnRrzHpWg",
+              "title": "Reformation Women's Aiko Corset Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Women's Aiko Corset Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10734552229982062360?gl=us"
+            },
+            {
+              "id": "4745315870664524462",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR3Vjkp1UyZ-J51IoiwEzPVOjw7ifrkvSE8mYU6h3mk4w5wC_RwaDvBKTx4aRMsl1TZKtSYyBmoZ65eu4UN8YPiN5-SMmqoIh47cDhZYbfre_DUwaBfcNPYZw",
+              "title": "Reformation Women's Aiko Midi Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Women's Aiko Midi Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4745315870664524462?gl=us"
+            },
+            {
+              "id": "16027859152937914303",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQhqKB71oywVIFK6BOf75ezk9nXfzLSo2hAWMWGXt8oQhIyA-9BRrt7GnNEkr9GwiF-m_KF6xYHt3ubV5ekdSz3R4Q7ul5McFr_1l0jD2bRpxm_9n7ovCVv",
+              "title": "Reformation Women's Aiko Dress",
+              "price": 275,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Women's Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:16027859152937914303"
+            },
+            {
+              "id": "15636910393520512102",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSYeNTUZBKGD8vIolPFH7o2L6UgmUu9mG3NQdUAwLXPLuURXaU4BC2Kzc5AabnRqUU1bVtRplShotIRly-5UAlnEHiZMmEu0Q_zX7xb4zI",
+              "title": "Reformation Aiko Dress",
+              "price": 250,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:15636910393520512102"
+            }
+          ]
+        },
+        {
+          "id": "user-1757528543027",
+          "content": "check different brand?",
+          "sender": "user",
+          "timestamp": "2025-09-10T18:22:23.028Z"
+        },
+        {
+          "id": "ai-1757528545111",
+          "content": "Of course!  To find similar dresses from other brands, could you tell me what aspects of the Reformation Aiko dress you like best (e.g., the neckline, fabric, length)?  Knowing your preferences will help me narrow down the options.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:22:25.111Z",
+          "products": [
+            {
+              "id": "14447120173333240724",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR0H5nBntWgU967UpRlpp-oKJAnBIxfp7mCaJtBU4fb3yF4xbBujhgfaAH8cbxBw3E1SZhGSWioz9znDK3pNj8R13PeSOAbO9WrBMtu_c4ewJm-Xg0uVcrd",
+              "title": "Reformation Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14447120173333240724?gl=us"
+            },
+            {
+              "id": "10004139697668857436",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSBAQt-SvJB_C0pt-xAysW49ZBUoCidaeeFTISOu4qn6s8kEIifHDUwL6wt0YfhjH2TKwT4N_xh5JH1bs1IVJN11gCTD1H7THwYFP40HxO81qus48qjDviAOg",
+              "title": "Aiko Lambskin Leather Trim Dress",
+              "price": 75,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Lambskin Leather Trim Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10004139697668857436?gl=us"
+            },
+            {
+              "id": "13665569856210929639",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSWw3V5J2mDNlV-SwAKjwPBETnhNr3ynZfm7LLks8lo8Z5wOvDFztEIi0hfLRei3IkklFTkVq9kCm3ru0Gi-J4xVoHTS3NX7Y_T-4XgWa65k08HQ94R_dfgdQ",
+              "title": "Aiko Fauna Dress",
+              "price": 298,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Fauna Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:13665569856210929639"
+            },
+            {
+              "id": "8095292182368016930",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSrZhft1z--fYnjsT9-ckIcB_M8zTkelLZa-UqItr3irJ7V8bT237tNekUorjgNsS4sFBE1-PQ4pqElDRBASa54tVHpr8pjQm4mt7t__PqLiLrvYCZ47YHmUA",
+              "title": "Reformation Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:8095292182368016930"
+            },
+            {
+              "id": "13101343617856109334",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcR3X8e5T_ajBsiNvuAXrOAFc4vCR9sJ44vDbaRpUrlaODv31TCbYjnZSAO0XShU5lF3n7A0e5A8b78aCCYyS9G3DR0-xte1uat6iaLooL6zUiuOXFJ184JWlA",
+              "title": "Nessa Dress",
+              "price": 298,
+              "brand": "Nessa",
+              "category": "Product",
+              "description": "Nessa Dress from Nessa",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/13101343617856109334?gl=us"
+            },
+            {
+              "id": "9739164268486738077",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTFFITM0HniG3ex5fIcvzCjwoJTJ8AJOeGPLnDmwezj8Tt271arFGRV3Dx_3aY7aRdT_91HPp0YLoX2G1udpxobbGtxM9ZABrumZBK4vBwHuP5eR0xMpNb0qVo",
+              "title": "Aiko Dress",
+              "price": 65,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9739164268486738077?gl=us"
+            },
+            {
+              "id": "17832043160210419488",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcS4-rF8lGlP6nglaJllbr49xpZcuo8ibwqMd4-MsANbJCoBwNYqRb6afI_DePEBVmMwcCYtwUnspSwmfrGrPWDIUfqbjkkKdxeDeu3cH_yQmPGZQ7L3J7As-A",
+              "title": "Petal & Pup Women's Laurel Dress",
+              "price": 89,
+              "brand": "Petal",
+              "category": "Product",
+              "description": "Petal & Pup Women's Laurel Dress from Petal",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17832043160210419488?gl=us"
+            },
+            {
+              "id": "10133688854210986066",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSAqs3NLG4tQ0cAZXdPjQz48ivGsIkFUBZQWSESCQHD1KFW3FWuTTq3z_o46INQLzDc6ctkKqqnV81FHC05ViwOIpsiDITh1jZOt8SkXg_d",
+              "title": "Aiko Dress",
+              "price": 298,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:10133688854210986066"
+            },
+            {
+              "id": "1452806221341416172",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSAuUIeBjBxI3Qwj1LhdTRUKHXitabxYff5oIKmo3vLp4kdRNUcNfUwrI54PgWwXnO3h7LnvZHW1H8Xm2NgTxEiTNnZrGxppSUa35WrhTnr-HhNah1CJlYx",
+              "title": "Aiko Women's Casual High Low Scoop Neck Sleeveless Dress",
+              "price": 16,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Women's Casual High Low Scoop Neck Sleeveless Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1452806221341416172?gl=us"
+            },
+            {
+              "id": "17714580638671461964",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ3tXGENq1fYPfV36O51EvwnvOeBH1dKDOijyGcyBSQJtkYV4As_Jk0P3jDy9dRnECIQBj7vMCYiBpiUlh6hp0-h_fahUqNmrkxkk_WT370",
+              "title": "Reformation Aiko Dress",
+              "price": 190,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:17714580638671461964"
+            },
+            {
+              "id": "15098409597308226867",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSkOQKO51rvzOJZVVPBNjs2wHF-SUzG3vYI4oBsU26761DzN7W569-v93THFMcvvTSanCu-iZInP3iHBqGilW1283Rd36MYLil1-DfZYjFK8dmDr4_DwPheyw",
+              "title": "Reformation Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:15098409597308226867"
+            },
+            {
+              "id": "6201091410326814598",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQsZ7GqCxPM3WhyHT0B7pFtU6p05L4NbHfTq0IZ-a1BP8khgmSu1v0NxesHOYJ5y1KExKFqEdAI8OnrUPkHDqOyrEUItyPJM3f3ZdqDsSrUm3zQVV1-w_U3",
+              "title": "Made to Order Multi-Colored Dress",
+              "price": 229,
+              "brand": "Made",
+              "category": "Product",
+              "description": "Made to Order Multi-Colored Dress from Made",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6201091410326814598?gl=us"
+            },
+            {
+              "id": "14172047298697014317",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQYAtpFTTJ-XGASrs-bwGK1YyPUtMC2-77JoHbY_O1gaT2Rx00l7tSWpXVjurPDva_8ssXjPYAF3-aFOnvgMEiWHbwxqvbJjBZebBB5qV6N5JkaiCKvirmA",
+              "title": "Aiko Dress",
+              "price": 298,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:14172047298697014317"
+            },
+            {
+              "id": "7619420229363401758",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQi_P194ykCz4G8zBDqrIuf4otAvRWHmO_uY-OJV3WFl3ZKepMIxwz-uTLfLdMcBDXg_1iQ3U7zUzYGshytUh8pgxkuT2Od9UEtprm6rQ8n9Kof6g_uwy8b",
+              "title": "Aiko Reformation Dress",
+              "price": 20,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Reformation Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7619420229363401758?gl=us"
+            },
+            {
+              "id": "6001449262511730164",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ1wZ_gEEaL8xx1LNd2b2JPSWLT4SVHddHSzzoXxnNfa1lHOiUHOCuqiCJVSUnOEMSjyOTZfSsTc-2-5ca-fYZ8qWHEG3EZKgiDhVW9pf2i0J6Pfs-grRoD",
+              "title": "lululemon Women's Align Dress",
+              "price": 148,
+              "brand": "lululemon",
+              "category": "Product",
+              "description": "lululemon Women's Align Dress from lululemon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6001449262511730164?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757528733857",
+          "content": "https://eng.polene-paris.com/products/cyme-textured-camel?showTutorial=true",
+          "sender": "user",
+          "timestamp": "2025-09-10T18:25:33.857Z"
+        },
+        {
+          "id": "ai-1757528736640",
+          "content": "The Polène Cyme bag is a beautiful, structured handbag. Its classic style and camel color would complement many outfits, aligning with your preference for minimalist and classic styles.  The price point is also within your budget range.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:25:36.640Z",
+          "products": [
+            {
+              "id": "10086637901962654382",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSZ5Pu06fOOWq8WTRRsx_UyNjZsQvhkTrEGNSPp0_lv9aai9xgSHPDj5NoXJiTGi34FmpnB4yKUYELy4ezS0dFgiAikZMeZu2mVvD0xm8pFJd12gzk9ubQC",
+              "title": "Reformation Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10086637901962654382?gl=us"
+            },
+            {
+              "id": "15604277730886285709",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQr2D-i6BBqjwGKCnZjWiS7aaOldgTOpvtCZYAsTk8GeXuW97wPlceNONYONP9Xg-k6N-4-1cwt3F5vynhaCW58YMvE-9wKH1jcyuq5TV2gu1FAukAicTtm",
+              "title": "Oh Polly Sweetheart-Neck Midaxi Dress",
+              "price": 130,
+              "brand": "Oh",
+              "category": "Product",
+              "description": "Oh Polly Sweetheart-Neck Midaxi Dress from Oh",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15604277730886285709?gl=us"
+            },
+            {
+              "id": "10734552229982062360",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTG2EO7qVC8E0Nd7SjrQaWvMaWfudW2MxnGMLGqysWnZIbRxWJXI8Q9F-BCHSJeR0NyKXwRkQWIckJkNw6C9FlyGNJHm0HXRkTCpBVUlzLxjeFjCmnRrzHpWg",
+              "title": "Reformation Women's Aiko Corset Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Women's Aiko Corset Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10734552229982062360?gl=us"
+            },
+            {
+              "id": "3642715110462890205",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTh8X3NylPfeIvZ0qctd9rSLBIo-BCPeXlGvLEoI0EvIrcqGQSMPRi-ICVrzV5j_xE6Q8nAHCRf9j0LqNt0l0cuTig1eF8MltWmobwRek4P0GOL9kguijrW",
+              "title": "Reformation Petites Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Petites Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3642715110462890205?gl=us"
+            },
+            {
+              "id": "10012891526143795366",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRJgiaEZZSoxg_9vRjjI1WUX8aHIrnFCZcPSjxy7RY7n0MMtyzgJ1uBV-DiXcg_r2_6UR_jb73Uuak0pto7UMGbzJruCLtt63U4GbbWYhaSjA4ianrVfI8n",
+              "title": "SABO Coastal Shell Cut Out Halter Maxi Aiko Dress",
+              "price": 115,
+              "brand": "SABO",
+              "category": "Product",
+              "description": "SABO Coastal Shell Cut Out Halter Maxi Aiko Dress from SABO",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10012891526143795366?gl=us"
+            },
+            {
+              "id": "4507512815795238820",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRmD2yZGweH14GMPPaVxN9biCvRSvh9DGbSwznNe3IEU4rvpnu2bfHz8ubMhft2Jx24GPhkObukfeJBaroq-UR6ADQDLLshnywRZu2pPZ1EZtgfQZ-QL4zO",
+              "title": "Aiko Dress",
+              "price": 95,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4507512815795238820?gl=us"
+            },
+            {
+              "id": "15886023837588130268",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRuDEdADrbYATZs0vtXHSQbLKAfyB22v_ko5czKyLjazkXMW56FBAjEstpt5TUoUGbj4LYVDVKPi0hc-8-YYw19MXCEUSfdGx-OIX8o_9ap1-Swpft4yG44",
+              "title": "Silvia Tcherassi Aiko Dress",
+              "price": 1690,
+              "brand": "Silvia",
+              "category": "Product",
+              "description": "Silvia Tcherassi Aiko Dress from Silvia",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15886023837588130268?gl=us"
+            },
+            {
+              "id": "15098409597308226867",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSkOQKO51rvzOJZVVPBNjs2wHF-SUzG3vYI4oBsU26761DzN7W569-v93THFMcvvTSanCu-iZInP3iHBqGilW1283Rd36MYLil1-DfZYjFK8dmDr4_DwPheyw",
+              "title": "Reformation Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:15098409597308226867"
+            },
+            {
+              "id": "11841945592126641156",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTG2EO7qVC8E0Nd7SjrQaWvMaWfudW2MxnGMLGqysWnZIbRxWJXI8Q9F-BCHSJeR0NyKXwRkQWIckJkNw6C9FlyGNJHm0HXRkTCpBVUlzLxjeFjCmnRrzHpWg",
+              "title": "Reformation Women's Aiko Floral Midi-Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Women's Aiko Floral Midi-Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:11841945592126641156"
+            },
+            {
+              "id": "1335964374654433764",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSSLTBMK-omztzf4Z_qiE682c4FTIYCByOt5J39iBqC6Ah1SPdjhZNFMb4Fpnt-wez_LO8QdEH5Ohx6dDZvAViC95WILvDFK9_xBFEjt6kW-XY6K_gr8S3r",
+              "title": "Reformation Women's Aiko Midi Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Women's Aiko Midi Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:1335964374654433764"
+            },
+            {
+              "id": "13665569856210929639",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSWw3V5J2mDNlV-SwAKjwPBETnhNr3ynZfm7LLks8lo8Z5wOvDFztEIi0hfLRei3IkklFTkVq9kCm3ru0Gi-J4xVoHTS3NX7Y_T-4XgWa65k08HQ94R_dfgdQ",
+              "title": "Aiko Fauna Dress",
+              "price": 298,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Fauna Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:13665569856210929639"
+            },
+            {
+              "id": "16027859152937914303",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQhqKB71oywVIFK6BOf75ezk9nXfzLSo2hAWMWGXt8oQhIyA-9BRrt7GnNEkr9GwiF-m_KF6xYHt3ubV5ekdSz3R4Q7ul5McFr_1l0jD2bRpxm_9n7ovCVv",
+              "title": "Reformation Women's Aiko Dress",
+              "price": 275,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Women's Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:16027859152937914303"
+            },
+            {
+              "id": "17714580638671461964",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ3tXGENq1fYPfV36O51EvwnvOeBH1dKDOijyGcyBSQJtkYV4As_Jk0P3jDy9dRnECIQBj7vMCYiBpiUlh6hp0-h_fahUqNmrkxkk_WT370",
+              "title": "Reformation Aiko Dress",
+              "price": 190,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:17714580638671461964"
+            },
+            {
+              "id": "8865898033695400471",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcS53wlLDCwV7EY9nOmBgK59izLs3Mvt7VtkOIHGp0iG3N1nhTr-muUAdQgR7RbjrMvGUJvNZ_x7ERzTZtAlrbCUn9cFoz9mJw2oma63ym4rehPCZxU-cdhb",
+              "title": "Silvia Tcherassi Aiko Maxi Dress",
+              "price": 1690,
+              "brand": "Silvia",
+              "category": "Product",
+              "description": "Silvia Tcherassi Aiko Maxi Dress from Silvia",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8865898033695400471?gl=us"
+            },
+            {
+              "id": "8095292182368016930",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSrZhft1z--fYnjsT9-ckIcB_M8zTkelLZa-UqItr3irJ7V8bT237tNekUorjgNsS4sFBE1-PQ4pqElDRBASa54tVHpr8pjQm4mt7t__PqLiLrvYCZ47YHmUA",
+              "title": "Reformation Aiko Dress",
+              "price": 298,
+              "brand": "Reformation",
+              "category": "Product",
+              "description": "Reformation Aiko Dress from Reformation",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:8095292182368016930"
+            },
+            {
+              "id": "10657262030976668921",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcS7bY0q-Dr3tslEhndrI7lqpmJWcqsuz4lYdkwu0mJUXEy1hRY7x7LxLZw8zGXC4tLpG8gKwYX4Sn3tR3Dmo8hKMw7zY-D63UXNTYxq1RJu_jETJESMqTHBDg",
+              "title": "Vestido Aiko 10",
+              "price": 2199.64,
+              "brand": "Vestido",
+              "category": "Product",
+              "description": "Vestido Aiko 10 from Vestido",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/10657262030976668921?gl=us"
+            },
+            {
+              "id": "16181158724415137855",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRA2C6dCcVM3x_QxOho0ZQ4DklrBwikTLEgfhmC4fiGU5bfK1CfXbfcOJT28iagSOopGXWezIDUCz_XGS-ZvY2wSLENHc1SqWIkwpapSLBdx1d-OFqLmLiv",
+              "title": "Aiko Dress Int",
+              "price": 1690,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Dress Int from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/16181158724415137855?gl=us"
+            },
+            {
+              "id": "10133688854210986066",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSAqs3NLG4tQ0cAZXdPjQz48ivGsIkFUBZQWSESCQHD1KFW3FWuTTq3z_o46INQLzDc6ctkKqqnV81FHC05ViwOIpsiDITh1jZOt8SkXg_d",
+              "title": "Aiko Dress",
+              "price": 298,
+              "brand": "Aiko",
+              "category": "Product",
+              "description": "Aiko Dress from Aiko",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:10133688854210986066"
+            }
+          ]
+        },
+        {
+          "id": "user-1757528806214",
+          "content": "https://eng.polene-paris.com/products/cyme-textured-camel?showTutorial=true     Find similiar bags to this",
+          "sender": "user",
+          "timestamp": "2025-09-10T18:26:46.214Z"
+        },
+        {
+          "id": "ai-1757528808788",
+          "content": "To find similar bags, I need a little more information.  What specifically appeals to you about the Polène Cyme bag – its size, shape, color, or material?  Knowing your preferences will allow me to recommend comparable options.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:26:48.788Z",
+          "products": [
+            {
+              "id": "17696720217780818437",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRj9l8Px3IZ9Zb76Y0lKhswAYutNuan1qgUdEFa6G6R1_Jwn31THrj_fc2aFuRVT4GcEqnzgOVI97EdgEtDuZOS4KwkXiF5vdrJ6HBg5v7Cg1uQdQCOF88HsSNF",
+              "title": "Sono Leather Tote Bag",
+              "price": 185,
+              "brand": "Sono",
+              "category": "Product",
+              "description": "Sono Leather Tote Bag from Sono",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17696720217780818437?gl=us"
+            },
+            {
+              "id": "630897146507481638",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRTsFke2S-Nm3mn-W4Za8FsNPW1qwejqO-HVh4K5bg46-HPU2XYO1bykyqaZ_0cQh20bmg9xeMcqbCE27sU2TGlIviNOVejOE8EHWzS4pk",
+              "title": "Chloé Woody Medium Leather Tote Bag",
+              "price": 1390,
+              "brand": "Chloé",
+              "category": "Product",
+              "description": "Chloé Woody Medium Leather Tote Bag from Chloé",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/630897146507481638?gl=us"
+            },
+            {
+              "id": "5325614183542235213",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTppdSb0ohoCHaFyC2ZHZvz97i_-3Vr1vXvEy3p3dpP7Xjgdyyur1lvh9sbHfh0OwFZgtdlbGGHeo37BYRe4Km2u5POuyIsfbQMg131cpfDwUsFsDIVXVUaFw",
+              "title": "Aimee Kestenberg Ava Convertible Leather Shoulder Bag",
+              "price": 118.8,
+              "brand": "Aimee",
+              "category": "Product",
+              "description": "Aimee Kestenberg Ava Convertible Leather Shoulder Bag from Aimee",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5325614183542235213?gl=us"
+            },
+            {
+              "id": "16754721989349170972",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcT9KA3PMBIZu5CANWqfbSTTUFt2ZiZH10bulumerq-4jmTItI-3JDt9eryF1-L75AV4qzrrYd5rr1inxSdeXzb--OsAduQGsbQ3FjyAYUbjSd8QXkDS-8MHD0kI",
+              "title": "Balance Camel Shoulder Leather Bag",
+              "price": 110.62,
+              "brand": "Balance",
+              "category": "Product",
+              "description": "Balance Camel Shoulder Leather Bag from Balance",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:16754721989349170972"
+            },
+            {
+              "id": "13653112447133328955",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRmBP0Pr9yRHW8AiUTTZwakay4LW861J32cED1E9_vJ0kOPo_tFfvcQc19pHCRsswNsiJzc6S5UpXxJz0KxZCwN3vq4PqDZCIvEjMDWJ_xD50R9-EyCDc1pxA",
+              "title": "Michael Kors Nolita Large Hobo Shoulder Bag Womens",
+              "price": 398,
+              "brand": "Michael",
+              "category": "Product",
+              "description": "Michael Kors Nolita Large Hobo Shoulder Bag Womens from Michael",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/13653112447133328955?gl=us"
+            },
+            {
+              "id": "5916667118350194014",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQxRd9jNjy3gGhPbumon5rjoNiGs13oAPLb7HS4I4RcplDFOYrJQ5PHJIAOy-HDoLcXcYpRQC8xcSUTz8GuxPWmynE-DA7K6TN7k7L9XNy2P-PGCPw2o6ZyCls",
+              "title": "Ferragamo Women's Hug Leather Handbag with Logo and Gancini Buckle",
+              "price": 3200,
+              "brand": "Ferragamo",
+              "category": "Product",
+              "description": "Ferragamo Women's Hug Leather Handbag with Logo and Gancini Buckle from Ferragamo",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5916667118350194014?gl=us"
+            },
+            {
+              "id": "14957373672211284894",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRAJTz-9850nGBuxqNp_RIBgHHvYHecr9Mkkt4FMKtJZ0UDfyAKsz6L_nFsQWcbALSzDEc3wI57HLn5AJ8ZUHkDhLAWFqwhu72x9CPNQ12gO7gy06jSfirB",
+              "title": "Women's Latico Leathers Layla Leather Crossbody",
+              "price": 180,
+              "brand": "Women's",
+              "category": "Product",
+              "description": "Women's Latico Leathers Layla Leather Crossbody from Women's",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14957373672211284894?gl=us"
+            },
+            {
+              "id": "17281777313464650556",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcT-FrpN4qT6ymtmFljYrBU3oSCB3DvNmFBf2g2d7svpoOLrjt4eCxS5w93Zcd4NSThNYy2boLCg5KALwzFlFwHg0w55QWB1aJHMr-aw5528acCRDbu5tvBK2fM",
+              "title": "Raffia Handbag",
+              "price": 119,
+              "brand": "Raffia",
+              "category": "Product",
+              "description": "Raffia Handbag from Raffia",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/17281777313464650556?gl=us"
+            },
+            {
+              "id": "18235384854006732281",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcThnRC6PRlhrJZ4QZJsvnVbC9TENNkPyvPquHT3dnHlmH8ImXA7DM-ZNZZcxqec33cyeYAe-c0YJ84MkrHMKc2OjLLWKZ-d44BEsewTKFXTvzVWXfSgG5XTjQ",
+              "title": "Teddy Blake Gigi Croco 13",
+              "price": 475,
+              "brand": "Teddy",
+              "category": "Product",
+              "description": "Teddy Blake Gigi Croco 13 from Teddy",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/18235384854006732281?gl=us"
+            },
+            {
+              "id": "6738585910856716400",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTjnoq-i0bgfMDm7_7yuMua99vRtmiDnNpL6xTSzqEbrH3UV37SA66NCM2Qa1nXHDrf7JAqueXUzqPgxJBXLsnvoGgs1XypDko9I6e_wLQb5flPHLnDxadA600",
+              "title": "Camel handbag Size L",
+              "price": 386.29,
+              "brand": "Camel",
+              "category": "Product",
+              "description": "Camel handbag Size L from Camel",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6738585910856716400?gl=us"
+            },
+            {
+              "id": "273670845537666444",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ1kBAq1Dl3jzmG6VaMX2gUV-KnSc2w7zoDSD7IonDM8JckXr_MDaXu23oA-oweA2LIrwoMo0WcpzZQ7AMsRRCp72hu-OKKOwleEUHOCef4PIIu4Xw0cMbdI48Q",
+              "title": "Ciano Leather Handbag",
+              "price": 219,
+              "brand": "Ciano",
+              "category": "Product",
+              "description": "Ciano Leather Handbag from Ciano",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/273670845537666444?gl=us"
+            },
+            {
+              "id": "12074690171647857050",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcStw9xURFsI0ZPMsNlvk2L8u8Y_7sX1SskZjfcb0q65fqqnBD_vF-_Okk_9CjzHiQ4SEE7E67C6xvBEN_EuVpaJCgmdI1uDdyAP0vImLWoRmWKPMnkHBHaIvg",
+              "title": "Dune Mini Bucket Embossed Leather Handbag",
+              "price": 950,
+              "brand": "Dune",
+              "category": "Product",
+              "description": "Dune Mini Bucket Embossed Leather Handbag from Dune",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12074690171647857050?gl=us"
+            },
+            {
+              "id": "17161301194836003100",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQjjph0bTRm0xgsyjkNFgUYdQyOzBcevvD5lFmFHItIGu1VP7_h8K2yQNPZgT49prJKXUaYV6SjZeDF8L3qObbO64GORkhu_VQUIewp_YruPVVPsQdP4E0gcg",
+              "title": "Women's Genuine Leather Flap Shoulder Handbag - Camel",
+              "price": 107.99,
+              "brand": "Women's",
+              "category": "Product",
+              "description": "Women's Genuine Leather Flap Shoulder Handbag - Camel from Women's",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:17161301194836003100"
+            },
+            {
+              "id": "9185709850402085683",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTSOVFbf5nPVyzHelmb7jkMceCigEyoIdygW4lCz3u1qC30IDssoaER_4D7XwPjGE6eIjXpspsg4vdv03MjRkLilys0c-Oa3_9DjmNkcfCP6nz1apGX9hbyDQ",
+              "title": "Pebbled Leather Structured Handbag with Gold Hardware",
+              "price": 139.99,
+              "brand": "Pebbled",
+              "category": "Product",
+              "description": "Pebbled Leather Structured Handbag with Gold Hardware from Pebbled",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9185709850402085683?gl=us"
+            },
+            {
+              "id": "7569908315370269608",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSfHJLUNvHwf5vprlgqVnzviuBf4wqUr9skD6RG45GIuo_H9nCf3Bn0Zr6XkvNDmYCWdfWBYfjOj7nJegEY0zrsAH8pifgA8LKdYz-vGQWpiHAaS4imU-b3Qw",
+              "title": "Tory Burch Marion Leather Tote",
+              "price": 81,
+              "brand": "Tory",
+              "category": "Product",
+              "description": "Tory Burch Marion Leather Tote from Tory",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/7569908315370269608?gl=us"
+            },
+            {
+              "id": "11877477980054689031",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQlGGqs4fI4wao1hbNJDFxWUrIbhZ3H4cWn14ECAaz5NtL9qYfktN62CTFdFmyWbCS3tBZ5SkkTPDxV1MyeiiFTAOg_KX7e9bLVPjxp-WysrZPGqk_iulOf",
+              "title": "Lulu Leather Classic Bag Camel",
+              "price": 142,
+              "brand": "Lulu",
+              "category": "Product",
+              "description": "Lulu Leather Classic Bag Camel from Lulu",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:11877477980054689031"
+            },
+            {
+              "id": "12571544449586621901",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQr5TiixVGDV-tmmnn8Z3LWKMJIysY1HGrXIe4sT0ABsTYgTe1EkYKYHQc1ptVpG84Sb9GQWJDxLsvvdxoqJMv5TLpPBSl84G_ANzhJouoD4lPqtZ1AOW6a",
+              "title": "Ferragamo Hug Handbag",
+              "price": 1824,
+              "brand": "Ferragamo",
+              "category": "Product",
+              "description": "Ferragamo Hug Handbag from Ferragamo",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12571544449586621901?gl=us"
+            },
+            {
+              "id": "1165786726037199621",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTGrgrehodsVP5UOGF0VUCcebez23-3WN2cRa_IEJgSt9Hq6fUbSkXI2-mGyn5UtmHfU-VRJDM1-OlK6Z5ZhmRyIcVqV5HEMgiUOncvbs9O",
+              "title": "Marc Jacobs Women's The Quilted Dual Convertible Shoulder Bag",
+              "price": 550,
+              "brand": "Marc",
+              "category": "Product",
+              "description": "Marc Jacobs Women's The Quilted Dual Convertible Shoulder Bag from Marc",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1165786726037199621?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-10T18:22:25.739Z",
+      "updatedAt": "2025-09-10T18:28:08.018Z"
+    },
+    {
+      "id": "chat-1757527653836",
+      "title": "Apple AirTag styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:07:08.896Z"
+        },
+        {
+          "id": "user-1757527632440",
+          "content": "Find similiar",
+          "sender": "user",
+          "timestamp": "2025-09-10T18:07:12.440Z",
+          "attachedFiles": [
+            {
+              "id": "product-9390602276560962471",
+              "name": "Apple AirTag",
+              "type": "product",
+              "url": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSoJ8HFP6A71qzYIOtflnvKCiwVVKogSHdblnaVdZLtBOKvJP0I0KowYCAGtb1riahgJx7RCCbBi6xI8byQiyixaaM0PThNHSaDQcDX1Tf1qH9g8bMiBIy7Hg",
+              "preview": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSoJ8HFP6A71qzYIOtflnvKCiwVVKogSHdblnaVdZLtBOKvJP0I0KowYCAGtb1riahgJx7RCCbBi6xI8byQiyixaaM0PThNHSaDQcDX1Tf1qH9g8bMiBIy7Hg",
+              "metadata": {
+                "title": "Apple AirTag",
+                "price": 24.99,
+                "brand": "Apple",
+                "description": "Apple AirTag from Apple",
+                "category": "Product",
+                "link": "https://google.com/shopping/product/9390602276560962471?gl=us",
+                "productId": "9390602276560962471"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757527639269",
+          "content": "The Apple AirTag is a Bluetooth tracker for locating lost items.  Similar trackers include Tile Mate and Samsung Galaxy SmartTag.  These offer comparable functionality at similar price points.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:07:19.269Z",
+          "products": [
+            {
+              "id": "9390602276560962471",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSoJ8HFP6A71qzYIOtflnvKCiwVVKogSHdblnaVdZLtBOKvJP0I0KowYCAGtb1riahgJx7RCCbBi6xI8byQiyixaaM0PThNHSaDQcDX1Tf1qH9g8bMiBIy7Hg",
+              "title": "Apple AirTag",
+              "price": 24.99,
+              "brand": "Apple",
+              "category": "Product",
+              "description": "Apple AirTag from Apple",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9390602276560962471?gl=us"
+            },
+            {
+              "id": "15636232959999286089",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRaUIh1tcW6VPUv_E-nEF64j3eKwrf0_0yOzcVvpTaLovMFfHfZosDKljCFs63q5dSbb4eYmOfv0c0MLy0n5uuqWcWZ7spdjpdgg3kmH65A",
+              "title": "Apple AirTag FineWoven Key Ring",
+              "price": 35,
+              "brand": "Apple",
+              "category": "Product",
+              "description": "Apple AirTag FineWoven Key Ring from Apple",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15636232959999286089?gl=us"
+            },
+            {
+              "id": "16065647379286585199",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRpmDGHXZlnGfTHwLBXQU2HwAX-9ovG-QdcSKdDdZ3mCCy4b_3qtDs2juqgIas8h7l6iGTQJuzeXhmTK69Ae6KNJW4yYDNi",
+              "title": "Apple Airtag Loop",
+              "price": 29.99,
+              "brand": "Apple",
+              "category": "Product",
+              "description": "Apple Airtag Loop from Apple",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/16065647379286585199?gl=us"
+            },
+            {
+              "id": "15594006088047897492",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRT237o7uQ0z03ue3vL3oxmDlXAzU6i8DfBkUr1hg7odbC6m2uvnkf3LopbWOroAxQ8_ZyhcsqeOyksqhs-DsuJ9kwQ7yu69oZzzcusKPo",
+              "title": "Apple AirTag Silicone Keychain",
+              "price": 5.99,
+              "brand": "Apple",
+              "category": "Product",
+              "description": "Apple AirTag Silicone Keychain from Apple",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15594006088047897492?gl=us"
+            },
+            {
+              "id": "15316580224308701507",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTJeivVXXIXpxitF2zyPkngMh1SN2jlJh1DLD1xAJHQWo9eIuAE163jMauC1XRjcnAveiYbn8JiJdUdaPH6lnYJnCq6fd8aQpDjk-sR4elfBykyJ_e546PrNQ",
+              "title": "Apple Airtag 2 Pack",
+              "price": 43.68,
+              "brand": "Apple",
+              "category": "Product",
+              "description": "Apple Airtag 2 Pack from Apple",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:15316580224308701507"
+            },
+            {
+              "id": "8374634804460754948",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcT14ixxPyH9sw56oCHOeOPBa3ryIlR_5nZWOT9lGVWqM7lEETBdLLBFemw10CfuIZrEJaslWu5DuIhR449Rd0WTJa3EotVKjTMadaF5lX4eriXXRXpn463CMg",
+              "title": "6Ave Apple AirTag 5 Starter Kit",
+              "price": 12.35,
+              "brand": "6Ave",
+              "category": "Product",
+              "description": "6Ave Apple AirTag 5 Starter Kit from 6Ave",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8374634804460754948?gl=us"
+            },
+            {
+              "id": "10442271171184517190",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRzm6PkqFxprHj5Cp7sfyoNzSIC98W4rp011C7ktwiKBU0WoqjsynWpWYPF9xf4Ga_iWEzddiLuV3lry4vISimCIdJlJoHTR5q8ecOZogmWA6Egcyyj6BOPvA",
+              "title": "Apple AirTag 4-Pack",
+              "price": 149,
+              "brand": "Apple",
+              "category": "Product",
+              "description": "Apple AirTag 4-Pack from Apple",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:10442271171184517190"
+            },
+            {
+              "id": "11345716930214466931",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSU4eqNO9E85nfgQRQk3AUpDeMpPUjGByJY5ORizP5ifLPz8J_jPVK8hUyhyJbT2oMHSnRKaUhitFvs3HG0x5LTB7wqAFpiqU1oFQw6jgscNeM23hwIe2j6",
+              "title": "Airtags",
+              "price": 34,
+              "brand": "Airtags",
+              "category": "Product",
+              "description": "Airtags from Airtags",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/11345716930214466931?gl=us"
+            }
+          ]
+        },
+        {
+          "id": "user-1757527650784",
+          "content": "can you find competitors alterantive",
+          "sender": "user",
+          "timestamp": "2025-09-10T18:07:30.784Z"
+        },
+        {
+          "id": "ai-1757527653353",
+          "content": "Alternatives to the Apple AirTag include Tile Mate and Samsung Galaxy SmartTag.  These offer similar tracking capabilities, potentially with different features or app integrations.  They are all within a comparable price range.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T18:07:33.353Z",
+          "products": [
+            {
+              "id": "1666116306724961419",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcTMkCJMKUwgy9EN8dHHpL-yAJk7405prhCDrhicEPuiDSgujxUg9ukScZVc1IE7X2grtb22csUzbXe5ZkB8OubZpFV8eOU9Zbtjv7Alqq2i_89nOsYbrROXkA",
+              "title": "Pet Supplies Unlimited Distance Airtag Alternative Real Loss Positioning Device",
+              "price": 8.97,
+              "brand": "Pet",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1666116306724961419?gl=us"
+            },
+            {
+              "id": "6529633481770405813",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRvl0b82k2_L2B-pML-RUsrgOSa2RFrCHT0FaS9bPbenfclW_fx2HYSn1HZ-nHbv6otC7YO3ckAJ0igceaKo7CmcaZ9jW47-SMcYx1REw7QWeK-xvN4MQMx",
+              "title": "Airtag Alternative Finder",
+              "price": 19.99,
+              "brand": "Airtag",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:6529633481770405813"
+            },
+            {
+              "id": "157975886811463185",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTCLy5RDRSWQFDoILC36GG_YlI5ojTWmBlttXk7B_Alk9MALTQrUZ7iRGG0ouRJUJBAwNkrz5c2ZBejviXqGfvPTpFQxeyr1oEJevaTooZIVBmeZr5pj3VWSA",
+              "title": "Unlimited Distance Airtag Alternative",
+              "price": 9.25,
+              "brand": "Unlimited",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:157975886811463185"
+            },
+            {
+              "id": "64698077696921367",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSfQemgfe7iPHg8VOWPb1bR8q4A2qvoDQFsc8VenM8U-oNKGX8v7JBWbV-wV0FgTbLJV790d6pHgTEOAoUmMiS1hbw9cESEA0ZJ_VnXX9A",
+              "title": "EKIEUDL Air Tracker Tag 2-Pack",
+              "price": 43.97,
+              "brand": "EKIEUDL",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/64698077696921367?gl=us"
+            },
+            {
+              "id": "9427947867845103003",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR7CY34ipNKamGacKTWY8nMxexzHGz5vtVfNbdVz__xRRnUeBJIdFySFenYADu0bBabzCcxF7vqwOOXwLkdMT0sH4vm6Qx8o3hojTgyyOvQqZdcLMuZ7174",
+              "title": "Pet Supplies Unlimited Distance Airtag Alternative",
+              "price": 8.97,
+              "brand": "Pet",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/9427947867845103003?gl=us"
+            },
+            {
+              "id": "8001996885541116823",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTyzpfLLIwByI31RCkUWrVD0dKIWAM3qvBCtTsdeuFJ7H6ClfdMHHmAYKbgH6SCSEM69kS8REptlJAOsVze_sCz-OmIr1LFN4dRYkhpPA6ZoJVbQotg5J-uuA",
+              "title": "Airtag Alternative 2 Pack Smart Bluetooth Tracker",
+              "price": 38.99,
+              "brand": "Airtag",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:8001996885541116823"
+            },
+            {
+              "id": "15878515902283282237",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR4Lpjhc8kTNzjrS8iGEzrs8ZdNc2WS9Ttsq5tpALXhb0uKDgyhDwoBQc5MpX7JT0kbrQaShjBZ0WmsMDak-UJDMZfF6jpHk4g9oEBTQrelFm24Z5wGzank",
+              "title": "Ridge Tracker Card",
+              "price": 45,
+              "brand": "Ridge",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/15878515902283282237?gl=us"
+            },
+            {
+              "id": "6782054205797863829",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSsIkkosUmN0d1UnKHTAFttLc5bJkn1ROEUZP6GKdqejzLGqQ9PVXnYWGPoWv3uch0RHRgLwj2362paZp1xZXzxUa6IU-00mjf7fijKx7NZeUuq7sy5i3C7",
+              "title": "Pet Supplies Unlimited Distance Airtag Alternative for Loss Positioning Device for Kids and Elderly",
+              "price": 8.97,
+              "brand": "Pet",
+              "category": "Product",
+              "description": "Alternative to Apple AirTag",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:6782054205797863829"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-10T18:07:33.836Z",
+      "updatedAt": "2025-09-10T23:03:53.823Z"
+    },
+    {
+      "id": "chat-1757480420631",
+      "title": "WOBKEY Rainy75 Mechanical Keyboard - Pro - Blue - ",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T04:59:48.071Z"
+        },
+        {
+          "id": "user-1757480401759",
+          "content": "Im looking for DIY heavy keyboard similiar",
+          "sender": "user",
+          "timestamp": "2025-09-10T05:00:01.759Z",
+          "attachedFiles": [
+            {
+              "id": "product-16541411561778365628",
+              "name": "WOBKEY Rainy75 Mechanical Keyboard - Pro - Blue - Cocoa Switches",
+              "type": "product",
+              "url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ_jW0Ml-5_OJBFLQoh9iXAiY9eD_o3njGR1wjFk3Oq5FfGMRB_YsVIGtKvS_sSWECSPv1botJM_YXjBeNSyYKC6YHj9fNnkaOt-yjabCyb05K_ElvB45r4aQ",
+              "preview": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ_jW0Ml-5_OJBFLQoh9iXAiY9eD_o3njGR1wjFk3Oq5FfGMRB_YsVIGtKvS_sSWECSPv1botJM_YXjBeNSyYKC6YHj9fNnkaOt-yjabCyb05K_ElvB45r4aQ",
+              "metadata": {
+                "title": "WOBKEY Rainy75 Mechanical Keyboard - Pro - Blue - Cocoa Switches",
+                "price": 139,
+                "brand": "WOBKEY",
+                "description": "WOBKEY Rainy75 Mechanical Keyboard - Pro - Blue - Cocoa Switches from WOBKEY",
+                "category": "Product",
+                "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:16541411561778365628",
+                "productId": "16541411561778365628"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757480404576",
+          "content": "The WOBKEY Rainy75 is a great choice!  For similar DIY-heavy keyboards, consider looking at Drop's customizable keyboards or the Keychron Q series.  These offer similar build quality and customization options.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T05:00:04.576Z",
+          "products": [
+            {
+              "id": "12891231769633282274",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRBqS04XoS1kt12tQwQXa6FDuK5C0F29C8KaoQQR929fBzDXpvMYJ98Xb2RTHthemJXTQGld8rsf7NPDyuxUuTgW7vtKIrQfQZClRF-u5T5KYsfd7Nwj64C",
+              "title": "KEEBMONKEY WOBKEY Rainy 75 Aluminum HMX/JWK Switches Mechanical Keyboard with Superior Acoustics",
+              "price": 99,
+              "brand": "KEEBMONKEY",
+              "category": "Product",
+              "description": "KEEBMONKEY WOBKEY Rainy 75 Aluminum HMX/JWK Switches Mechanical Keyboard with Superior Acoustics from KEEBMONKEY",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12891231769633282274?gl=us"
+            },
+            {
+              "id": "12148828465210395353",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ53H9z5DMbvMxm0CcpMtZmxocFMQl9FY5RcbxkkpOoQuFOog93QsFCXbrqR2Co5WPTgb3Z3isPsG9bKWR2l2tDbmqr7RblMYgUAYGkUknev1kJDwt4gRqh",
+              "title": "WOBKEY Rainy 75 Standard RGB 75% ANSI Mechanical Keyboard",
+              "price": 95,
+              "brand": "WOBKEY",
+              "category": "Product",
+              "description": "WOBKEY Rainy 75 Standard RGB 75% ANSI Mechanical Keyboard from WOBKEY",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12148828465210395353?gl=us"
+            },
+            {
+              "id": "16541411561778365628",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQ_jW0Ml-5_OJBFLQoh9iXAiY9eD_o3njGR1wjFk3Oq5FfGMRB_YsVIGtKvS_sSWECSPv1botJM_YXjBeNSyYKC6YHj9fNnkaOt-yjabCyb05K_ElvB45r4aQ",
+              "title": "WOBKEY Rainy75 Mechanical Keyboard",
+              "price": 139,
+              "brand": "WOBKEY",
+              "category": "Product",
+              "description": "WOBKEY Rainy75 Mechanical Keyboard from WOBKEY",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:16541411561778365628"
+            },
+            {
+              "id": "15890844985073788189",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSGix9l6urWlSXCy9-RdJkQ3ocD0UiOuoqx-svpwyy5Oi6ewwMW2WtYGxvIB8-MbFeyeegQ6Z8EZkf9iSglQgEuSkmULi177c9_d3r12fpfkpaD6C7FUH366Q",
+              "title": "WOBKEY Rainy75 Mechanical Keyboard",
+              "price": 119,
+              "brand": "WOBKEY",
+              "category": "Product",
+              "description": "WOBKEY Rainy75 Mechanical Keyboard from WOBKEY",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:15890844985073788189"
+            },
+            {
+              "id": "5063656875540780176",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQAvw2LFSupG_u5fnL1dMxvin3yOUzU8WxnzWGbEHyJpqJcDPGii3mlDXTHKLy5DhVRz23gHuR5uvo7s0JzdzIA29LsC947t592-vcUvD5Pi0z2qrc6hAn1",
+              "title": "WOBKEY Rainy 75 Pro Aluminum 75% Hotswap Wireless A-RGB Mechanical Keyboard",
+              "price": 105,
+              "brand": "WOBKEY",
+              "category": "Product",
+              "description": "WOBKEY Rainy 75 Pro Aluminum 75% Hotswap Wireless A-RGB Mechanical Keyboard from WOBKEY",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5063656875540780176?gl=us"
+            },
+            {
+              "id": "14809237903178365452",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcREsUfyKAi6qHsLbWmcEFlc8gjqoO5KD9DVZxGxPx1WkmLYtox491pbKBFafwNROt113Xdv0fXeOGZ8sSWoKFZdA5YdlL6zXithCXGpIKwWYVhmVxtC0DnWRw",
+              "title": "WOBKEY Rainy 75 Keyboard",
+              "price": 152.6,
+              "brand": "WOBKEY",
+              "category": "Product",
+              "description": "WOBKEY Rainy 75 Keyboard from WOBKEY",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14809237903178365452?gl=us"
+            },
+            {
+              "id": "8705200987467544503",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSFH9AwrkUYicgmaPNhdov5cd4rLRelCI8PD1GbxGf7J3dE1VJzlqSEdNnuMod8iwAtqi5gfozuuynWQrRhK1BR6gN7Ezbs5CV7wC6iI4kZuOZ7-6hOrzlAYA",
+              "title": "WOBKEY Rainy75 Wireless Mechanical Keyboard",
+              "price": 121.79,
+              "brand": "WOBKEY",
+              "category": "Product",
+              "description": "WOBKEY Rainy75 Wireless Mechanical Keyboard from WOBKEY",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:8705200987467544503"
+            },
+            {
+              "id": "10198627703612761155",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRUnGoh86IPUFKTAoxxS4-Zi2eYP-Kt2bHM32utiZKLMmYGKFclRnoiHABNWBYWVfBPWHt7kBeAzPKshLmnCH7jJBe-12x2dn5a3ehewmufBe1bUUp1CplU",
+              "title": "Rainy 75 Aluminum Mechanical Keyboard",
+              "price": 95,
+              "brand": "Rainy",
+              "category": "Product",
+              "description": "Rainy 75 Aluminum Mechanical Keyboard from Rainy",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:10198627703612761155"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-10T05:00:20.631Z",
+      "updatedAt": "2025-09-10T05:00:20.631Z"
+    },
+    {
+      "id": "chat-1757480264926",
+      "title": "Technology Meets Style Designed for Women styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T04:57:24.043Z"
+        },
+        {
+          "id": "user-1757480250548",
+          "content": "what is this and find alteranatives",
+          "sender": "user",
+          "timestamp": "2025-09-10T04:57:30.548Z",
+          "attachedFiles": [
+            {
+              "id": "product-3971297514339399033",
+              "name": "Technology Meets Style Designed for Women",
+              "type": "product",
+              "url": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRpcigXJx0pJG4WvLtl42R8jrcCDsqlFw_mceXzFlo61x6ZlZOOtYL0xTKf_fUosK5Qg3GiLd_lgL_4JHDUcBc9MaJhS7cOSxJk2jEFotyUK55zaTKWnl7U31PD",
+              "preview": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRpcigXJx0pJG4WvLtl42R8jrcCDsqlFw_mceXzFlo61x6ZlZOOtYL0xTKf_fUosK5Qg3GiLd_lgL_4JHDUcBc9MaJhS7cOSxJk2jEFotyUK55zaTKWnl7U31PD",
+              "metadata": {
+                "title": "Technology Meets Style Designed for Women",
+                "price": 179.99,
+                "brand": "Technology",
+                "description": "Technology Meets Style Designed for Women from Technology",
+                "category": "Product",
+                "link": "https://google.com/shopping/product/3971297514339399033?gl=us",
+                "productId": "3971297514339399033"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757480253220",
+          "content": "That's a tech product, \"Technology Meets Style Designed for Women,\" priced at $179.99.  To find alternatives, I need more information about its specific features and functionality. What aspects are most important to you?\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T04:57:33.220Z",
+          "products": [
+            {
+              "id": "3971297514339399033",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRpcigXJx0pJG4WvLtl42R8jrcCDsqlFw_mceXzFlo61x6ZlZOOtYL0xTKf_fUosK5Qg3GiLd_lgL_4JHDUcBc9MaJhS7cOSxJk2jEFotyUK55zaTKWnl7U31PD",
+              "title": "Technology Meets Style Designed for Women",
+              "price": 179.99,
+              "brand": "Technology",
+              "category": "Product",
+              "description": "Technology Meets Style Designed for Women from Technology",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/3971297514339399033?gl=us"
+            },
+            {
+              "id": "6388599887111272838",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQEfVZsohtW8FOE7J1WHtriHqphWSP8VO5pqAI07WVCZe3BSUF49loa7OST1SlfSlQ8-GI1jSm8LGTGXSsjyOLO57aa6cjhMJq9-6zKw_Y1",
+              "title": "Meta Ray-Ban Wayfarer",
+              "price": 329,
+              "brand": "Meta",
+              "category": "Product",
+              "description": "Meta Ray-Ban Wayfarer from Meta",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/6388599887111272838?gl=us"
+            },
+            {
+              "id": "55442218495814555",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQQLsKOvG4MX-RoVkjRzU9f5xE9ld2YWiOimpJ_6lhgCWibARYtKK1mBad4vq7Jun8-L32sTdSkZf8nBBrnfjQms-lCOqI03aZAYBMK0iQjFr9MhznrbRbj",
+              "title": "Garmin Lily 2 Smartwatch",
+              "price": 249.99,
+              "brand": "Garmin",
+              "category": "Product",
+              "description": "Garmin Lily 2 Smartwatch from Garmin",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/55442218495814555?gl=us"
+            },
+            {
+              "id": "2390468136288030927",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcTvzr2jPDmyY_YhJExLxjZQlXJU0BZujU7VyOHGWFijqFeLwtkr0j12kbv82rN-FVUYatbyDVEFwES5lZINralr2p-a8ksznQ0fNT64Gn9tvRo3OJOw6Llk5A",
+              "title": "Design for Experience: Where Technology Meets Design and Strategy [Book]",
+              "price": 29.7,
+              "brand": "Design",
+              "category": "Product",
+              "description": "Design for Experience: Where Technology Meets Design and Strategy [Book] from Design",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/2390468136288030927?gl=us"
+            },
+            {
+              "id": "676487843868349355",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQwwZSpG8UawDyZks_g0sMiHUwdaJuWf9bheNCcJ8ii3T-2ENyLpwYeVo1HNHiJgkD92t0inEUbjUEW4GBVPtS7omGS4G51RcyRmxMU3Vr0zVTozj-5gvVa",
+              "title": "LIFX Luna Oval Integrated LED Smart Wi-Fi Table Lamp",
+              "price": 74.97,
+              "brand": "LIFX",
+              "category": "Product",
+              "description": "LIFX Luna Oval Integrated LED Smart Wi-Fi Table Lamp from LIFX",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/676487843868349355?gl=us"
+            },
+            {
+              "id": "8559967532324024234",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQeCzEbY9Z6vHssE8dzaGxr08pee5q1XFmhH4BtLr18S3BmepEl4cyhdQ9OVZo5p9D3WCaqyWXhI7_hbgdWTZCQ1aapSLPeWYIqikBDmwVDNYadLMpfz-d4ZQ",
+              "title": "LEDscopic S-Design Computer Touch Screen KIOsk",
+              "price": 3399,
+              "brand": "LEDscopic",
+              "category": "Product",
+              "description": "LEDscopic S-Design Computer Touch Screen KIOsk from LEDscopic",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/8559967532324024234?gl=us"
+            },
+            {
+              "id": "12166238665530434794",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSab_5ZUsw4E-qPdEfy8B-msOH2v614FGkUk8uLgJrph1zHUXUJcDEgObaIFC7th3OIlhjz0uFaRQk8U2BCrCjYup5idFuFTTbA69KBinWr",
+              "title": "Apple Watch Series 10 Aluminum Case Sport",
+              "price": 14.73,
+              "brand": "Apple",
+              "category": "Product",
+              "description": "Apple Watch Series 10 Aluminum Case Sport from Apple",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12166238665530434794?gl=us"
+            },
+            {
+              "id": "1736496182889711781",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQ1bc3UtOu9QdjE7Yy8kiR8FnbUptx5mzgYEPI3iUcl3IdWymcZuxtGpWzrJU4Cm9Z8X-DNMHv8nFNJUcjzYpEIw726Adq5nIAeWWXLa8sfqHPKKcZwasj3",
+              "title": "T3 Aire IQ Intelligent Hair Dryer",
+              "price": 299.99,
+              "brand": "T3",
+              "category": "Product",
+              "description": "T3 Aire IQ Intelligent Hair Dryer from T3",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/1736496182889711781?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-10T04:57:44.926Z",
+      "updatedAt": "2025-09-10T04:57:44.926Z"
+    },
+    {
+      "id": "chat-1757480160511",
+      "title": "Amazon Kindle Paperwhite styling",
+      "messages": [
+        {
+          "id": "welcome",
+          "content": "Hi! I'm Flair, your Shopping Assistant. I'm here to help you discover, find amazing pieces, and answer any questions you have. What can I help you with today?",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T04:55:22.191Z"
+        },
+        {
+          "id": "user-1757480128196",
+          "content": "Find but cheaper",
+          "sender": "user",
+          "timestamp": "2025-09-10T04:55:28.196Z",
+          "attachedFiles": [
+            {
+              "id": "product-417663661130192939",
+              "name": "Amazon Kindle Paperwhite",
+              "type": "product",
+              "url": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQfdKl-kplfZwiVaCWKQTsKBrZq38kQ6SHA9ysYNM7ixWLALE7FdCEewnyK4cb-le74GEHGjq-fPT0CgPcNDrKSpPx7XpzyGmiDjY-oO5A",
+              "preview": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQfdKl-kplfZwiVaCWKQTsKBrZq38kQ6SHA9ysYNM7ixWLALE7FdCEewnyK4cb-le74GEHGjq-fPT0CgPcNDrKSpPx7XpzyGmiDjY-oO5A",
+              "metadata": {
+                "title": "Amazon Kindle Paperwhite",
+                "price": 159.99,
+                "brand": "Amazon",
+                "description": "Amazon Kindle Paperwhite from Amazon",
+                "category": "Product",
+                "link": "https://google.com/shopping/product/417663661130192939?gl=us",
+                "productId": "417663661130192939"
+              }
+            }
+          ]
+        },
+        {
+          "id": "ai-1757480133929",
+          "content": "The Amazon Kindle Paperwhite is a great e-reader.  To find cheaper alternatives, consider the Kobo Libra 2 or the older generation Kindle Paperwhite.  These offer similar features at a lower price point.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T04:55:33.929Z",
+          "products": [
+            {
+              "id": "12671212707286202445",
+              "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQcoNhIdGFixHnLH_v-O7ID1QB5OhLsaYByWxTk_49ChnhDGo1MPiIUABdaw03YdA1QukaNjFfLWVB7hooOmDvKQzO4AKy53Hdawm1kXOlRoSjx3dvC30Js_g",
+              "title": "Amazon Kindle 16GB",
+              "price": 109.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle 16GB from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12671212707286202445?gl=us"
+            },
+            {
+              "id": "16618667881491551312",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRhgBj9IYKVpWkMfcI-VRarBH6BtH6QOnNJpewopYjsppPFc5rwMDBiAOha06dnzNzPflY_VvplaAWRa-ZzvsZUm9OXv3RpGwBNWlcXZTo",
+              "title": "Amazon Kindle Paperwhite",
+              "price": 159.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Paperwhite from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/16618667881491551312?gl=us"
+            },
+            {
+              "id": "5632313598264998413",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSRHwNlvBiDc75_BwsmXB_05nLz6_6gworSLc9wHP5iORGz8U_-QfvD9upF6Y5c_FoZEOMRkbHlFd2GjfRkbtATyPmaGNPWrzxuhqP0ZDQC9HpKmLsKHdAm",
+              "title": "Amazon Kindle Paperwhite 8GB",
+              "price": 69.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Paperwhite 8GB from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5632313598264998413?gl=us"
+            },
+            {
+              "id": "12921174299034876930",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTEpr3n_-rwAxm0RxdZc1cDmIzq3gbGy_qJpYZC__BiwpGdMg4atYBQJzBPEBwXr0e-HOo-y_s_Ygq4AYXS3ZzS_5LwL0749gZLV6EC4qZhq3YRzjFFTMmE",
+              "title": "Amazon Kindle Colorsoft 16 GB – With color display and adjustable warm light–",
+              "price": 249.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Colorsoft 16 GB – With color display and adjustable warm light– from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12921174299034876930?gl=us"
+            },
+            {
+              "id": "5552014539110087454",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ1qP6REd9oE2BesZ6OuX11o2GLVjiRP51QgiXQyOmTbizlxEm77Tm5E9wuaa0c9GB1fL_2Wv-SEbvBqRvbF7ZheENnD4bC2STF578dipvoYzAhCV5pYa66",
+              "title": "5\" E-book Reader with Handwriting Tablet - Built-in Speaker, 5m Camera, Portable PDF Reader(White)",
+              "price": 77.32,
+              "brand": "5\"",
+              "category": "Product",
+              "description": "5\" E-book Reader with Handwriting Tablet - Built-in Speaker, 5m Camera, Portable PDF Reader(White) from 5\"",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5552014539110087454?gl=us"
+            },
+            {
+              "id": "6333822014134333695",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcSaQVhnzzgzeuE-upRwXVVLzWqG2HI1IQh6Jma2u14Cp1ZOhyaa4yyenchKiraexpFh8bSEUaZ0NZtmiCNKY0SXzJTsIlG3WQ",
+              "title": "Kindle Paperwhite",
+              "price": 43,
+              "brand": "Kindle",
+              "category": "Product",
+              "description": "Kindle Paperwhite from Kindle",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:6333822014134333695"
+            },
+            {
+              "id": "6491638834068234858",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCg3FjqCqSFCj8eT0PJsmNLgXpAD-7Rj0j__MX_1xx2R15OnFXMwWJOkb4bqrFEcUAehmdQhKO0Lz2h8PpnGqu9rTS3dx6xt8O0cFsVME5FWEF07mNAEAx",
+              "title": "XIAOQIAODZ Electronic Book 32g Ereader E Ink Reader Ebook Paperwhite MP3 Player Bluetooth Music",
+              "price": 9.27,
+              "brand": "XIAOQIAODZ",
+              "category": "Product",
+              "description": "XIAOQIAODZ Electronic Book 32g Ereader E Ink Reader Ebook Paperwhite MP3 Player Bluetooth Music from XIAOQIAODZ",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:6491638834068234858"
+            },
+            {
+              "id": "4552885616244730461",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSjDJtVZcN3FriT9g62HBoyh5syu3xMFFrIKCYmmartmiswUGEWZKFBCYKaXm3UNGHv5YdfRrot79f96oeiolgAWQGA6pzp2n0jZozdU8ivvCVj5OZYzKn7",
+              "title": "E Book Reader Tablet",
+              "price": 71.72,
+              "brand": "Walmart - Seller",
+              "category": "Product",
+              "description": "E Book Reader Tablet from Walmart - Seller",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:4552885616244730461"
+            }
+          ]
+        },
+        {
+          "id": "user-1757480158475",
+          "content": "what about kobo libra 2",
+          "sender": "user",
+          "timestamp": "2025-09-10T04:55:58.475Z"
+        },
+        {
+          "id": "ai-1757480160057",
+          "content": "The Kobo Libra 2 is a strong competitor to the Kindle Paperwhite. It boasts a comfortable, waterproof design and offers a wider selection of ebook formats.  However, the Kindle ecosystem might be more appealing depending on your existing reading habits.\n",
+          "sender": "assistant",
+          "timestamp": "2025-09-10T04:56:00.057Z",
+          "products": [
+            {
+              "id": "417663661130192939",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQfdKl-kplfZwiVaCWKQTsKBrZq38kQ6SHA9ysYNM7ixWLALE7FdCEewnyK4cb-le74GEHGjq-fPT0CgPcNDrKSpPx7XpzyGmiDjY-oO5A",
+              "title": "Amazon Kindle Paperwhite",
+              "price": 159.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Paperwhite from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/417663661130192939?gl=us"
+            },
+            {
+              "id": "5632313598264998413",
+              "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSRHwNlvBiDc75_BwsmXB_05nLz6_6gworSLc9wHP5iORGz8U_-QfvD9upF6Y5c_FoZEOMRkbHlFd2GjfRkbtATyPmaGNPWrzxuhqP0ZDQC9HpKmLsKHdAm",
+              "title": "Amazon Kindle Paperwhite 8GB",
+              "price": 69.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Paperwhite 8GB from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/5632313598264998413?gl=us"
+            },
+            {
+              "id": "12537055816075605197",
+              "image": "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQ2DV9XhhXavZhNWDRIrN_cGrgw7mT0mJUoNTp9-KjDd0vzy3migVtF_86g6Re4an5NTSqgcmyEyuy7Hkq7gXFggqjj52XiLw",
+              "title": "Amazon Kindle Paperwhite Kids",
+              "price": 179.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Paperwhite Kids from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/12537055816075605197?gl=us"
+            },
+            {
+              "id": "11981215575407624281",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQXPswt0dHN_8Tnq2GA7NrzKTl9Rm7b6gnS4tPBXKbfmvDpdXYFPuhrcd4b1oJDGH61bvWKe1KyYLLR2l1P5ybxBaV8A8-Z-p3liDyDOLE",
+              "title": "Amazon Kindle Paperwhite And Kindle Colorsoft Signature",
+              "price": 34.77,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Paperwhite And Kindle Colorsoft Signature from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://www.google.com/shopping/product/1?gl=us&&prds=pid:11981215575407624281"
+            },
+            {
+              "id": "14431276840968558733",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRFWnKqnPuGFKMPi36X14kWNKGFVgNTeuXTlitfRdlC7cxXRdgzFD7TWyFQOgk4qrZ8KoOV340ZYQ0JOsIBz7QE3CPDO8mmOG8x1Gg0iiHKMPgbizOrlWNZwQ",
+              "title": "Kindle Paperwhite eReader",
+              "price": 47.99,
+              "brand": "Kindle",
+              "category": "Product",
+              "description": "Kindle Paperwhite eReader from Kindle",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/14431276840968558733?gl=us"
+            },
+            {
+              "id": "4698106929299711198",
+              "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcQ_c_d9fyQtGuEsJ9b0gIIs6hWIePFrb2fGhKk6N15SHyRlT1UvC2wrDi78pZoN8KyQSTjyjW55DHDwbbEjx7XAsXnykGQItBYmH5cemBg",
+              "title": "Amazon Kindle Paperwhite Signature Edition 32GB",
+              "price": 199.99,
+              "brand": "Amazon",
+              "category": "Product",
+              "description": "Amazon Kindle Paperwhite Signature Edition 32GB from Amazon",
+              "hasAiInsights": false,
+              "saved": false,
+              "link": "https://google.com/shopping/product/4698106929299711198?gl=us"
+            }
+          ]
+        }
+      ],
+      "createdAt": "2025-09-10T04:56:00.512Z",
+      "updatedAt": "2025-09-10T04:56:54.516Z"
+    },
+    {
       "id": "chat-1757478772929",
       "title": "Nike Men's Dunk Low 'Pearl White Ivory styling",
       "messages": [
@@ -250,7 +2278,7 @@
         }
       ],
       "createdAt": "2025-09-10T04:32:52.929Z",
-      "updatedAt": "2025-09-10T04:33:27.884Z"
+      "updatedAt": "2025-09-10T19:20:52.312Z"
     },
     {
       "id": "chat-1757478242074",

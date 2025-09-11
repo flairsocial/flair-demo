@@ -1,0 +1,14 @@
+{
+  "extends": [
+    "next/core-web-vitals",
+    "@next/eslint-config-next"
+  ],
+  "rules": {
+    // Add custom rules for production-ready code quality
+    "react-hooks/exhaustive-deps": "warn",
+    "react/react-in-jsx-scope": "off",
+    "no-console": "warn",
+    "prefer-const": "error",
+    "no-unused-vars": "error"
+  }
+}
