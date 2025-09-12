@@ -6,20 +6,31 @@ import {
   removeCollection, 
   addItemToCollection, 
   removeItemFromCollection 
-} from "@/lib/profile-storage"
-import type { Collection } from "@/lib/profile-storage"
+} from "@/lib/database-service"
+import type { Collection } from "@/lib/database-service"
 
 export async function GET() {
   try {
     const { userId } = await auth()
     
-    // Get user's collections from storage
-    const collections = getCollections(userId || undefined)
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
     
-    console.log(`[Collections API] GET request - User ID: ${userId || 'anonymous'}`)
+    // Get user's collections from storage
+    const collections = await getCollections(userId)
+    
+    console.log(`[Collections API] GET request - User ID: ${userId}`)
     console.log(`[Collections API] Found ${collections.length} collections`)
 
-    return NextResponse.json(collections)
+    // Add cache prevention headers
+    const response = NextResponse.json(collections)
+    response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+    
+    return response
   } catch (error) {
     console.error("[Collections API] Error fetching collections:", error)
     return NextResponse.json({ error: "Failed to fetch collections" }, { status: 500 })
@@ -29,9 +40,15 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { userId } = await auth()
+    
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
     const { action, collection, itemId, collectionId } = await request.json()
     
-    console.log(`[Collections API] POST request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Collections API] POST request - User ID: ${userId}`)
     console.log(`[Collections API] Action: ${action}`)
 
     switch (action) {
@@ -46,28 +63,28 @@ export async function POST(request: Request) {
             description: collection.description || undefined,
             customBanner: collection.customBanner || undefined
           }
-          addCollection(newCollection, userId || undefined)
+          await addCollection(userId, newCollection)
           return NextResponse.json({ success: true, collection: newCollection })
         }
         break
 
       case 'delete':
         if (collectionId) {
-          removeCollection(collectionId, userId || undefined)
+          await removeCollection(userId, collectionId)
           return NextResponse.json({ success: true, message: 'Collection deleted successfully' })
         }
         break
 
       case 'addItem':
         if (itemId && collectionId) {
-          addItemToCollection(itemId, collectionId, userId || undefined)
+          await addItemToCollection(userId, itemId, collectionId)
           return NextResponse.json({ success: true, message: 'Item added to collection' })
         }
         break
 
       case 'removeItem':
         if (itemId && collectionId) {
-          removeItemFromCollection(itemId, collectionId, userId || undefined)
+          await removeItemFromCollection(userId, itemId, collectionId)
           return NextResponse.json({ success: true, message: 'Item removed from collection' })
         }
         break
@@ -86,13 +103,19 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const { userId } = await auth()
+    
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
     const { id, name, description, customBanner } = await request.json()
     
-    console.log(`[Collections API] PUT request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Collections API] PUT request - User ID: ${userId}`)
     console.log(`[Collections API] Updating collection: ${id}`)
 
     // Get current collections
-    const collections = getCollections(userId || undefined)
+    const collections = await getCollections(userId)
     const collectionIndex = collections.findIndex(col => col.id === id)
     
     if (collectionIndex === -1) {
@@ -111,8 +134,8 @@ export async function PUT(request: Request) {
 
     // Save updated collections
     // Note: This is a simplified approach. In a real app, you'd have a proper update function
-    removeCollection(id, userId || undefined)
-    addCollection(updatedCollection, userId || undefined)
+    await removeCollection(userId, id)
+    await addCollection(userId, updatedCollection)
 
     return NextResponse.json(updatedCollection)
   } catch (error) {

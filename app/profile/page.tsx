@@ -60,6 +60,7 @@ interface SavedItem extends Product {
 export default function ProfilePage() {
   const [savedItems, setSavedItems] = useState<SavedItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [hasLoaded, setHasLoaded] = useState(false) // Prevent infinite API calls
   const [activeTab, setActiveTab] = useState("saved")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [sortOption, setSortOption] = useState("recent")
@@ -290,13 +291,18 @@ export default function ProfilePage() {
   ]
 
   useEffect(() => {
-    // Scroll to top when component mounts
-    window.scrollTo(0, 0)
+    // Only load once to prevent infinite calls
+    if (!hasLoaded) {
+      console.log('[Profile] Loading data for the first time...')
+      // Scroll to top when component mounts
+      window.scrollTo(0, 0)
 
-    // Load actual saved items and collections from API
-    loadSavedItems()
-    loadCollections()
-  }, [])
+      // Load actual saved items and collections from API
+      loadSavedItems()
+      loadCollections()
+      setHasLoaded(true)
+    }
+  }, [hasLoaded]) // Include hasLoaded in dependencies
 
   const loadSavedItems = async () => {
     setLoading(true)

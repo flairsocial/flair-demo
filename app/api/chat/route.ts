@@ -3,7 +3,7 @@ import { generateText } from "ai"
 import { model } from "@/lib/ai-model"
 import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
-import { getProfile, getSavedItems } from "@/lib/profile-storage"
+import { getProfile, getSavedItems } from "@/lib/database-service"
 import { searchForProducts, searchForCompetitorProducts } from "@/lib/products-service"
 import { ImageAnalysisService } from "@/lib/image-analysis-service"
 import { chatMemoryService, type ProductMention } from "@/lib/chat-memory-service"
@@ -11,20 +11,25 @@ import { realSearchService } from "@/lib/real-search-service"
 
 const serperApiKey = process.env.SERPER_API_KEY
 
-// Function to get user profile directly from shared storage
+// Function to get user profile directly from database
 async function getUserProfile(userId?: string) {
   try {
-    const savedProfile = getProfile(userId || undefined)
+    if (!userId) {
+      console.log('[Chat] No userId provided for profile lookup')
+      return null
+    }
+    
+    const savedProfile = await getProfile(userId)
     
     if (savedProfile && Object.keys(savedProfile).length > 0) {
-      console.log('[Chat] Found user profile in storage:', userId || 'anonymous')
+      console.log('[Chat] Found user profile in database:', userId)
       return savedProfile
     }
     
-    console.log('[Chat] No profile found in storage for:', userId || 'anonymous')
+    console.log('[Chat] No profile found in database for:', userId)
     return null
   } catch (error) {
-    console.error('[Chat] Error accessing profile storage:', error)
+    console.error('[Chat] Error accessing profile database:', error)
     return null
   }
 }
@@ -32,7 +37,11 @@ async function getUserProfile(userId?: string) {
 // Function to get user's saved items for context
 async function getUserSavedItems(userId?: string) {
   try {
-    const savedItems = getSavedItems(userId || undefined)
+    if (!userId) {
+      return []
+    }
+    
+    const savedItems = await getSavedItems(userId)
     return Array.isArray(savedItems) ? savedItems.slice(0, 5) : [] // Limit to 5 most recent for context
   } catch (error) {
     console.log('Could not fetch saved items for context')

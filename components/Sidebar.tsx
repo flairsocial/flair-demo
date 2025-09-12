@@ -11,7 +11,7 @@ import InfoPopup from "./InfoPopup"
 
 const navItems = [
   { path: "/", label: "Discover", icon: HomeIcon },
-  { path: "/chat", label: "AI Stylist", icon: ChatBubbleLeftIcon },
+  { path: "/chat", label: "AI Agent", icon: ChatBubbleLeftIcon },
   { path: "/profile", label: "Profile", icon: UserIcon },
 ]
 

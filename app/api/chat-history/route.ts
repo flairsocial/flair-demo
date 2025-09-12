@@ -7,17 +7,22 @@ import {
   deleteChatHistory,
   renameChatHistory,
   generateChatTitle
-} from "@/lib/profile-storage"
-import type { ChatHistory, ChatMessage } from "@/lib/profile-storage"
+} from "@/lib/database-service"
+import type { ChatHistory, ChatMessage } from "@/lib/database-service"
 
 export async function GET() {
   try {
     const { userId } = await auth()
     
-    // Get user's chat history from storage
-    const chatHistory = getChatHistory(userId || undefined)
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
     
-    console.log(`[Chat History API] GET request - User ID: ${userId || 'anonymous'}`)
+    // Get user's chat history from database
+    const chatHistory = await getChatHistory(userId)
+    
+    console.log(`[Chat History API] GET request - User ID: ${userId}`)
     console.log(`[Chat History API] Found ${chatHistory.length} chat histories`)
 
     return NextResponse.json(chatHistory)
@@ -30,9 +35,15 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { userId } = await auth()
+    
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
     const { action, chatId, messages, title } = await request.json()
     
-    console.log(`[Chat History API] POST request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Chat History API] POST request - User ID: ${userId}`)
     console.log(`[Chat History API] Action: ${action}`)
 
     switch (action) {
@@ -49,21 +60,21 @@ export async function POST(request: Request) {
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           }
-          addChatHistory(newChat, userId || undefined)
+          await addChatHistory(userId, newChat)
           return NextResponse.json({ success: true, chat: newChat })
         }
         break
 
       case 'update':
         if (chatId && messages && Array.isArray(messages)) {
-          updateChatHistory(chatId, messages, userId || undefined)
+          await updateChatHistory(userId, chatId, messages)
           return NextResponse.json({ success: true, message: 'Chat updated successfully' })
         }
         break
 
       case 'rename':
         if (chatId && title) {
-          renameChatHistory(chatId, title.trim(), userId || undefined)
+          await renameChatHistory(userId, chatId, title.trim())
           console.log(`[Chat History API] Renamed chat ${chatId} to: "${title}"`)
           return NextResponse.json({ success: true, message: 'Chat renamed successfully' })
         }
@@ -71,7 +82,7 @@ export async function POST(request: Request) {
 
       case 'delete':
         if (chatId) {
-          deleteChatHistory(chatId, userId || undefined)
+          await deleteChatHistory(userId, chatId)
           console.log(`[Chat History API] Deleted chat: ${chatId}`)
           return NextResponse.json({ success: true, message: 'Chat deleted successfully' })
         }

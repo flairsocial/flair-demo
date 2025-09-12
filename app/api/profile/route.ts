@@ -1,13 +1,18 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
-import { getProfile, setProfile } from "@/lib/profile-storage"
+import { getProfile, setProfile } from "@/lib/database-service"
 
 export async function GET() {
   try {
     const { userId } = await auth()
     
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
     // Get saved profile or return default
-    const savedProfile = getProfile(userId || undefined)
+    const savedProfile = await getProfile(userId)
     
     const defaultProfile = {
       age: "",
@@ -33,7 +38,7 @@ export async function GET() {
 
     const profile = savedProfile ? { ...defaultProfile, ...savedProfile } : defaultProfile
 
-    console.log(`[Profile API] GET request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Profile API] GET request - User ID: ${userId}`)
     console.log(`[Profile API] Profile found:`, !!savedProfile)
     return NextResponse.json(profile)
   } catch (error) {
@@ -45,16 +50,22 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const { userId } = await auth()
+    
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
     const profileData = await request.json()
     
-    console.log(`[Profile API] POST request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Profile API] POST request - User ID: ${userId}`)
     console.log(`[Profile API] Saving profile data:`, profileData)
 
-    setProfile(profileData, userId || undefined)
+    await setProfile(userId, profileData)
 
     return NextResponse.json({ 
       success: true, 
-      message: `Profile saved successfully${userId ? ' to your account' : ' (guest mode)'}`,
+      message: "Profile saved successfully to your account",
       data: profileData
     })
   } catch (error) {

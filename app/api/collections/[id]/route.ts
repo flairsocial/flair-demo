@@ -4,7 +4,7 @@ import {
   getCollections, 
   removeCollection,
   getSavedItems
-} from "@/lib/profile-storage"
+} from "@/lib/database-service"
 
 export async function GET(
   request: Request,
@@ -12,13 +12,19 @@ export async function GET(
 ) {
   try {
     const { userId } = await auth()
+    
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
     const collectionId = params.id
     
-    console.log(`[Collection API] GET request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Collection API] GET request - User ID: ${userId}`)
     console.log(`[Collection API] Collection ID: ${collectionId}`)
 
     // Get user's collections
-    const collections = getCollections(userId || undefined)
+    const collections = await getCollections(userId)
     const collection = collections.find(col => col.id === collectionId)
     
     if (!collection) {
@@ -26,7 +32,7 @@ export async function GET(
     }
 
     // Get saved items for this user
-    const savedItems = getSavedItems(userId || undefined)
+    const savedItems = await getSavedItems(userId)
     
     // Filter items that belong to this collection
     const collectionItems = savedItems.filter(item => 
@@ -48,13 +54,19 @@ export async function DELETE(
 ) {
   try {
     const { userId } = await auth()
+    
+    // Require authentication for database access
+    if (!userId) {
+      return NextResponse.json({ error: "Authentication required" }, { status: 401 })
+    }
+    
     const collectionId = params.id
     
-    console.log(`[Collection API] DELETE request - User ID: ${userId || 'anonymous'}`)
+    console.log(`[Collection API] DELETE request - User ID: ${userId}`)
     console.log(`[Collection API] Deleting collection: ${collectionId}`)
 
     // Remove the collection
-    removeCollection(collectionId, userId || undefined)
+    await removeCollection(userId, collectionId)
 
     return NextResponse.json({ success: true, message: 'Collection deleted' })
   } catch (error) {
