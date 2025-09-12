@@ -38,4 +38,5 @@ export interface Collection {
   itemIds: string[]
   customBanner?: string // Optional custom banner image URL
   description?: string // Optional collection description
+  isPublic?: boolean // Privacy setting for collection
 }

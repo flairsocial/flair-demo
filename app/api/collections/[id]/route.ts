@@ -8,7 +8,7 @@ import {
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -18,7 +18,7 @@ export async function GET(
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
     
-    const collectionId = params.id
+    const { id: collectionId } = await params
     
     console.log(`[Collection API] GET request - User ID: ${userId}`)
     console.log(`[Collection API] Collection ID: ${collectionId}`)
@@ -50,7 +50,7 @@ export async function GET(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { userId } = await auth()
@@ -60,7 +60,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
     
-    const collectionId = params.id
+    const { id: collectionId } = await params
     
     console.log(`[Collection API] DELETE request - User ID: ${userId}`)
     console.log(`[Collection API] Deleting collection: ${collectionId}`)

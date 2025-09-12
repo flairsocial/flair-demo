@@ -5,13 +5,14 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
-import { HomeIcon, ChevronsLeftIcon as ChatBubbleLeftIcon, UserIcon, ChevronRight, Info } from "lucide-react"
+import { HomeIcon, ChevronsLeftIcon as ChatBubbleLeftIcon, UserIcon, ChevronRight, Info, Globe } from "lucide-react"
 import { useMobile } from "@/hooks/use-mobile"
 import InfoPopup from "./InfoPopup"
 
 const navItems = [
   { path: "/", label: "Discover", icon: HomeIcon },
   { path: "/chat", label: "AI Agent", icon: ChatBubbleLeftIcon },
+  { path: "/community", label: "Community", icon: Globe },
   { path: "/profile", label: "Profile", icon: UserIcon },
 ]
 

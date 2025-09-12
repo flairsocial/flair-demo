@@ -23,6 +23,7 @@ export interface Collection {
   itemIds: string[]
   description?: string
   customBanner?: string
+  isPublic?: boolean
 }
 
 export interface SavedItemWithMetadata extends Product {

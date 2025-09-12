@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Plus, Check } from "lucide-react"
+import { X, Plus, Check, Globe, Lock } from "lucide-react"
 import type { Product } from "@/lib/types"
 import type { Collection } from "@/lib/profile-storage"
 
@@ -30,6 +30,7 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState("")
   const [selectedColor, setSelectedColor] = useState(colorOptions[0])
+  const [isPublic, setIsPublic] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
@@ -92,7 +93,8 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
           action: 'create',
           collection: {
             name: newCollectionName,
-            color: selectedColor
+            color: selectedColor,
+            isPublic: isPublic
           }
         })
       })
@@ -107,6 +109,7 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
           // Reset form
           setNewCollectionName("")
           setSelectedColor(colorOptions[0])
+          setIsPublic(false)
           setShowCreateForm(false)
         }
       }
@@ -183,6 +186,40 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
                       )}
                     </button>
                   ))}
+                </div>
+                
+                {/* Privacy toggle */}
+                <div className="mb-3">
+                  <label className="text-xs text-zinc-400 mb-2 block">Privacy</label>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsPublic(false)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                        !isPublic 
+                          ? 'bg-white text-black' 
+                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                      }`}
+                    >
+                      <Lock className="w-3 h-3" />
+                      Private
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsPublic(true)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                        isPublic 
+                          ? 'bg-white text-black' 
+                          : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                      }`}
+                    >
+                      <Globe className="w-3 h-3" />
+                      Public
+                    </button>
+                  </div>
+                  {isPublic && (
+                    <p className="text-xs text-zinc-500 mt-1">Public collections will be shared with the community</p>
+                  )}
                 </div>
                 <div className="flex space-x-2">
                   <button

@@ -5,6 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
+import { useUser } from '@clerk/nextjs'
 import {
   Settings,
   Grid,
@@ -38,9 +39,17 @@ import CollectionModal from "@/components/CollectionModal"
 import CollectionDetailModal from "@/components/CollectionDetailModal"
 import CreateCollectionModal from "@/components/CreateCollectionModal"
 import BulkAddToCollectionModal from "@/components/BulkAddToCollectionModal"
+import EditProfileModal from "@/components/EditProfileModal"
+import {
+  getProfile,
+  getCommunityProfile,
+  getSavedItems,
+  getCollections
+} from "@/lib/database-service"
 import type { Product } from "@/lib/types"
 import type { Collection, SavedItemWithMetadata } from "@/lib/profile-storage"
 import { useMobile } from "@/hooks/use-mobile"
+import { useSavedItems } from "@/lib/saved-items-context"
 import Link from "next/link"
 
 // Define a SavedItem type that extends Product with additional saved-specific properties
@@ -58,6 +67,8 @@ interface SavedItem extends Product {
 }
 
 export default function ProfilePage() {
+  const { user, isLoaded } = useUser()
+  const { savedItems: contextSavedItems, isLoading: savedItemsLoading } = useSavedItems()
   const [savedItems, setSavedItems] = useState<SavedItem[]>([])
   const [loading, setLoading] = useState(true)
   const [hasLoaded, setHasLoaded] = useState(false) // Prevent infinite API calls
@@ -76,7 +87,57 @@ export default function ProfilePage() {
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null)
   const [showCreateCollection, setShowCreateCollection] = useState(false)
   const [showBulkAddModal, setShowBulkAddModal] = useState(false)
+  const [showEditProfile, setShowEditProfile] = useState(false)
+  const [profileData, setProfileData] = useState({
+    displayName: "",
+    username: "",
+    bio: "",
+    profilePicture: ""
+  })
   const isMobile = useMobile()
+
+  // Load profile data from both Clerk and database
+  useEffect(() => {
+    if (isLoaded && user) {
+      loadProfileData()
+    }
+  }, [isLoaded, user])
+
+  const loadProfileData = async () => {
+    if (!user) return
+
+    try {
+      // Get database profile
+      const dbProfile = await getCommunityProfile(user.id)
+      
+      if (dbProfile) {
+        // Use database profile if available
+        setProfileData({
+          displayName: dbProfile.display_name || user.fullName || user.firstName || user.username || "User",
+          username: dbProfile.username || user.username || `user_${user.id.slice(-8)}`,
+          bio: dbProfile.bio || "Fashion enthusiast",
+          profilePicture: dbProfile.profile_picture || user.imageUrl || "/placeholder-user.svg"
+        })
+      } else {
+        // Fallback to Clerk data
+        setProfileData({
+          displayName: user.fullName || user.firstName || user.username || "User",
+          username: user.username || `user_${user.id.slice(-8)}`,
+          bio: user.publicMetadata?.bio as string || "Fashion enthusiast",
+          profilePicture: user.imageUrl || "/placeholder-user.svg"
+        })
+      }
+    } catch (error) {
+      console.error('Error loading profile data:', error)
+      // Fallback to Clerk data on error
+      setProfileData({
+        displayName: user.fullName || user.firstName || user.username || "User",
+        username: user.username || `user_${user.id.slice(-8)}`,
+        bio: user.publicMetadata?.bio as string || "Fashion enthusiast",
+        profilePicture: user.imageUrl || "/placeholder-user.svg"
+      })
+    }
+  }
 
   // Mock purchases data
   const purchases = [
@@ -297,37 +358,26 @@ export default function ProfilePage() {
       // Scroll to top when component mounts
       window.scrollTo(0, 0)
 
-      // Load actual saved items and collections from API
-      loadSavedItems()
+      // Load collections from API (still needed)
       loadCollections()
       setHasLoaded(true)
     }
   }, [hasLoaded]) // Include hasLoaded in dependencies
 
-  const loadSavedItems = async () => {
-    setLoading(true)
-    try {
-      const response = await fetch('/api/saved')
-      if (response.ok) {
-        const items = await response.json()
-        // Convert Product[] to SavedItem[] by adding savedAt property
-        const savedItemsWithDate = items.map((item: Product) => ({
-          ...item,
-          savedAt: new Date().toISOString(), // In a real app, this would come from the backend
-          collectionIds: [] // This would also come from the backend
-        }))
-        setSavedItems(savedItemsWithDate)
-      } else {
-        console.error('Failed to load saved items')
-        setSavedItems([]) // Set empty array on error
-      }
-    } catch (error) {
-      console.error('Error loading saved items:', error)
-      setSavedItems([]) // Set empty array on error
-    } finally {
-      setLoading(false)
+  // Update saved items from context
+  useEffect(() => {
+    if (contextSavedItems) {
+      const savedItemsWithDate = contextSavedItems.map((item: Product) => ({
+        ...item,
+        savedAt: new Date().toISOString(), // In a real app, this would come from the backend
+        collectionIds: [] // This would also come from the backend
+      }))
+      setSavedItems(savedItemsWithDate)
     }
-  }
+    setLoading(savedItemsLoading)
+  }, [contextSavedItems, savedItemsLoading])
+
+  // Remove the loadSavedItems function entirely - no longer needed!
 
   const loadCollections = async () => {
     try {
@@ -576,20 +626,35 @@ export default function ProfilePage() {
       <div className="p-4 md:p-6 max-w-6xl mx-auto">
         <div className="flex items-center mb-6">
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-zinc-900 mr-3 sm:mr-4 overflow-hidden">
-            <Image src="/flair-logo.png" alt="Profile" width={80} height={80} className="object-cover" />
+            {profileData.profilePicture && profileData.profilePicture.trim() ? (
+              <Image src={profileData.profilePicture} alt="Profile" width={80} height={80} className="object-cover" />
+            ) : (
+              <div className="w-full h-full bg-zinc-800 flex items-center justify-center text-zinc-400">
+                <span className="text-2xl">{profileData.displayName?.[0]?.toUpperCase() || '?'}</span>
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg sm:text-xl font-medium truncate">Flair Dev</h2>
-            <p className="text-zinc-400 text-xs sm:text-sm">@flairdev</p>
-            <p className="text-xs sm:text-sm mt-1 truncate">shopping addict and reseller</p>
+            <h2 className="text-lg sm:text-xl font-medium truncate">{profileData.displayName}</h2>
+            <p className="text-zinc-400 text-xs sm:text-sm">@{profileData.username}</p>
+            <p className="text-xs sm:text-sm mt-1 truncate">{profileData.bio}</p>
           </div>
-          <Link
-            href="/settings"
-            className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-2 touch-manipulation"
-            aria-label="Settings"
-          >
-            <Settings className="w-5 h-5 text-white" strokeWidth={1.5} />
-          </Link>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setShowEditProfile(true)}
+              className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-2 touch-manipulation"
+              aria-label="Edit Profile"
+            >
+              <Edit3 className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </button>
+            <Link
+              href="/settings"
+              className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-2 touch-manipulation"
+              aria-label="Settings"
+            >
+              <Settings className="w-5 h-5 text-white" strokeWidth={1.5} />
+            </Link>
+          </div>
         </div>
 
         <div className="flex space-x-6 mb-6">
@@ -1200,6 +1265,13 @@ export default function ProfilePage() {
       )}
 
       {/* Modals */}
+      <EditProfileModal
+        isOpen={showEditProfile}
+        onClose={() => setShowEditProfile(false)}
+        profileData={profileData}
+        onSave={setProfileData}
+      />
+
       <CollectionModal
         isOpen={showCollectionModal}
         onClose={() => setShowCollectionModal(false)}

@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, Plus, Check, Camera } from "lucide-react"
+import { X, Plus, Check, Camera, Globe, Lock } from "lucide-react"
 
 interface CreateCollectionModalProps {
   isOpen: boolean
@@ -37,6 +37,7 @@ export default function CreateCollectionModal({
   const [description, setDescription] = useState("")
   const [selectedColor, setSelectedColor] = useState(colorOptions[0])
   const [customBanner, setCustomBanner] = useState("")
+  const [isPublic, setIsPublic] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleCreate = async () => {
@@ -53,7 +54,8 @@ export default function CreateCollectionModal({
             name: collectionName,
             color: selectedColor,
             description: description || undefined,
-            customBanner: customBanner || undefined
+            customBanner: customBanner || undefined,
+            isPublic: isPublic
           }
         })
       })
@@ -95,6 +97,7 @@ export default function CreateCollectionModal({
     setDescription("")
     setSelectedColor(colorOptions[0])
     setCustomBanner("")
+    setIsPublic(false)
     onClose()
   }
 
@@ -194,6 +197,42 @@ export default function CreateCollectionModal({
                   rows={3}
                   maxLength={200}
                 />
+              </div>
+
+              {/* Privacy Toggle */}
+              <div>
+                <label className="block text-sm font-medium mb-2">Privacy</label>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsPublic(false)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      !isPublic 
+                        ? 'bg-white text-black' 
+                        : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                    }`}
+                  >
+                    <Lock className="w-4 h-4" />
+                    Private
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsPublic(true)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isPublic 
+                        ? 'bg-white text-black' 
+                        : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
+                    }`}
+                  >
+                    <Globe className="w-4 h-4" />
+                    Public
+                  </button>
+                </div>
+                {isPublic && (
+                  <p className="text-xs text-zinc-400 mt-2">
+                    Public collections will be shared with the community
+                  </p>
+                )}
               </div>
 
               {/* Color Selection */}

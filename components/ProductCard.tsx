@@ -7,6 +7,7 @@ import Image from "next/image"
 import { Heart, Plus, Share2 } from "lucide-react"
 import type { Product } from "@/lib/types"
 import CollectionModal from "./CollectionModal"
+import { useSavedItems } from "@/lib/saved-items-context"
 
 interface ProductCardProps {
   product: Product
@@ -14,7 +15,7 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
-  const [isSaved, setIsSaved] = useState(false)
+  const { checkIfSaved, addSavedItem, removeSavedItem } = useSavedItems()
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
   const [showCollectionModal, setShowCollectionModal] = useState(false)
@@ -23,49 +24,23 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
   const initialImageSrc = product.image || placeholderImage
   const [currentImageSrc, setCurrentImageSrc] = useState(initialImageSrc)
 
+  // Check if saved using context (no API call needed!)
+  const isSaved = checkIfSaved(product.id)
+
   useEffect(() => {
     // Reset image state when product prop changes
     setCurrentImageSrc(product.image || placeholderImage)
     setIsImageLoading(false) // No automatic scraping, so loading is false
-    
-    // Check if this product is already saved
-    checkIfSaved()
-  }, [product.image, product.id]) // Re-run if product image or ID changes
-
-  const checkIfSaved = async () => {
-    try {
-      const response = await fetch('/api/saved')
-      if (response.ok) {
-        const savedItems = await response.json()
-        const isProductSaved = savedItems.some((item: Product) => item.id === product.id)
-        setIsSaved(isProductSaved)
-      }
-    } catch (error) {
-      console.error('Error checking saved status:', error)
-    }
-  }
+  }, [product.image, product.id])
 
   const handleSaveToSaved = async (e: React.MouseEvent) => {
     e.stopPropagation()
     
     try {
-      const action = isSaved ? 'remove' : 'add'
-      const response = await fetch('/api/saved', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          item: product
-        })
-      })
-
-      if (response.ok) {
-        setIsSaved(!isSaved)
-        console.log(`Product ${action}ed successfully`)
+      if (isSaved) {
+        await removeSavedItem(product.id)
       } else {
-        console.error('Failed to update saved status')
+        await addSavedItem(product)
       }
     } catch (error) {
       console.error('Error updating saved status:', error)

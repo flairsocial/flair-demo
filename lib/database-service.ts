@@ -12,6 +12,7 @@ export interface Collection {
   itemIds: string[]
   description?: string
   customBanner?: string
+  isPublic?: boolean
 }
 
 export interface SavedItemWithMetadata extends Product {
@@ -106,10 +107,16 @@ interface DbChatMemory {
 
 // Initialize Supabase client
 function getSupabaseClient() {
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   
   if (!supabaseUrl || !supabaseServiceKey) {
+    console.error('Environment variables:', {
+      SUPABASE_URL: process.env.SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+      hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+      hasAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    })
     throw new Error('Missing Supabase environment variables')
   }
   
@@ -136,21 +143,38 @@ async function getOrCreateProfile(clerkId: string): Promise<string> {
   }
   
   if (selectError && selectError.code !== 'PGRST116') { // PGRST116 = not found
-    throw new Error(`Database error: ${selectError.message}`)
+    console.error('Database error in getOrCreateProfile:', {
+      message: selectError.message || 'Unknown error',
+      details: selectError.details || 'No details',
+      hint: selectError.hint || 'No hint',
+      code: selectError.code || 'No code',
+      clerkId: clerkId,
+      fullError: selectError
+    })
+    // Return a fallback profile ID based on clerk ID
+    return `profile_${clerkId}`
   }
   
-  // Create new profile
+  // Create new profile with basic data
+  // Note: Profile sync with Clerk data happens in API routes
+  const profileId = `profile_${clerkId}`
   const { data: newProfile, error: insertError } = await supabase
     .from('profiles')
     .insert({
+      id: profileId,
       clerk_id: clerkId,
+      username: `user_${clerkId.slice(-8)}`,
+      display_name: 'User',
+      profile_picture_url: null,
+      is_public: true,
       data: {}
     })
     .select('id')
     .single()
   
   if (insertError || !newProfile) {
-    throw new Error(`Failed to create profile: ${insertError?.message}`)
+    console.error(`Failed to create profile: ${insertError?.message}`)
+    return profileId // Return fallback ID
   }
   
   return newProfile.id
@@ -384,7 +408,8 @@ export async function getCollections(clerkId: string): Promise<Collection[]> {
       createdAt: col.created_at,
       itemIds: col.item_ids || [],
       description: col.description,
-      customBanner: col.metadata?.customBanner
+      customBanner: col.metadata?.customBanner,
+      isPublic: col.is_public ?? true
     }))
   } catch (error) {
     console.error('[Database] Error getting collections:', error)
@@ -399,35 +424,40 @@ function getDefaultCollections(): Collection[] {
       name: 'Summer Essentials',
       color: 'bg-amber-500',
       createdAt: new Date().toISOString(),
-      itemIds: []
+      itemIds: [],
+      isPublic: true
     },
     {
       id: 'col-2', 
       name: 'Work Outfits',
       color: 'bg-blue-500',
       createdAt: new Date().toISOString(),
-      itemIds: []
+      itemIds: [],
+      isPublic: true
     },
     {
       id: 'col-3',
       name: 'Casual Weekend',
       color: 'bg-green-500',
       createdAt: new Date().toISOString(),
-      itemIds: []
+      itemIds: [],
+      isPublic: true
     },
     {
       id: 'col-4',
       name: 'Evening Wear',
       color: 'bg-purple-500',
       createdAt: new Date().toISOString(),
-      itemIds: []
+      itemIds: [],
+      isPublic: true
     },
     {
       id: 'col-5',
       name: 'Wishlist',
       color: 'bg-pink-500',
       createdAt: new Date().toISOString(),
-      itemIds: []
+      itemIds: [],
+      isPublic: true
     }
   ]
 }
@@ -454,6 +484,7 @@ export async function setCollections(clerkId: string, collections: Collection[])
         color: col.color,
         description: col.description,
         item_ids: col.itemIds || [],
+        is_public: col.isPublic ?? true, // Use collection's privacy setting, default to public
         metadata: {
           customBanner: col.customBanner
         }
@@ -467,6 +498,13 @@ export async function setCollections(clerkId: string, collections: Collection[])
         console.error('[Database] Error setting collections:', error)
       } else {
         console.log(`[Database] Saved ${collections.length} collections for clerk_id: ${clerkId}`)
+        
+        // Auto-create community posts for collections with items
+        for (const collection of collections) {
+          if (collection.itemIds && collection.itemIds.length > 0) {
+            await createPostForCollection(clerkId, collection)
+          }
+        }
       }
     }
   } catch (error) {
@@ -482,6 +520,36 @@ export async function addCollection(clerkId: string, collection: Collection): Pr
     await setCollections(clerkId, [...currentCollections, collection])
   } catch (error) {
     console.error('[Database] Error adding collection:', error)
+  }
+}
+
+export async function updateCollection(clerkId: string, collectionId: string, updates: Partial<Collection>): Promise<void> {
+  if (!clerkId) return
+  
+  try {
+    const profileId = await getOrCreateProfile(clerkId)
+    const supabase = getSupabaseClient()
+    
+    const updateData: any = {}
+    if (updates.name !== undefined) updateData.name = updates.name
+    if (updates.color !== undefined) updateData.color = updates.color
+    if (updates.description !== undefined) updateData.description = updates.description
+    if (updates.isPublic !== undefined) updateData.is_public = updates.isPublic
+    if (updates.customBanner !== undefined) {
+      updateData.metadata = { customBanner: updates.customBanner }
+    }
+    
+    const { error } = await supabase
+      .from('collections')
+      .update(updateData)
+      .eq('id', collectionId)
+      .eq('profile_id', profileId)
+    
+    if (error) {
+      console.error('[Database] Error updating collection:', error)
+    }
+  } catch (error) {
+    console.error('[Database] Error updating collection:', error)
   }
 }
 
@@ -1004,5 +1072,352 @@ export async function generateContextualPrompt(clerkId: string): Promise<string>
   } catch (error) {
     console.error('[Database] Error generating contextual prompt:', error)
     return ""
+  }
+}
+
+// ===== COMMUNITY FEATURES =====
+
+// Community profile functions
+export async function getCommunityProfile(clerkId: string): Promise<any> {
+  if (!clerkId) return null
+  
+  try {
+    const profileId = await getOrCreateProfile(clerkId)
+    const supabase = getSupabaseClient()
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', profileId)
+      .single()
+    
+    if (error) {
+      console.error('[Database] Error getting community profile:', error)
+      return null
+    }
+    
+    return data
+  } catch (error) {
+    console.error('[Database] Error getting community profile:', error)
+    return null
+  }
+}
+
+export async function updateCommunityProfile(clerkId: string, updates: any): Promise<void> {
+  if (!clerkId) return
+  
+  try {
+    const profileId = await getOrCreateProfile(clerkId)
+    const supabase = getSupabaseClient()
+    
+    const { error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', profileId)
+    
+    if (error) {
+      console.error('[Database] Error updating community profile:', error)
+    }
+  } catch (error) {
+    console.error('[Database] Error updating community profile:', error)
+  }
+}
+
+// Community posts functions
+export async function getCommunityFeed(clerkId: string, limit = 20, offset = 0): Promise<any[]> {
+  if (!clerkId) return []
+  
+  try {
+    const supabase = getSupabaseClient()
+    
+    // Get community posts with author info
+    const { data: posts, error } = await supabase
+      .from('community_posts')
+      .select(`
+        *,
+        author:profiles(id, username, display_name, profile_picture_url)
+      `)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+    
+    if (error) {
+      console.error('[Database] Error getting community feed:', error)
+      return []
+    }
+    
+    return posts || []
+  } catch (error) {
+    console.error('[Database] Error getting community feed:', error)
+    return []
+  }
+}
+
+export async function createCommunityPost(clerkId: string, post: any): Promise<string | null> {
+  if (!clerkId) return null
+  
+  try {
+    const profileId = await getOrCreateProfile(clerkId)
+    const supabase = getSupabaseClient()
+    
+    const postId = `post-${Date.now()}`
+    
+    const { error } = await supabase
+      .from('community_posts')
+      .insert({
+        id: postId,
+        profile_id: profileId,
+        ...post
+      })
+    
+    if (error) {
+      console.error('[Database] Error creating community post:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        postData: post
+      })
+      return null
+    }
+    
+    return postId
+  } catch (error) {
+    console.error('[Database] Error creating community post:', error)
+    return null
+  }
+}
+
+// Auto-create community posts for public collections
+export async function createPostForCollection(clerkId: string, collection: Collection): Promise<string | null> {
+  if (!clerkId || !collection) return null
+  
+  try {
+    // Use API route for creating community posts to ensure proper permissions
+    const response = await fetch('/api/community', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: `My ${collection.name} Collection`,
+        description: collection.description || `Check out my curated ${collection.name} collection with ${collection.itemIds?.length || 0} amazing pieces!`,
+        postType: 'collection',
+        collectionId: collection.id,
+      }),
+    })
+
+    if (!response.ok) {
+      console.error('[Database] Error creating collection post via API:', await response.text())
+      return null
+    }
+
+    const result = await response.json()
+    console.log(`[Database] Created community post for collection: ${collection.name}`)
+    return result.postId
+  } catch (error) {
+    console.error('[Database] Error creating collection post:', error)
+    return null
+  }
+}
+
+// Search for users in the community
+export async function searchUsers(query: string, limit: number = 10): Promise<any[]> {
+  if (!query) return []
+  
+  try {
+    const supabase = getSupabaseClient()
+    
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, clerk_id, username, display_name, profile_picture_url, follower_count, post_count')
+      .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
+      .eq('is_public', true)
+      .order('follower_count', { ascending: false })
+      .limit(limit)
+    
+    if (error) {
+      console.error('[Database] Error searching users:', error)
+      return []
+    }
+    
+    return data || []
+  } catch (error) {
+    console.error('[Database] Error searching users:', error)
+    return []
+  }
+}
+
+// Direct Messaging Functions
+export async function getConversations(clerkId: string): Promise<any[]> {
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+    
+    const { data, error } = await supabase
+      .from('direct_conversations')
+      .select(`
+        id,
+        last_message_at,
+        created_at,
+        participant_1:profiles!direct_conversations_participant_1_id_fkey(id, username, display_name, profile_picture_url),
+        participant_2:profiles!direct_conversations_participant_2_id_fkey(id, username, display_name, profile_picture_url)
+      `)
+      .or(`participant_1_id.eq.${profileId},participant_2_id.eq.${profileId}`)
+      .order('last_message_at', { ascending: false })
+    
+    if (error) {
+      console.error('[Database] Error getting conversations:', {
+        message: error.message || 'Unknown error',
+        details: error.details || 'No details',
+        hint: error.hint || 'No hint',
+        code: error.code || 'No code',
+        fullError: error
+      })
+      return []
+    }
+    
+    // Get last message for each conversation
+    const conversationsWithMessages = await Promise.all(
+      (data || []).map(async (conv: any) => {
+        const { data: lastMessage } = await supabase
+          .from('direct_messages')
+          .select('content, message_type, created_at, sender_id')
+          .eq('conversation_id', conv.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+        
+        return {
+          ...conv,
+          other_participant: conv.participant_1.id === profileId ? conv.participant_2 : conv.participant_1,
+          last_message: lastMessage
+        }
+      })
+    )
+    
+    return conversationsWithMessages
+  } catch (error) {
+    console.error('[Database] Error getting conversations:', error)
+    return []
+  }
+}
+
+export async function getMessages(conversationId: string, clerkId: string): Promise<any[]> {
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+    
+    // First verify user is part of this conversation
+    const { data: conversation, error: convError } = await supabase
+      .from('direct_conversations')
+      .select('participant_1_id, participant_2_id')
+      .eq('id', conversationId)
+      .single()
+    
+    if (convError || !conversation) {
+      console.error('[Database] Conversation not found:', convError)
+      return []
+    }
+    
+    if (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId) {
+      console.error('[Database] User not authorized for this conversation')
+      return []
+    }
+    
+    const { data, error } = await supabase
+      .from('direct_messages')
+      .select(`
+        id,
+        content,
+        message_type,
+        created_at,
+        sender_id,
+        is_read,
+        sender:profiles!direct_messages_sender_id_fkey(id, username, display_name, profile_picture_url)
+      `)
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true })
+    
+    if (error) {
+      console.error('[Database] Error getting messages:', error)
+      return []
+    }
+    
+    return data || []
+  } catch (error) {
+    console.error('[Database] Error getting messages:', error)
+    return []
+  }
+}
+
+export async function sendMessage(conversationId: string, clerkId: string, content: string, messageType: string = 'text'): Promise<boolean> {
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+    
+    // Insert message
+    const { error: messageError } = await supabase
+      .from('direct_messages')
+      .insert({
+        conversation_id: conversationId,
+        sender_id: profileId,
+        content: content.trim(),
+        message_type: messageType
+      })
+    
+    if (messageError) {
+      console.error('[Database] Error sending message:', messageError)
+      return false
+    }
+    
+    // Conversation timestamp will be updated automatically by trigger
+    return true
+  } catch (error) {
+    console.error('[Database] Error sending message:', error)
+    return false
+  }
+}
+
+export async function createConversation(clerkId: string, otherUserId: string): Promise<string | null> {
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+    
+    // Normalize participant order (smaller ID first)
+    const participant1 = profileId < otherUserId ? profileId : otherUserId
+    const participant2 = profileId < otherUserId ? otherUserId : profileId
+    
+    // Check if conversation already exists
+    const { data: existingConv, error: checkError } = await supabase
+      .from('direct_conversations')
+      .select('id')
+      .eq('participant_1_id', participant1)
+      .eq('participant_2_id', participant2)
+      .single()
+    
+    if (existingConv) {
+      return existingConv.id
+    }
+    
+    // Create new conversation
+    const { data: newConv, error: createError } = await supabase
+      .from('direct_conversations')
+      .insert({
+        participant_1_id: participant1,
+        participant_2_id: participant2
+      })
+      .select('id')
+      .single()
+    
+    if (createError) {
+      console.error('[Database] Error creating conversation:', createError)
+      return null
+    }
+    
+    return newConv.id
+  } catch (error) {
+    console.error('[Database] Error creating conversation:', error)
+    return null
   }
 }

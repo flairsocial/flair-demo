@@ -241,8 +241,6 @@
     }
   ],
   "searchQueries": [
-    "black sheath dress",
-    "a black dress for a wedding",
     "a black dress for a wedding",
     "sweetheart tulle dress",
     "jeans",
@@ -250,7 +248,9 @@
     "alternative jeans",
     "Compare Vice Jean vs Ninth Hall Ambush Dragon Baggy Denim Jeans",
     "Prada Womens Galleria Mini",
-    "Prada Womens Galleria Mini"
+    "Prada Womens Galleria Mini",
+    "competitors for Charles & Keith Kora Metallic-Accent Tote Bag",
+    "competitors for Charles & Keith Kora Metallic-Accent Tote Bag"
   ],
   "userIntents": [
     "Direct search",
@@ -259,13 +259,13 @@
     "Direct search",
     "Direct search",
     "Direct search",
-    "Direct search",
-    "Direct search",
     "Contextual search",
-    "Contextual search"
+    "Contextual search",
+    "Competitor search",
+    "Competitor search"
   ],
   "stylePreferences": [],
   "lastSearchResults": [],
   "conversationThemes": [],
-  "timestamp": "2025-09-12T04:34:21.296Z"
+  "timestamp": "2025-09-12T04:57:12.540Z"
 }

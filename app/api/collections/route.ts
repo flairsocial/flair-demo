@@ -5,7 +5,8 @@ import {
   addCollection, 
   removeCollection, 
   addItemToCollection, 
-  removeItemFromCollection 
+  removeItemFromCollection,
+  updateCollection 
 } from "@/lib/database-service"
 import type { Collection } from "@/lib/database-service"
 
@@ -61,9 +62,23 @@ export async function POST(request: Request) {
             createdAt: new Date().toISOString(),
             itemIds: [],
             description: collection.description || undefined,
-            customBanner: collection.customBanner || undefined
+            customBanner: collection.customBanner || undefined,
+            isPublic: collection.isPublic || false
           }
           await addCollection(userId, newCollection)
+          
+          // If the collection is public, create a community post
+          if (newCollection.isPublic) {
+            try {
+              // Import the createPostForCollection function
+              const { createPostForCollection } = await import("@/lib/database-service")
+              await createPostForCollection(userId, newCollection)
+            } catch (error) {
+              console.error('Error creating community post for collection:', error)
+              // Don't fail the collection creation if community post fails
+            }
+          }
+          
           return NextResponse.json({ success: true, collection: newCollection })
         }
         break
@@ -109,33 +124,38 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
     
-    const { id, name, description, customBanner } = await request.json()
+    const { id, name, description, customBanner, isPublic } = await request.json()
     
     console.log(`[Collections API] PUT request - User ID: ${userId}`)
     console.log(`[Collections API] Updating collection: ${id}`)
 
-    // Get current collections
+    // Use the new updateCollection function
+    const updates: Partial<Collection> = {}
+    if (name !== undefined) updates.name = name
+    if (description !== undefined) updates.description = description
+    if (customBanner !== undefined) updates.customBanner = customBanner
+    if (isPublic !== undefined) updates.isPublic = isPublic
+
+    await updateCollection(userId, id, updates)
+
+    // Get the updated collection to return
     const collections = await getCollections(userId)
-    const collectionIndex = collections.findIndex(col => col.id === id)
+    const updatedCollection = collections.find(col => col.id === id)
     
-    if (collectionIndex === -1) {
+    if (!updatedCollection) {
       return NextResponse.json({ error: 'Collection not found' }, { status: 404 })
     }
 
-    // Update the collection
-    const updatedCollection = {
-      ...collections[collectionIndex],
-      name: name || collections[collectionIndex].name,
-      description: description !== undefined ? description : collections[collectionIndex].description,
-      customBanner: customBanner !== undefined ? customBanner : collections[collectionIndex].customBanner
+    // If making public, create community post
+    if (isPublic === true && updatedCollection.isPublic) {
+      try {
+        const { createPostForCollection } = await import("@/lib/database-service")
+        await createPostForCollection(userId, updatedCollection)
+      } catch (error) {
+        console.error('Error creating community post for collection:', error)
+        // Don't fail the update if community post fails
+      }
     }
-
-    collections[collectionIndex] = updatedCollection
-
-    // Save updated collections
-    // Note: This is a simplified approach. In a real app, you'd have a proper update function
-    await removeCollection(userId, id)
-    await addCollection(userId, updatedCollection)
 
     return NextResponse.json(updatedCollection)
   } catch (error) {

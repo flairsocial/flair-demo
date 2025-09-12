@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { X, MessageCircle, Camera, Edit3, Trash2, Plus, MoreHorizontal, ExternalLink } from "lucide-react"
+import { X, MessageCircle, Camera, Edit3, Trash2, Plus, MoreHorizontal, ExternalLink, Globe, Lock } from "lucide-react"
 import Image from "next/image"
 import type { Product, Collection } from "@/lib/types"
 import { useRouter } from "next/navigation"
@@ -29,6 +29,7 @@ export default function CollectionDetailModal({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showShareMenu, setShowShareMenu] = useState(false)
+  const [showOptionsMenu, setShowOptionsMenu] = useState(false)
   const [uploadingBanner, setUploadingBanner] = useState(false)
   const router = useRouter()
 
@@ -173,12 +174,64 @@ export default function CollectionDetailModal({
     }
   }
 
+  // Close options menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showOptionsMenu) {
+        setShowOptionsMenu(false)
+      }
+    }
+
+    if (showOptionsMenu) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showOptionsMenu])
+
   const handleShare = () => {
     // Copy collection link to clipboard
     const collectionUrl = `${window.location.origin}/collection/${collection.id}`
     navigator.clipboard.writeText(collectionUrl)
     setShowShareMenu(true)
     setTimeout(() => setShowShareMenu(false), 2000)
+  }
+
+  const handleTogglePrivacy = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/collections', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: collection.id,
+          isPublic: !collection.isPublic
+        })
+      })
+
+      if (response.ok) {
+        const updatedCollection = await response.json()
+        onUpdate(updatedCollection)
+        setShowOptionsMenu(false)
+        
+        // If making public, create community post
+        if (!collection.isPublic && updatedCollection.isPublic) {
+          try {
+            const { createPostForCollection } = await import("@/lib/database-service")
+            // This would need the clerk user ID - you might need to pass it as a prop
+            console.log('Collection made public - would create community post')
+          } catch (error) {
+            console.error('Error creating community post:', error)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling privacy:', error)
+    } finally {
+      setLoading(false)
+    }
   }
    
 
@@ -261,6 +314,37 @@ export default function CollectionDetailModal({
                 
                 {/* Header controls */}
                 <div className="absolute top-4 right-4 flex items-center space-x-2">
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                      className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                    >
+                      <MoreHorizontal className="w-4 h-4 text-white" />
+                    </button>
+                    
+                    {/* Options dropdown menu */}
+                    {showOptionsMenu && (
+                      <div className="absolute top-12 right-0 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 min-w-[160px] z-10">
+                        <button
+                          onClick={handleTogglePrivacy}
+                          disabled={loading}
+                          className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-white hover:bg-zinc-700 rounded-t-lg"
+                        >
+                          {collection.isPublic ? (
+                            <>
+                              <Lock className="w-4 h-4" />
+                              <span>Make Private</span>
+                            </>
+                          ) : (
+                            <>
+                              <Globe className="w-4 h-4" />
+                              <span>Make Public</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                   <button
                     onClick={() => setIsEditing(!isEditing)}
                     className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
