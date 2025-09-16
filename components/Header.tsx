@@ -49,7 +49,10 @@ export default function Header() {
               <Image src="/flair-logo.png" alt="Flair Logo" width={32} height={32} className="object-contain" />
             </Link>
           )}
-          <CreditCounter />
+          {/* Credit Counter - Only show for signed in users */}
+          <SignedIn>
+            <CreditCounter />
+          </SignedIn>
         </div>
 
         {/* Center: Page Title - Absolutely positioned for perfect centering */}
@@ -59,24 +62,26 @@ export default function Header() {
 
         {/* Right side: Upgrade Plan, Settings, Auth, and Info Icons */}
         <div className="flex items-center justify-end gap-2 flex-1">
-          {/* Upgrade Plan Button */}
-          <button
-            onClick={() => setShowPricing(true)}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
-            aria-label="Upgrade your plan"
-          >
-            <Crown className="w-4 h-4" />
-            Upgrade your plan
-          </button>
+          {/* Upgrade Plan Button - Only show for signed in users */}
+          <SignedIn>
+            <button
+              onClick={() => setShowPricing(true)}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+              aria-label="Upgrade your plan"
+            >
+              <Crown className="w-4 h-4" />
+              Upgrade your plan
+            </button>
 
-          {/* Mobile Upgrade Plan Button */}
-          <button
-            onClick={() => setShowPricing(true)}
-            className="sm:hidden p-1 rounded-full hover:bg-zinc-800 transition-colors"
-            aria-label="Upgrade your plan"
-          >
-            <Crown className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
-          </button>
+            {/* Mobile Upgrade Plan Button */}
+            <button
+              onClick={() => setShowPricing(true)}
+              className="sm:hidden p-1 rounded-full hover:bg-zinc-800 transition-colors"
+              aria-label="Upgrade your plan"
+            >
+              <Crown className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
+            </button>
+          </SignedIn>
           {/* Settings button available on all pages except settings itself */}
           {pathname !== "/settings" && (
             <SignedIn>

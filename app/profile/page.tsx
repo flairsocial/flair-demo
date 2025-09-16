@@ -40,14 +40,8 @@ import CollectionDetailModal from "@/components/CollectionDetailModal"
 import CreateCollectionModal from "@/components/CreateCollectionModal"
 import BulkAddToCollectionModal from "@/components/BulkAddToCollectionModal"
 import EditProfileModal from "@/components/EditProfileModal"
-import {
-  getProfile,
-  getCommunityProfile,
-  getSavedItems,
-  getCollections
-} from "@/lib/database-service"
 import type { Product } from "@/lib/types"
-import type { Collection, SavedItemWithMetadata } from "@/lib/profile-storage"
+import type { Collection, SavedItemWithMetadata } from "@/lib/database-service-v2"
 import { useMobile } from "@/hooks/use-mobile"
 import { useSavedItems } from "@/lib/saved-items-context"
 import Link from "next/link"
@@ -107,8 +101,13 @@ export default function ProfilePage() {
     if (!user) return
 
     try {
-      // Get database profile
-      const dbProfile = await getCommunityProfile(user.id)
+      // Get database profile via API
+      const response = await fetch('/api/user/profile')
+      let dbProfile = null
+      
+      if (response.ok) {
+        dbProfile = await response.json()
+      }
       
       if (dbProfile) {
         // Use database profile if available
@@ -116,7 +115,7 @@ export default function ProfilePage() {
           displayName: dbProfile.display_name || user.fullName || user.firstName || user.username || "User",
           username: dbProfile.username || user.username || `user_${user.id.slice(-8)}`,
           bio: dbProfile.bio || "Fashion enthusiast",
-          profilePicture: dbProfile.profile_picture || user.imageUrl || "/placeholder-user.svg"
+          profilePicture: dbProfile.profile_picture_url || user.imageUrl || "/placeholder-user.svg"
         })
       } else {
         // Fallback to Clerk data
@@ -137,6 +136,16 @@ export default function ProfilePage() {
         profilePicture: user.imageUrl || "/placeholder-user.svg"
       })
     }
+  }
+
+  const handleProfileSave = async (newProfileData: any) => {
+    // Update local state immediately for responsiveness
+    setProfileData(newProfileData)
+    
+    // Reload from database to ensure consistency after save
+    setTimeout(() => {
+      loadProfileData()
+    }, 500) // Give the API time to process
   }
 
   // Mock purchases data
@@ -550,10 +559,10 @@ export default function ProfilePage() {
     try {
       const response = await fetch(`/api/collections/${collection.id}`)
       if (response.ok) {
-        const items = await response.json()
+        const collectionData = await response.json()
         setSelectedCollection({
           ...collection,
-          items: items
+          items: collectionData.items || []
         })
       } else {
         console.error('Failed to load collection items')
@@ -1269,7 +1278,7 @@ export default function ProfilePage() {
         isOpen={showEditProfile}
         onClose={() => setShowEditProfile(false)}
         profileData={profileData}
-        onSave={setProfileData}
+        onSave={handleProfileSave}
       />
 
       <CollectionModal
@@ -1284,6 +1293,7 @@ export default function ProfilePage() {
         onClose={handleCloseCollection}
         onUpdate={handleCollectionUpdated}
         onDelete={handleCollectionDeleted}
+        userId={user?.id} // User owns all collections on their profile page
       />
 
       <CreateCollectionModal

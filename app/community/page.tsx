@@ -7,9 +7,9 @@ import Image from "next/image"
 import Link from "next/link"
 import { useMobile } from "@/hooks/use-mobile"
 import { useCommunity } from "@/hooks/use-community"
-import { searchUsers } from "@/lib/database-service"
 import { useUser } from "@clerk/nextjs"
 import CollectionDetailModal from "@/components/CollectionDetailModal"
+import MessageUserButton from "@/components/MessageUserButton"
 
 export default function CommunityPage() {
   const [viewMode, setViewMode] = useState<'vertical' | 'collage'>('vertical')
@@ -30,7 +30,11 @@ export default function CommunityPage() {
     setSearchQuery(query)
     if (query.trim().length > 2) {
       try {
-        const users = await searchUsers(query)
+        const response = await fetch(`/api/search/users?q=${encodeURIComponent(query)}&limit=10`)
+        if (!response.ok) {
+          throw new Error('Search failed')
+        }
+        const users = await response.json()
         setSearchResults(users)
         setShowSearchResults(true)
       } catch (error) {
@@ -125,27 +129,39 @@ export default function CommunityPage() {
                   <div className="p-2">
                     <div className="text-xs text-zinc-500 font-medium px-3 py-2">Users</div>
                     {searchResults.map((user: any) => (
-                      <Link
+                      <div
                         key={user.id}
-                        href={`/profile/${user.username}`}
                         className="flex items-center gap-3 p-3 hover:bg-zinc-800 rounded-lg transition-colors"
-                        onClick={() => {
-                          setShowSearchResults(false)
-                          setSearchQuery("")
-                        }}
                       >
-                        <Image
-                          src={user.profile_picture_url || "/placeholder-user.svg"}
-                          alt={user.display_name}
-                          width={32}
-                          height={32}
-                          className="rounded-full"
+                        <Link
+                          href={`/profile/${user.username}`}
+                          className="flex items-center gap-3 flex-1"
+                          onClick={() => {
+                            setShowSearchResults(false)
+                            setSearchQuery("")
+                          }}
+                        >
+                          <Image
+                            src={user.profile_picture_url || "/placeholder-user.svg"}
+                            alt={user.display_name}
+                            width={32}
+                            height={32}
+                            className="rounded-full"
+                          />
+                          <div className="flex-1">
+                            <div className="font-medium text-white">{user.display_name}</div>
+                            <div className="text-sm text-zinc-400">@{user.username}</div>
+                          </div>
+                        </Link>
+                        
+                        {/* Message button */}
+                        <MessageUserButton
+                          userId={user.clerk_id}
+                          username={user.username}
+                          displayName={user.display_name}
+                          variant="icon"
                         />
-                        <div className="flex-1">
-                          <div className="font-medium text-white">{user.display_name}</div>
-                          <div className="text-sm text-zinc-400">@{user.username}</div>
-                        </div>
-                      </Link>
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -235,6 +251,8 @@ export default function CommunityPage() {
             setShowCollectionModal(false)
             setSelectedCollection(null)
           }}
+          userId={user?.id}
+          ownerId={selectedCollection.ownerId} // Pass the collection owner's ID
         />
       )}
     </div>
@@ -259,7 +277,7 @@ function CommunityFeed({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="text-zinc-400">Loading posts...</div>
+        <div className="text-zinc-400">Signing In...</div>
       </div>
     )
   }
@@ -268,7 +286,7 @@ function CommunityFeed({
     return (
       <div className="text-center py-12">
         <Sparkles className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-zinc-400 mb-2">No posts yet</h3>
+        <h3 className="text-lg font-medium text-zinc-400 mb-2">Stay Posted</h3>
         <p className="text-zinc-500">Be the first to share something with the community!</p>
       </div>
     )
@@ -329,8 +347,7 @@ function PostCard({
 
   // Check if current user is the author of this post
   const isAuthor = currentUser && post.author && 
-    (post.author.clerk_id === currentUser.id || 
-     post.profile_id === `profile_${currentUser.id}`)
+    (post.author.clerk_id === currentUser.id)
 
   const handleDelete = async () => {
     setIsDeleting(true)
@@ -395,6 +412,16 @@ function PostCard({
               />
               <span className="text-sm text-zinc-400 font-medium flex-1">@{username}</span>
             </Link>
+            
+            {/* Message button for collage layout */}
+            <MessageUserButton
+              userId={author.clerk_id}
+              username={username}
+              displayName={displayName}
+              variant="icon"
+              className="!p-1"
+            />
+            
             {isAuthor && (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
@@ -472,8 +499,19 @@ function PostCard({
             <p className="text-sm text-zinc-400">@{username}</p>
           </div>
         </Link>
+        
         <div className="flex items-center gap-2">
           <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">{formatTimeAgo(post.created_at)}</span>
+          
+          {/* Message button for vertical layout */}
+          <MessageUserButton
+            userId={author.clerk_id}
+            username={username}
+            displayName={displayName}
+            variant="icon"
+            className="!p-1.5"
+          />
+          
           {isAuthor && (
             <div className="relative">
               <button
@@ -546,59 +584,74 @@ function PostCard({
         {/* Collection Preview */}
         {post.collection && (
           <div className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-800/30 backdrop-blur-sm mt-4">
-            {/* Collection Header */}
-            <div className="p-4 border-b border-zinc-800">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h4 className="font-semibold text-white">{post.collection.name}</h4>
-                  <p className="text-sm text-zinc-400">{post.collection.itemCount} items</p>
-                </div>
-                <div className="text-xs bg-zinc-700 px-2 py-1 rounded-full text-zinc-300">
-                  Collection
-                </div>
-              </div>
-              {post.collection.description && (
-                <p className="text-sm text-zinc-300 mt-2">{post.collection.description}</p>
-              )}
-            </div>
-            
-            {/* Collection Products Preview */}
-            {post.collection.products && post.collection.products.length > 0 && (
-              <div className="p-4">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {post.collection.products.slice(0, 4).map((product: any) => (
-                    <div key={product.id} className="group cursor-pointer">
-                      <div className="aspect-square bg-zinc-700 rounded-lg overflow-hidden mb-2">
+            {/* Collection Banner - Match profile page styling */}
+            <div className="h-32 bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
+              {post.collection.customBanner ? (
+                // Show custom banner if available
+                <Image
+                  src={post.collection.customBanner}
+                  alt={post.collection.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : post.collection.products && post.collection.products.length > 0 ? (
+                // Show product images as fallback
+                <div className="grid grid-cols-2 h-full">
+                  {post.collection.products
+                    .slice(0, 4)
+                    .map((product: any, index: number) => (
+                      <div key={product.id} className="relative">
                         <Image
                           src={product.image || "/placeholder.svg"}
                           alt={product.title}
-                          width={120}
-                          height={120}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                          fill
+                          className="object-cover"
                         />
                       </div>
-                      <p className="text-xs text-zinc-300 truncate">{product.title}</p>
-                      <p className="text-xs text-zinc-500">${product.price}</p>
-                    </div>
-                  ))}
+                    ))}
                 </div>
-                
-                {post.collection.products.length > 4 && (
-                  <div className="mt-3 text-center">
-                    <p className="text-xs text-zinc-500">
-                      +{post.collection.products.length - 4} more items
-                    </p>
+              ) : (
+                // Show default icon if no banner and no items
+                <div className="flex items-center justify-center h-full">
+                  <div className={`w-12 h-12 rounded-full ${post.collection.color || 'bg-blue-500'} flex items-center justify-center`}>
+                    <Grid className="w-6 h-6 text-white" />
                   </div>
+                </div>
+              )}
+              
+              {/* Collection overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+              
+              {/* Collection info */}
+              <div className="absolute bottom-2 left-2 right-2">
+                <div className="flex items-center mb-1">
+                  <div className={`w-2 h-2 rounded-full ${post.collection.color || 'bg-blue-500'} mr-2`} />
+                  <h4 className="text-sm font-medium text-white truncate">{post.collection.name}</h4>
+                </div>
+                <p className="text-xs text-zinc-300">
+                  {post.collection.products ? post.collection.products.length : post.collection.itemCount || 0} item{(post.collection.products ? post.collection.products.length : post.collection.itemCount || 0) !== 1 ? 's' : ''}
+                </p>
+                {post.collection.description && (
+                  <p className="text-xs text-zinc-400 mt-1 line-clamp-2">{post.collection.description}</p>
                 )}
-                
-                <button 
-                  onClick={() => onViewCollection(post.collection)}
-                  className="w-full mt-4 py-2 text-sm bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg transition-colors"
-                >
-                  View Full Collection
-                </button>
               </div>
-            )}
+            </div>
+            
+            {/* Collection Actions - Match profile page */}
+            <div className="p-3 flex justify-between items-center">
+              <span className="text-xs text-zinc-400">
+                Click to view collection
+              </span>
+              <button 
+                onClick={() => onViewCollection({
+                  ...post.collection,
+                  ownerId: post.author?.clerk_id // Pass the post author's ID as collection owner
+                })}
+                className="text-xs bg-zinc-700 hover:bg-zinc-600 px-3 py-1.5 rounded-full text-zinc-300 transition-colors"
+              >
+                View Full Collection
+              </button>
+            </div>
           </div>
         )}
       </div>

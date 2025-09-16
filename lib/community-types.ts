@@ -1,5 +1,5 @@
 // Community feature types
-import type { Collection } from './database-service'
+import type { Collection } from './database-service-v2'
 
 export interface CommunityProfile {
   id: string

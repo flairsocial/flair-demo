@@ -19,7 +19,7 @@ import { useAITone } from "@/lib/ai-tone-context"
 import { useCredits } from "@/lib/credit-context"
 import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
-import type { ChatHistory, ChatMessage as ChatHistoryMessage } from "@/lib/profile-storage"
+import type { ChatHistory, ChatMessage as ChatHistoryMessage } from "@/lib/database-service-v2"
 
 interface ChatMessageWithProducts extends Message {
   products?: Product[]

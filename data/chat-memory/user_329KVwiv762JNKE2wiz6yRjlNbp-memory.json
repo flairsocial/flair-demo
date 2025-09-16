@@ -241,31 +241,128 @@
     }
   ],
   "searchQueries": [
-    "a black dress for a wedding",
-    "sweetheart tulle dress",
-    "jeans",
-    "vice jean reviews",
-    "alternative jeans",
-    "Compare Vice Jean vs Ninth Hall Ambush Dragon Baggy Denim Jeans",
-    "Prada Womens Galleria Mini",
     "Prada Womens Galleria Mini",
     "competitors for Charles & Keith Kora Metallic-Accent Tote Bag",
-    "competitors for Charles & Keith Kora Metallic-Accent Tote Bag"
+    "competitors for Charles & Keith Kora Metallic-Accent Tote Bag",
+    "jeans",
+    "Oversized Sweater",
+    "jeans",
+    "jeans",
+    "ae jeans",
+    "baggy wide-leg jeans",
+    "mini dress midi skirt"
   ],
   "userIntents": [
-    "Direct search",
-    "Direct search",
-    "Direct search",
-    "Direct search",
-    "Direct search",
-    "Direct search",
-    "Contextual search",
     "Contextual search",
     "Competitor search",
-    "Competitor search"
+    "Competitor search",
+    "Direct search",
+    "Contextual search",
+    "Direct search",
+    "Direct search",
+    "Direct search",
+    "Direct search",
+    "Direct search"
   ],
   "stylePreferences": [],
-  "lastSearchResults": [],
+  "lastSearchResults": [
+    {
+      "id": "9323119511149251892",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTw57ZAL8Y7jAXoRVljb0zWfNIuthaypXDeET_DnYBOqrb7JejxmUGGfBcZnJictcM1FQgFcYjeYcF9Cm3in2R_quYi0qfPWGnfOsh9BbrHGJmctdqCbAc0eD8",
+      "title": "Windsor Serenade Me Bodycon Midi Skirt",
+      "price": 26.9,
+      "brand": "Windsor",
+      "category": "Product",
+      "description": "Windsor Serenade Me Bodycon Midi Skirt from Windsor",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/9323119511149251892?gl=us"
+    },
+    {
+      "id": "13363916718356993386",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRmgeTDq041lKp0QJASoS3ofvoXa1A7fCyNcrw3nc2CcSOqZB-fxO4v8eour0pib3VgXab7vePd2LXYkxwLKuFk1RxHgGL_X6PlCLGVu-P6M7eDwxKcOpcNew",
+      "title": "Lulus Tulip Skirt Midi Dress",
+      "price": 72,
+      "brand": "Lulus",
+      "category": "Product",
+      "description": "Lulus Tulip Skirt Midi Dress from Lulus",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/13363916718356993386?gl=us"
+    },
+    {
+      "id": "14105410616066510464",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSqjx3l70sJOFdLIlW3v7HCSY20TG9afm0tD835P4kdffabsB_uclk25kjLIVxiUvacrQ5WFt49waaHCM_2IKHLMqV9jyyOTdE1zHMnnHrC1p-WJIPqN-HnQRs",
+      "title": "Francesca's BEV Tiered Floral Midi Skirt",
+      "price": 43.5,
+      "brand": "Francesca's",
+      "category": "Product",
+      "description": "Francesca's BEV Tiered Floral Midi Skirt from Francesca's",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/14105410616066510464?gl=us"
+    },
+    {
+      "id": "1232798915077363836",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRbRaYH3egw07hux2q-iDbw14x_rq1T7_ymYDezFyx7vUia01Y1uS7am3iEM__7DmBB5b2VS9Q6oyp0RGDwmcSJmAuh9FgXU3iJlwUAvmyUIOZdTY22z7txgQ",
+      "title": "Off The Shoulder Draped Satin Midi Dress",
+      "price": 27,
+      "brand": "Off",
+      "category": "Product",
+      "description": "Off The Shoulder Draped Satin Midi Dress from Off",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/1232798915077363836?gl=us"
+    },
+    {
+      "id": "2909525425272248780",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTDgNDViWEBpppkZPWfxF7CWq-NyKe7RBlAPmje3qYKlNRPqnKzK32Pvtz5yiP-hG6QF3RuSIXDfe_JL8cNGD1snD78FN0AYdxRMTbpUbZW1JjDUc0UURxL8A",
+      "title": "Oh Polly Ruched A-Line Mini Skirt in Sky",
+      "price": 35,
+      "brand": "Oh",
+      "category": "Product",
+      "description": "Oh Polly Ruched A-Line Mini Skirt in Sky from Oh",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/2909525425272248780?gl=us"
+    },
+    {
+      "id": "18154138265304905130",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRc0p3-GQFdfIDimWITGf6Iy5sggDT8PFYlyw7T__J8Xp00JzlFJOJYSIVDHVeX2klHiJUzwzxehmcvY0g25lWtdmVPubHl_8zM-s3y0Bef9DgNhjJUgaQU",
+      "title": "H&M Ladies Flared Skirt Dress",
+      "price": 39.99,
+      "brand": "H&M",
+      "category": "Product",
+      "description": "H&M Ladies Flared Skirt Dress from H&M",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/18154138265304905130?gl=us"
+    },
+    {
+      "id": "10695948660399946371",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSPRKRXvluBvwRWu94VpSSBfLHPldihOaUg4SBhR6m0Bjh0WbPhKbV8K9_oPYVUdjM4_Ev-driPWEWTe94IXKmVq80AH-_XHsz2nduxq1aEdkeU_813aWxWQg",
+      "title": "AVEC LES FILLES Women's Sweetheart Full Skirt Midi Dress",
+      "price": 95.4,
+      "brand": "AVEC",
+      "category": "Product",
+      "description": "AVEC LES FILLES Women's Sweetheart Full Skirt Midi Dress from AVEC",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/10695948660399946371?gl=us"
+    },
+    {
+      "id": "7932323475237667608",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSIEsp9b2pnugrXrLeUbB3ZcHNvskyurMHCor3u_M1KVm-3s0l9Q1fM1xSGqbwgOjGX5tYIS1RrRviEu76gNoAQBkMDFFUD1t5c2_fPOv_3oYR7K7ruPCaT",
+      "title": "Quince Women's European Linen Fit & Flare Midi Dress",
+      "price": 79.9,
+      "brand": "Quince",
+      "category": "Product",
+      "description": "Quince Women's European Linen Fit & Flare Midi Dress from Quince",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/7932323475237667608?gl=us"
+    }
+  ],
   "conversationThemes": [],
-  "timestamp": "2025-09-12T04:57:12.540Z"
+  "timestamp": "2025-09-16T20:32:41.014Z"
 }

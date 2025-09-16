@@ -53,9 +53,23 @@ export async function GET(
       return NextResponse.json({ error: 'Failed to load posts' }, { status: 500 })
     }
 
+    // Get user's public collections
+    const { data: collections, error: collectionsError } = await supabase
+      .from('collections')
+      .select('*')
+      .eq('profile_id', profile.id)
+      .eq('is_public', true)
+      .order('created_at', { ascending: false })
+
+    if (collectionsError) {
+      console.error('Error fetching user collections:', collectionsError)
+      return NextResponse.json({ error: 'Failed to load collections' }, { status: 500 })
+    }
+
     return NextResponse.json({
       profile,
-      posts: posts || []
+      posts: posts || [],
+      collections: collections || []
     })
   } catch (error) {
     console.error('Profile API error:', error)

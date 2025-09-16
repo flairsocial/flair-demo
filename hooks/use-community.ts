@@ -58,7 +58,16 @@ export function useCommunity() {
       })
 
       if (!response.ok) {
-        const error = await response.json()
+        let error: any = { message: 'Unknown error occurred' }
+        try {
+          error = await response.json()
+        } catch (jsonError) {
+          console.error('Failed to parse error response:', jsonError)
+          error = { 
+            message: `HTTP ${response.status}: ${response.statusText}`,
+            status: response.status 
+          }
+        }
         console.error('Error creating post:', error)
         return false
       }
@@ -91,7 +100,16 @@ export function useCommunity() {
       })
 
       if (!response.ok) {
-        const error = await response.json()
+        let error: any = { message: 'Unknown error occurred' }
+        try {
+          error = await response.json()
+        } catch (jsonError) {
+          console.error('Failed to parse error response:', jsonError)
+          error = { 
+            message: `HTTP ${response.status}: ${response.statusText}`,
+            status: response.status 
+          }
+        }
         console.error('Error deleting post:', error)
         return false
       }

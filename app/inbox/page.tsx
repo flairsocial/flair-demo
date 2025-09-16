@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { ArrowLeft, Search, Plus, MoreVertical, Phone, Video, Info, Send } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useMobile } from "@/hooks/use-mobile"
 import { useDirectMessages } from "@/hooks/use-direct-messages"
-import { searchUsers } from "@/lib/database-service"
 
 // Mock conversations for testing
 const mockConversations = [
@@ -92,12 +92,28 @@ const mockMessages = [
   }
 ]
 
+const formatTimeString = (dateString: string) => {
+  const date = new Date(dateString)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMinutes = Math.floor(diffMs / (1000 * 60))
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
+  
+  if (diffMinutes < 1) return 'now'
+  if (diffMinutes < 60) return `${diffMinutes}m`
+  if (diffHours < 24) return `${diffHours}h`
+  if (diffDays < 7) return `${diffDays}d`
+  return date.toLocaleDateString()
+}
+
 export default function InboxPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedConversation, setSelectedConversation] = useState<any>(null)
   const [newMessage, setNewMessage] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [showSearchResults, setShowSearchResults] = useState(false)
+  const searchParams = useSearchParams()
   const isMobile = useMobile()
   
   const { 
@@ -114,7 +130,11 @@ export default function InboxPage() {
     setSearchQuery(query)
     if (query.trim().length > 2) {
       try {
-        const users = await searchUsers(query)
+        const response = await fetch(`/api/search/users?q=${encodeURIComponent(query)}&limit=10`)
+        if (!response.ok) {
+          throw new Error('Search failed')
+        }
+        const users = await response.json()
         setSearchResults(users)
         setShowSearchResults(true)
       } catch (error) {
@@ -133,6 +153,17 @@ export default function InboxPage() {
     setSearchQuery("")
     await loadMessages(conversation.id)
   }
+
+  // Handle URL conversation parameter
+  useEffect(() => {
+    const conversationId = searchParams.get('conversation')
+    if (conversationId && conversations.length > 0) {
+      const conversation = conversations.find(conv => conv.id === conversationId)
+      if (conversation) {
+        handleSelectConversation(conversation)
+      }
+    }
+  }, [searchParams, conversations])
 
   const handleStartConversation = async (user: any) => {
     const conversationId = await startConversation(user.id)
@@ -170,21 +201,6 @@ export default function InboxPage() {
   const selectedConv = selectedConversation 
     ? conversations.find(conv => conv.id === selectedConversation) || mockConversations.find(conv => conv.id === selectedConversation)
     : null
-
-  const formatTimeString = (dateString: string) => {
-    const date = new Date(dateString)
-    const now = new Date()
-    const diffMs = now.getTime() - date.getTime()
-    const diffMinutes = Math.floor(diffMs / (1000 * 60))
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24))
-    
-    if (diffMinutes < 1) return 'now'
-    if (diffMinutes < 60) return `${diffMinutes}m`
-    if (diffHours < 24) return `${diffHours}h`
-    if (diffDays < 7) return `${diffDays}d`
-    return date.toLocaleDateString()
-  }
 
   const sendMessage = () => {
     if (!newMessage.trim()) return
@@ -310,6 +326,7 @@ export default function InboxPage() {
                 conversation={conversation}
                 isSelected={selectedConversation === conversation.id}
                 onClick={() => setSelectedConversation(conversation.id)}
+                formatTimeString={formatTimeString}
               />
             ))}
           </div>
@@ -399,10 +416,11 @@ export default function InboxPage() {
   )
 }
 
-function ConversationItem({ conversation, isSelected, onClick }: {
+function ConversationItem({ conversation, isSelected, onClick, formatTimeString }: {
   conversation: any
   isSelected: boolean
   onClick: () => void
+  formatTimeString: (dateString: string) => string
 }) {
   return (
     <button

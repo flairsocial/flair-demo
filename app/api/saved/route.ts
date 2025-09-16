@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
-import { getSavedItems, addSavedItem, removeSavedItem } from "@/lib/database-service"
+import { getSavedItems, addSavedItem, removeSavedItem } from "@/lib/database-service-v2"
 import type { Product } from "@/lib/types"
 
 export async function GET() {

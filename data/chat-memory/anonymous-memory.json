@@ -1,0 +1,108 @@
+{
+  "userId": "anonymous",
+  "sessionId": "1758044629590",
+  "discussedProducts": [
+    {
+      "title": "Charles & Keith Kora Metallic-Accent Tote Bag",
+      "price": 136,
+      "brand": "Charles",
+      "description": "Charles & Keith Kora Metallic-Accent Tote Bag from Charles",
+      "category": "Product",
+      "link": "https://google.com/shopping/product/14255924807132806946?gl=us",
+      "productId": "14255924807132806946"
+    }
+  ],
+  "searchQueries": [
+    "jeans",
+    "diary lipstick under $20",
+    "Compare Perfect Diary Creamy Clay Lip Mud vs Maybelline Super Stay Teddy Lip Tint",
+    "Charles & Keith Kora",
+    "alternatives for Braveman Men's Premium Slim Fit 3-Piece Suit",
+    "a black dress for a wedding"
+  ],
+  "userIntents": [
+    "Direct search",
+    "Direct search",
+    "Direct search",
+    "Contextual search",
+    "Competitor search",
+    "Direct search"
+  ],
+  "stylePreferences": [],
+  "lastSearchResults": [
+    {
+      "id": "8373107075788165319",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQejbBCb-lfWiiyDRR_WAqqG_Ht4VmsDoMN_7Sh_MBm0h1-IS_zhkQk8PGgLACYkzncIbHYT1GdGaNQVX_FH6OqQGLflKFDJc74-JPWhJ0yDIQOaCWr23Vekg",
+      "title": "Dress The Population Women's Dresses Dress The Population Tiffany One Shoulder Midi Dress",
+      "price": 148,
+      "brand": "Dress",
+      "category": "Product",
+      "description": "Dress The Population Women's Dresses Dress The Population Tiffany One Shoulder Midi Dress from Dress",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/8373107075788165319?gl=us"
+    },
+    {
+      "id": "6796999443560832079",
+      "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRrjC1-WGEWA59dLfeHM_fsU5wgaIHK5Xeo7hJiLFq6X4GRoqVey6oyNLXAvPOmVLx4OIaNoDPLmpy9I32TROTrIUd7i8TzMnZoSwVVfGEyKj8D3R5mPbcRoA",
+      "title": "Steve Madden Women's Vita Lace Godet Pleat Midi Dress",
+      "price": 65.4,
+      "brand": "Steve",
+      "category": "Product",
+      "description": "Steve Madden Women's Vita Lace Godet Pleat Midi Dress from Steve",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/6796999443560832079?gl=us"
+    },
+    {
+      "id": "7300365551271389248",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcReyTmUgZPfRSmSsbDFhCYI-FRJS2CUfeJaGvEpoQER9meyFB27CV2LFnA72dIirF2mx7tDNvwlryNsQ9pVkNRvp8ywPp3yCQ",
+      "title": "Womens R & M Richards Sequined V-Neck Godet Gown",
+      "price": 125.3,
+      "brand": "Womens",
+      "category": "Product",
+      "description": "Womens R & M Richards Sequined V-Neck Godet Gown from Womens",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/7300365551271389248?gl=us"
+    },
+    {
+      "id": "15965773840487955227",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRZ8wSB5fAoHYZa03KjmvM_cZDhHWJWHLlvPgq2VdtH2Gj4KO4qWc0mqUyfA0cnPQDZI8Xi5tYagUyfaXdIaeTgBrRajjiQ44fO5WV24yOJuMN9l2bAIF70Kg",
+      "title": "Old Navy Women's Satin Cowl Maxi Dress",
+      "price": 22,
+      "brand": "Old",
+      "category": "Product",
+      "description": "Old Navy Women's Satin Cowl Maxi Dress from Old",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/15965773840487955227?gl=us"
+    },
+    {
+      "id": "7766425426325939038",
+      "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRMzF4mu07-7P4xw355BfOPlvItSShExutBziOIOMXN7ywusuT9Tl3f1I7BHzFD-XXBQxezyp_VtHYp5XTp9JOgnt8v4QXx",
+      "title": "Women's Crinkle Satin V-Neck Sleeveless Strappy Midi Dress",
+      "price": 43.2,
+      "brand": "Women's",
+      "category": "Product",
+      "description": "Women's Crinkle Satin V-Neck Sleeveless Strappy Midi Dress from Women's",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/7766425426325939038?gl=us"
+    },
+    {
+      "id": "16765985132265382450",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRZYic_93TQa6RtYuUy7X5ciDB08GWr6vQYmaHaoCXxS0PvodZZIk6U56aFKDWIG5C_cAAMzNiB64VZsM8MSJqk58BQ03Ep6HHStIOM6Yw",
+      "title": "Karl Lagerfeld Paris Scuba Crepe Chiffon Sleeve Sheath Dress Womens",
+      "price": 138,
+      "brand": "Karl",
+      "category": "Product",
+      "description": "Karl Lagerfeld Paris Scuba Crepe Chiffon Sleeve Sheath Dress Womens from Karl",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/16765985132265382450?gl=us"
+    }
+  ],
+  "conversationThemes": [],
+  "timestamp": "2025-09-16T20:56:16.616Z"
+}

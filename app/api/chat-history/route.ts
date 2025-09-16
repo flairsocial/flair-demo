@@ -7,8 +7,8 @@ import {
   deleteChatHistory,
   renameChatHistory,
   generateChatTitle
-} from "@/lib/database-service"
-import type { ChatHistory, ChatMessage } from "@/lib/database-service"
+} from "@/lib/database-service-v2"
+import type { ChatHistory, ChatMessage } from "@/lib/database-service-v2"
 
 export async function GET() {
   try {

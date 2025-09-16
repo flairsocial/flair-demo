@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { createConversation } from '@/lib/database-service'
+import { createConversation } from '@/lib/database-service-v2'
 
 export async function POST(request: NextRequest) {
   try {

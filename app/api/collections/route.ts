@@ -7,8 +7,8 @@ import {
   addItemToCollection, 
   removeItemFromCollection,
   updateCollection 
-} from "@/lib/database-service"
-import type { Collection } from "@/lib/database-service"
+} from "@/lib/database-service-v2"
+import type { Collection } from "@/lib/database-service-v2"
 
 export async function GET() {
   try {
@@ -16,14 +16,17 @@ export async function GET() {
     
     // Require authentication for database access
     if (!userId) {
+      console.log('[Collections API] No user ID provided')
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
+    
+    console.log(`[Collections API] GET request - User ID: ${userId}`)
     
     // Get user's collections from storage
     const collections = await getCollections(userId)
     
-    console.log(`[Collections API] GET request - User ID: ${userId}`)
-    console.log(`[Collections API] Found ${collections.length} collections`)
+    console.log(`[Collections API] Found ${collections.length} collections for user ${userId}`)
+    console.log(`[Collections API] Collection IDs:`, collections.map(c => ({ id: c.id, name: c.name })))
 
     // Add cache prevention headers
     const response = NextResponse.json(collections)
@@ -71,7 +74,7 @@ export async function POST(request: Request) {
           if (newCollection.isPublic) {
             try {
               // Import the createPostForCollection function
-              const { createPostForCollection } = await import("@/lib/database-service")
+              const { createPostForCollection } = await import("@/lib/database-service-v2")
               await createPostForCollection(userId, newCollection)
             } catch (error) {
               console.error('Error creating community post for collection:', error)
@@ -149,7 +152,7 @@ export async function PUT(request: Request) {
     // If making public, create community post
     if (isPublic === true && updatedCollection.isPublic) {
       try {
-        const { createPostForCollection } = await import("@/lib/database-service")
+        const { createPostForCollection } = await import("@/lib/database-service-v2")
         await createPostForCollection(userId, updatedCollection)
       } catch (error) {
         console.error('Error creating community post for collection:', error)

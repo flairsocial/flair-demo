@@ -1,0 +1,128 @@
+{
+  "userId": "user_32n6ZEkwzPPj2HRuq0rilBOxwYD",
+  "sessionId": "1758048019368",
+  "discussedProducts": [
+    {
+      "title": "Burton Family Tree Alekesam Snowboard",
+      "price": 629.95,
+      "brand": "Burton",
+      "description": "Burton Family Tree Alekesam Snowboard from Burton",
+      "category": "Product",
+      "link": "https://google.com/shopping/product/2594538117723615219?gl=us",
+      "productId": "2594538117723615219"
+    }
+  ],
+  "searchQueries": [
+    "Burton Family Tree Alekesam",
+    "burton alekesam snowboard",
+    "a black dress for a wedding",
+    "midi skirt & mini dress"
+  ],
+  "userIntents": [
+    "Contextual search",
+    "Direct search",
+    "Direct search",
+    "Direct search"
+  ],
+  "stylePreferences": [],
+  "lastSearchResults": [
+    {
+      "id": "9323119511149251892",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTw57ZAL8Y7jAXoRVljb0zWfNIuthaypXDeET_DnYBOqrb7JejxmUGGfBcZnJictcM1FQgFcYjeYcF9Cm3in2R_quYi0qfPWGnfOsh9BbrHGJmctdqCbAc0eD8",
+      "title": "Windsor Serenade Me Bodycon Midi Skirt",
+      "price": 26.9,
+      "brand": "Windsor",
+      "category": "Product",
+      "description": "Windsor Serenade Me Bodycon Midi Skirt from Windsor",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/9323119511149251892?gl=us"
+    },
+    {
+      "id": "14105410616066510464",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcSqjx3l70sJOFdLIlW3v7HCSY20TG9afm0tD835P4kdffabsB_uclk25kjLIVxiUvacrQ5WFt49waaHCM_2IKHLMqV9jyyOTdE1zHMnnHrC1p-WJIPqN-HnQRs",
+      "title": "Francesca's BEV Tiered Floral Midi Skirt",
+      "price": 43.5,
+      "brand": "Francesca's",
+      "category": "Product",
+      "description": "Francesca's BEV Tiered Floral Midi Skirt from Francesca's",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/14105410616066510464?gl=us"
+    },
+    {
+      "id": "13363916718356993386",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRmgeTDq041lKp0QJASoS3ofvoXa1A7fCyNcrw3nc2CcSOqZB-fxO4v8eour0pib3VgXab7vePd2LXYkxwLKuFk1RxHgGL_X6PlCLGVu-P6M7eDwxKcOpcNew",
+      "title": "Lulus Tulip Skirt Midi Dress",
+      "price": 72,
+      "brand": "Lulus",
+      "category": "Product",
+      "description": "Lulus Tulip Skirt Midi Dress from Lulus",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/13363916718356993386?gl=us"
+    },
+    {
+      "id": "8479330455204076712",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcRZWG9Tr11QpyXUyUG_h1Z4qfznh0JpRYxpmzWjnVN71Pbr3aCNrD7_Mwcma7Pfqj33dGBi9EnI8jSDRGpQO-0wzQR7ry6tjdnVLKCmjDCO5XyoYwE3oPJU",
+      "title": "Willow Chiffon Mini Dress",
+      "price": 90,
+      "brand": "Willow",
+      "category": "Product",
+      "description": "Willow Chiffon Mini Dress from Willow",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/8479330455204076712?gl=us"
+    },
+    {
+      "id": "7506143425270115242",
+      "image": "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcSH7ulMSJyCZkvnJbj5Q5UfRXPEu5EGwuD-0GT412aSGFPnhU6b1CgFARCLBb0alPjBTKRgN_JYGjM_UKLYvTuHaAqXH_o_xoDZz1jupBAhGL2CDf1jaCLc",
+      "title": "Women's Jacquard Corset Tube Top and Ruched Skirt Set",
+      "price": 23.99,
+      "brand": "Women's",
+      "category": "Product",
+      "description": "Women's Jacquard Corset Tube Top and Ruched Skirt Set from Women's",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/7506143425270115242?gl=us"
+    },
+    {
+      "id": "18154138265304905130",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcRc0p3-GQFdfIDimWITGf6Iy5sggDT8PFYlyw7T__J8Xp00JzlFJOJYSIVDHVeX2klHiJUzwzxehmcvY0g25lWtdmVPubHl_8zM-s3y0Bef9DgNhjJUgaQU",
+      "title": "H&M Ladies Flared Skirt Dress",
+      "price": 39.99,
+      "brand": "H&M",
+      "category": "Product",
+      "description": "H&M Ladies Flared Skirt Dress from H&M",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/18154138265304905130?gl=us"
+    },
+    {
+      "id": "10695948660399946371",
+      "image": "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcSPRKRXvluBvwRWu94VpSSBfLHPldihOaUg4SBhR6m0Bjh0WbPhKbV8K9_oPYVUdjM4_Ev-driPWEWTe94IXKmVq80AH-_XHsz2nduxq1aEdkeU_813aWxWQg",
+      "title": "AVEC LES FILLES Women's Sweetheart Full Skirt Midi Dress",
+      "price": 95.4,
+      "brand": "AVEC",
+      "category": "Product",
+      "description": "AVEC LES FILLES Women's Sweetheart Full Skirt Midi Dress from AVEC",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/10695948660399946371?gl=us"
+    },
+    {
+      "id": "13625962745157371881",
+      "image": "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcR52jFai88nbiQ4eXjcuZOpqi8_Ye7kTTiaKo6qKBCr5PTzXdb4k7nO17b0NfJTv5LuJmW9855g-Z33zxtnrMlSQyuz4K_MZEDCtnw_PSaWYgEYa96DhWwIHrY",
+      "title": "Francesca's Carla Floral Satin Midi Skirt",
+      "price": 17.49,
+      "brand": "Francesca's",
+      "category": "Product",
+      "description": "Francesca's Carla Floral Satin Midi Skirt from Francesca's",
+      "hasAiInsights": false,
+      "saved": false,
+      "link": "https://google.com/shopping/product/13625962745157371881?gl=us"
+    }
+  ],
+  "conversationThemes": [],
+  "timestamp": "2025-09-16T20:43:03.857Z"
+}

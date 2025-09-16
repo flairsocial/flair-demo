@@ -37,7 +37,7 @@ export default function CreateCollectionModal({
   const [description, setDescription] = useState("")
   const [selectedColor, setSelectedColor] = useState(colorOptions[0])
   const [customBanner, setCustomBanner] = useState("")
-  const [isPublic, setIsPublic] = useState(false)
+  const [isPublic, setIsPublic] = useState(true) // Default to public
   const [loading, setLoading] = useState(false)
 
   const handleCreate = async () => {

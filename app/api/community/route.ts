@@ -112,6 +112,7 @@ export async function GET(request: NextRequest) {
         *,
         author:profiles!profile_id (
           id,
+          clerk_id,
           username,
           display_name,
           profile_picture_url
@@ -139,20 +140,40 @@ export async function GET(request: NextRequest) {
               .single()
 
             if (!collectionError && collection) {
-              // Get products in the collection
+              // Get real products in the collection from the collection owner's saved items
               const productIds = collection.item_ids || []
               if (productIds.length > 0) {
-                // For now, we'll create mock product data
-                // In a real app, you'd fetch from a products table
-                const products = productIds.map((id: string, index: number) => ({
-                  id,
-                  title: `Product ${index + 1}`,
-                  image: `/placeholder.svg?${index}`,
-                  price: Math.floor(Math.random() * 200) + 50,
-                  brand: 'Sample Brand'
-                }))
-                
-                collection.products = products
+                try {
+                  // Get the collection owner's profile to fetch their saved items
+                  const { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('clerk_id')
+                    .eq('id', post.profile_id)
+                    .single()
+                  
+                  if (!profileError && profile) {
+                    // Fetch saved items for the collection owner
+                    const { data: savedItems, error: savedItemsError } = await supabase
+                      .from('saved_items')
+                      .select('product')
+                      .eq('profile_id', post.profile_id)
+                    
+                    if (!savedItemsError && savedItems) {
+                      // Filter saved items to only include those in the collection
+                      const collectionProducts = savedItems
+                        .filter(item => productIds.includes(item.product.id))
+                        .map(item => item.product)
+                      
+                      collection.products = collectionProducts
+                    }
+                  }
+                } catch (error) {
+                  console.error('Error fetching collection products:', error)
+                  // Fallback to empty array if there's an error
+                  collection.products = []
+                }
+              } else {
+                collection.products = []
               }
               
               return {
@@ -186,12 +207,19 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    console.log('🚀 Community POST request received')
+    
     const { userId } = await auth()
+    console.log('👤 User ID from auth:', userId)
+    
     if (!userId) {
+      console.log('❌ No user ID - unauthorized')
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     const body = await request.json()
+    console.log('📝 Request body:', body)
+    
     const { action, postId, title, description, imageUrl, linkUrl, postType, collectionId } = body
 
     // Handle post deletion
@@ -220,12 +248,16 @@ export async function POST(request: NextRequest) {
 
     // Handle post creation (existing code)
     if (!title?.trim()) {
+      console.log('❌ No title provided')
       return NextResponse.json({ error: 'Title is required' }, { status: 400 })
     }
 
+    console.log('🔄 Getting or creating profile...')
     // Get or create user profile
     const profileId = await getOrCreateProfile(userId)
+    console.log('👤 Profile ID:', profileId)
 
+    console.log('📝 Creating post data...')
     // Create the community post
     const postData = {
       id: `post-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -245,6 +277,8 @@ export async function POST(request: NextRequest) {
       updated_at: new Date().toISOString()
     }
 
+    console.log('💾 Inserting post data:', postData)
+
     const { data: newPost, error } = await supabase
       .from('community_posts')
       .insert(postData)
@@ -252,7 +286,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error('Error creating community post:', {
+      console.error('❌ Error creating community post:', {
         message: error.message,
         details: error.details,
         hint: error.hint,
@@ -262,6 +296,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create post' }, { status: 500 })
     }
 
+    console.log('✅ Post created successfully:', newPost.id)
     return NextResponse.json({ success: true, postId: newPost.id })
   } catch (error) {
     console.error('Community POST error:', error)

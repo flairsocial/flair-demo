@@ -1,7 +1,7 @@
 // Chat Title Generation Service using AI
 import { generateText } from "ai"
 import { model } from "./ai-model"
-import type { ChatMessage } from "./profile-storage"
+import type { ChatMessage } from "./database-service-v2"
 
 export class ChatTitleService {
   // Generate a concise title for a chat based on its messages

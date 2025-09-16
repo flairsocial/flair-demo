@@ -1,5 +1,30 @@
 import { NextResponse } from "next/server"
 import { auth, clerkClient } from "@clerk/nextjs/server"
+import { getUserProfile, updateUserProfile } from "@/lib/database-service-v2"
+
+export async function GET() {
+  try {
+    const { userId } = await auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    console.log(`[Profile API] GET request - User ID: ${userId}`)
+
+    // Get user's community profile using database service v2
+    const profile = await getUserProfile(userId)
+
+    if (!profile) {
+      return NextResponse.json(null)
+    }
+
+    console.log(`[Profile API] Found profile for user: ${userId}`)
+    return NextResponse.json(profile)
+  } catch (error) {
+    console.error('[Profile API] Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
 
 export async function PUT(request: Request) {
   try {
@@ -10,6 +35,9 @@ export async function PUT(request: Request) {
     }
     
     const { displayName, username, bio, profilePicture } = await request.json()
+    
+    console.log(`[User Profile API] PUT request - User ID: ${userId}`)
+    console.log(`[User Profile API] Update data:`, { displayName, username, bio, profilePicture: !!profilePicture })
     
     const client = await clerkClient()
     
@@ -43,44 +71,24 @@ export async function PUT(request: Request) {
       }
     }
     
+    console.log(`[User Profile API] Updating Clerk user data:`, updateData)
     await client.users.updateUser(userId, updateData)
     
-    // Also update the profile in our database using the same sync logic as community API
+    // Also update the profile in our database
     try {
-      // Use the same helper function from community API
-      const { createClient } = await import('@supabase/supabase-js')
-      
-      const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
-      
-      const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      })
-      
       // Get fresh user data from Clerk after update
       const userData = await client.users.getUser(userId)
       
-      const profileData = {
-        clerk_id: userId,
-        username: userData?.username || `user_${userId.slice(-8)}`,
-        display_name: userData?.fullName || userData?.firstName || userData?.username || 'User',
-        profile_picture_url: userData?.imageUrl || null,
-        updated_at: new Date().toISOString()
-      }
+      // Update database profile using the new service function
+      await updateUserProfile(userId, {
+        username: userData?.username || username || `user_${userId.slice(-8)}`,
+        display_name: userData?.fullName || displayName || userData?.firstName || userData?.username || 'User',
+        full_name: userData?.fullName || undefined,
+        bio: bio || userData?.publicMetadata?.bio as string || undefined,
+        profile_picture_url: userData?.imageUrl || profilePicture || undefined
+      })
       
-      // Update or create profile in database
-      const { error: upsertError } = await supabase
-        .from('profiles')
-        .upsert(profileData, { onConflict: 'clerk_id' })
-      
-      if (upsertError) {
-        console.error('Error updating database profile:', upsertError)
-      } else {
-        console.log('Database profile updated successfully')
-      }
+      console.log('[User Profile API] Database profile updated successfully')
     } catch (dbError) {
       console.error('Error updating database profile:', dbError)
       // Don't fail the whole request if database update fails

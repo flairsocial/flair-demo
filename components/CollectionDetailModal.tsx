@@ -7,6 +7,7 @@ import { X, MessageCircle, Camera, Edit3, Trash2, Plus, MoreHorizontal, External
 import Image from "next/image"
 import type { Product, Collection } from "@/lib/types"
 import { useRouter } from "next/navigation"
+import ProductDetail from "@/components/ProductDetail"
 
 interface CollectionDetailModalProps {
   collection: Collection & { items: Product[] } | null
@@ -14,6 +15,8 @@ interface CollectionDetailModalProps {
   onClose: () => void
   onUpdate: (collection: Collection) => void
   onDelete: (collectionId: string) => void
+  userId?: string // Clerk user ID for community post creation
+  ownerId?: string // Clerk user ID of the collection owner (for permission checks)
 }
 
 export default function CollectionDetailModal({ 
@@ -21,7 +24,9 @@ export default function CollectionDetailModal({
   isOpen, 
   onClose, 
   onUpdate, 
-  onDelete 
+  onDelete,
+  userId,
+  ownerId
 }: CollectionDetailModalProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editName, setEditName] = useState("")
@@ -31,7 +36,13 @@ export default function CollectionDetailModal({
   const [showShareMenu, setShowShareMenu] = useState(false)
   const [showOptionsMenu, setShowOptionsMenu] = useState(false)
   const [uploadingBanner, setUploadingBanner] = useState(false)
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const router = useRouter()
+
+  // Determine if the current user owns this collection
+  // In profile view: ownerId is not provided, so userId presence indicates ownership
+  // In community view: ownerId is provided, compare with userId to determine ownership
+  const isOwner = ownerId ? (userId === ownerId) : !!userId
 
   useEffect(() => {
     if (collection) {
@@ -39,6 +50,23 @@ export default function CollectionDetailModal({
       setEditDescription(collection.description || "")
     }
   }, [collection])
+
+  // Close options menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showOptionsMenu) {
+        setShowOptionsMenu(false)
+      }
+    }
+
+    if (showOptionsMenu) {
+      document.addEventListener('click', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside)
+    }
+  }, [showOptionsMenu])
 
   if (!collection) return null
 
@@ -95,8 +123,8 @@ export default function CollectionDetailModal({
       const collectionSummary = {
         name: collection.name,
         description: collection.description || "",
-        totalItems: collection.items.length,
-        items: collection.items.map(item => ({
+        totalItems: Array.isArray(collection.items) ? collection.items.length : 0,
+        items: (Array.isArray(collection.items) ? collection.items : []).map(item => ({
           id: item.id,
           title: item.title,
           brand: item.brand,
@@ -174,23 +202,6 @@ export default function CollectionDetailModal({
     }
   }
 
-  // Close options menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showOptionsMenu) {
-        setShowOptionsMenu(false)
-      }
-    }
-
-    if (showOptionsMenu) {
-      document.addEventListener('click', handleClickOutside)
-    }
-
-    return () => {
-      document.removeEventListener('click', handleClickOutside)
-    }
-  }, [showOptionsMenu])
-
   const handleShare = () => {
     // Copy collection link to clipboard
     const collectionUrl = `${window.location.origin}/collection/${collection.id}`
@@ -217,13 +228,32 @@ export default function CollectionDetailModal({
         setShowOptionsMenu(false)
         
         // If making public, create community post
-        if (!collection.isPublic && updatedCollection.isPublic) {
+        if (!collection.isPublic && updatedCollection.isPublic && userId) {
           try {
-            const { createPostForCollection } = await import("@/lib/database-service")
-            // This would need the clerk user ID - you might need to pass it as a prop
-            console.log('Collection made public - would create community post')
+            const { createPostForCollection } = await import("@/lib/database-service-v2")
+            await createPostForCollection(userId, {
+              id: collection.id,
+              name: collection.name,
+              description: collection.description,
+              itemIds: Array.isArray(collection.items) ? collection.items.map(item => item.id) : [],
+              color: collection.color || '#3b82f6',
+              createdAt: collection.createdAt || new Date().toISOString(),
+              isPublic: true
+            })
+            console.log('✅ Collection shared to community successfully!')
           } catch (error) {
             console.error('Error creating community post:', error)
+          }
+        }
+        
+        // If making private, remove community post
+        if (collection.isPublic && !updatedCollection.isPublic && userId) {
+          try {
+            const { removePostForCollection } = await import("@/lib/database-service-v2")
+            await removePostForCollection(userId, collection.id)
+            console.log('✅ Collection removed from community successfully!')
+          } catch (error) {
+            console.error('Error removing community post:', error)
           }
         }
       }
@@ -251,19 +281,14 @@ export default function CollectionDetailModal({
         // Update the collection locally
         const updatedCollection = {
           ...collection,
-          items: collection.items.filter(item => item.id !== itemId),
-          itemIds: collection.itemIds.filter(id => id !== itemId)
+          items: Array.isArray(collection.items) ? collection.items.filter(item => item.id !== itemId) : [],
+          itemIds: Array.isArray(collection.itemIds) ? collection.itemIds.filter(id => id !== itemId) : []
         }
         onUpdate(updatedCollection as Collection)
       }
     } catch (error) {
       console.error('Error removing item from collection:', error)
     }
-  }
-
-  const getCollectionBanner = (): Product[] => {
-    // Always return product images for banner, even if custom banner exists
-    return collection.items.slice(0, 4)
   }
 
   return (
@@ -285,27 +310,38 @@ export default function CollectionDetailModal({
           >
             {/* Header */}
             <div className="relative">
-              {/* Collection Banner */}
-              <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 relative">
+              {/* Collection Banner - Updated to match user profile */}
+              <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
                 {collection.customBanner ? (
+                  // Show custom banner if available
                   <Image
                     src={collection.customBanner}
                     alt={collection.name}
                     fill
                     className="object-cover"
                   />
-                ) : (
+                ) : Array.isArray(collection.items) && collection.items.length > 0 ? (
+                  // Show product images as fallback
                   <div className="grid grid-cols-2 h-full">
-                    {getCollectionBanner().map((item, index) => (
-                      <div key={item.id} className="relative">
-                        <Image
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
+                    {(Array.isArray(collection.items) ? collection.items : [])
+                      .slice(0, 4)
+                      .map((item, index) => (
+                        <div key={item.id} className="relative">
+                          <Image
+                            src={item.image || "/placeholder.svg"}
+                            alt={item.title}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  // Show default icon if no banner and no items
+                  <div className="flex items-center justify-center h-full">
+                    <div className={`w-12 h-12 rounded-full ${collection.color || 'bg-blue-500'} flex items-center justify-center`}>
+                      <Plus className="w-6 h-6 text-white" />
+                    </div>
                   </div>
                 )}
                 
@@ -314,43 +350,47 @@ export default function CollectionDetailModal({
                 
                 {/* Header controls */}
                 <div className="absolute top-4 right-4 flex items-center space-x-2">
-                  <div className="relative">
+                  {isOwner && (
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                        className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                      >
+                        <MoreHorizontal className="w-4 h-4 text-white" />
+                      </button>
+                      
+                      {/* Options dropdown menu */}
+                      {showOptionsMenu && (
+                        <div className="absolute top-12 right-0 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 min-w-[160px] z-10">
+                          <button
+                            onClick={handleTogglePrivacy}
+                            disabled={loading}
+                            className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-white hover:bg-zinc-700 rounded-t-lg"
+                          >
+                            {collection.isPublic ? (
+                              <>
+                                <Lock className="w-4 h-4" />
+                                <span>Make Private</span>
+                              </>
+                            ) : (
+                              <>
+                                <Globe className="w-4 h-4" />
+                                <span>Make Public</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {isOwner && (
                     <button
-                      onClick={() => setShowOptionsMenu(!showOptionsMenu)}
+                      onClick={() => setIsEditing(!isEditing)}
                       className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
                     >
-                      <MoreHorizontal className="w-4 h-4 text-white" />
+                      <Edit3 className="w-4 h-4 text-white" />
                     </button>
-                    
-                    {/* Options dropdown menu */}
-                    {showOptionsMenu && (
-                      <div className="absolute top-12 right-0 bg-zinc-800 rounded-lg shadow-lg border border-zinc-700 min-w-[160px] z-10">
-                        <button
-                          onClick={handleTogglePrivacy}
-                          disabled={loading}
-                          className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-white hover:bg-zinc-700 rounded-t-lg"
-                        >
-                          {collection.isPublic ? (
-                            <>
-                              <Lock className="w-4 h-4" />
-                              <span>Make Private</span>
-                            </>
-                          ) : (
-                            <>
-                              <Globe className="w-4 h-4" />
-                              <span>Make Public</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
-                  >
-                    <Edit3 className="w-4 h-4 text-white" />
-                  </button>
+                  )}
                   <button
                     onClick={onClose}
                     className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
@@ -403,7 +443,7 @@ export default function CollectionDetailModal({
                         <p className="text-zinc-300 text-sm">{collection.description}</p>
                       )}
                       <p className="text-zinc-400 text-sm">
-                        {collection.items.length} item{collection.items.length !== 1 ? 's' : ''}
+                        {Array.isArray(collection.items) ? collection.items.length : 0} item{(Array.isArray(collection.items) ? collection.items.length : 0) !== 1 ? 's' : ''}
                       </p>
                     </>
                   )}
@@ -421,63 +461,67 @@ export default function CollectionDetailModal({
                     Ask Chat
                   </button>
                   
-                  <div className="relative">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleBannerUpload}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                      disabled={uploadingBanner}
-                    />
-                    <button 
-                      className="flex items-center bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-                      disabled={uploadingBanner}
-                    >
-                      <Camera className="w-4 h-4 mr-2" />
-                      {uploadingBanner ? 'Uploading...' : 'Custom Banner'}
-                    </button>
-                  </div>
-
-                  {collection.customBanner && (
-                    <button 
-                      onClick={handleRemoveBanner}
-                      className="flex items-center bg-zinc-700 hover:bg-zinc-600 text-zinc-300 px-4 py-2 rounded-lg transition-colors"
-                      disabled={uploadingBanner}
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Remove Banner
-                    </button>
-                  )}
-                  
-                  <div className="relative">
-                    <button 
-                      onClick={handleShare}
-                      className="flex items-center bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg transition-colors"
-                    >
-                      <ExternalLink className="w-4 h-4 mr-2" />
-                      Share
-                    </button>
-                    {showShareMenu && (
-                      <div className="absolute top-full left-0 mt-2 bg-zinc-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap">
-                        Link copied to clipboard!
+                  {isOwner && (
+                    <>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleBannerUpload}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          disabled={uploadingBanner}
+                        />
+                        <button 
+                          className="flex items-center bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                          disabled={uploadingBanner}
+                        >
+                          <Camera className="w-4 h-4 mr-2" />
+                          {uploadingBanner ? 'Uploading...' : 'Custom Banner'}
+                        </button>
                       </div>
-                    )}
-                  </div>
-                  
-                  <button
-                    onClick={() => setShowDeleteConfirm(true)}
-                    className="flex items-center bg-red-900/50 hover:bg-red-900 text-red-300 px-4 py-2 rounded-lg transition-colors ml-auto"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </button>
+
+                      {collection.customBanner && (
+                        <button 
+                          onClick={handleRemoveBanner}
+                          className="flex items-center bg-zinc-700 hover:bg-zinc-600 text-zinc-300 px-4 py-2 rounded-lg transition-colors"
+                          disabled={uploadingBanner}
+                        >
+                          <X className="w-4 h-4 mr-2" />
+                          Remove Banner
+                        </button>
+                      )}
+                      
+                      <div className="relative">
+                        <button 
+                          onClick={handleShare}
+                          className="flex items-center bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-2 rounded-lg transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Share
+                        </button>
+                        {showShareMenu && (
+                          <div className="absolute top-full left-0 mt-2 bg-zinc-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap">
+                            Link copied to clipboard!
+                          </div>
+                        )}
+                      </div>
+                      
+                      <button
+                        onClick={() => setShowDeleteConfirm(true)}
+                        className="flex items-center bg-red-900/50 hover:bg-red-900 text-red-300 px-4 py-2 rounded-lg transition-colors ml-auto"
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>
 
             {/* Items Grid */}
             <div className="p-4 max-h-96 overflow-y-auto">
-              {collection.items.length === 0 ? (
+              {!Array.isArray(collection.items) || collection.items.length === 0 ? (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4">
                     <Plus className="w-8 h-8 text-zinc-600" />
@@ -489,7 +533,10 @@ export default function CollectionDetailModal({
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {collection.items.map((item) => (
                     <div key={item.id} className="group relative">
-                      <div className="aspect-[3/4] bg-zinc-800 rounded-lg overflow-hidden relative">
+                      <div 
+                        className="aspect-[3/4] bg-zinc-800 rounded-lg overflow-hidden relative cursor-pointer"
+                        onClick={() => setSelectedProduct(item)}
+                      >
                         <Image
                           src={item.image || "/placeholder.svg"}
                           alt={item.title}
@@ -499,17 +546,25 @@ export default function CollectionDetailModal({
                         
                         {/* Item overlay */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                          <button
-                            onClick={() => handleRemoveItem(item.id)}
-                            className="opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition-all"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
+                          {isOwner && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleRemoveItem(item.id)
+                              }}
+                              className="opacity-0 group-hover:opacity-100 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full transition-all"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       </div>
                       
-                      <div className="mt-2">
-                        <h4 className="text-sm font-medium truncate">{item.title}</h4>
+                      <div 
+                        className="mt-2 cursor-pointer"
+                        onClick={() => setSelectedProduct(item)}
+                      >
+                        <h4 className="text-sm font-medium truncate hover:text-blue-400 transition-colors">{item.title}</h4>
                         <p className="text-xs text-zinc-400">{item.brand}</p>
                         <p className="text-sm font-medium">${item.price}</p>
                       </div>
@@ -559,6 +614,14 @@ export default function CollectionDetailModal({
             </AnimatePresence>
           </motion.div>
         </motion.div>
+      )}
+      
+      {/* Product Detail Modal */}
+      {selectedProduct && (
+        <ProductDetail 
+          product={selectedProduct} 
+          onClose={() => setSelectedProduct(null)} 
+        />
       )}
     </AnimatePresence>
   )

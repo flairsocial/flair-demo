@@ -3,10 +3,10 @@ import { generateText } from "ai"
 import { model } from "@/lib/ai-model"
 import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
-import { getProfile, getSavedItems } from "@/lib/database-service"
+import { getProfile, getSavedItems } from "@/lib/database-service-v2"
 import { searchForProducts, searchForCompetitorProducts } from "@/lib/products-service"
 import { ImageAnalysisService } from "@/lib/image-analysis-service"
-import { chatMemoryService, type ProductMention } from "@/lib/chat-memory-service"
+import { chatMemoryService, type ProductMention } from "@/lib/chat-memory-service-v2"
 import { realSearchService } from "@/lib/real-search-service"
 
 const serperApiKey = process.env.SERPER_API_KEY

@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Plus, Check, Globe, Lock } from "lucide-react"
 import type { Product } from "@/lib/types"
-import type { Collection } from "@/lib/profile-storage"
+import type { Collection } from "@/lib/database-service-v2"
 
 interface CollectionModalProps {
   isOpen: boolean

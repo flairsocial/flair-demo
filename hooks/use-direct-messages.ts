@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { useUser } from "@clerk/nextjs"
-import { getConversations, getMessages, sendMessage, createConversation } from "@/lib/database-service"
 
 export function useDirectMessages() {
   const { user } = useUser()
@@ -23,10 +22,15 @@ export function useDirectMessages() {
     
     setLoading(true)
     try {
-      const convs = await getConversations(user.id)
-      setConversations(convs)
+      const response = await fetch('/api/direct-messages')
+      if (!response.ok) {
+        throw new Error('Failed to load conversations')
+      }
+      const data = await response.json()
+      setConversations(data.conversations || [])
     } catch (error) {
       console.error('Error loading conversations:', error)
+      setConversations([])
     } finally {
       setLoading(false)
     }
@@ -37,10 +41,15 @@ export function useDirectMessages() {
     
     setLoading(true)
     try {
-      const messages = await getMessages(conversationId, user.id)
-      setCurrentMessages(messages)
+      const response = await fetch(`/api/direct-messages/${conversationId}`)
+      if (!response.ok) {
+        throw new Error('Failed to load messages')
+      }
+      const data = await response.json()
+      setCurrentMessages(data.messages || [])
     } catch (error) {
       console.error('Error loading messages:', error)
+      setCurrentMessages([])
     } finally {
       setLoading(false)
     }
@@ -51,14 +60,30 @@ export function useDirectMessages() {
     
     setSending(true)
     try {
-      const success = await sendMessage(conversationId, user.id, content)
-      if (success) {
+      const response = await fetch('/api/direct-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send',
+          conversationId,
+          content: content.trim()
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to send message')
+      }
+      
+      const data = await response.json()
+      if (data.success) {
         // Reload messages to show the new one
         await loadMessages(conversationId)
         // Refresh conversations to update last message
         await loadConversations()
+        return true
       }
-      return success
+      
+      return false
     } catch (error) {
       console.error('Error sending message:', error)
       return false
@@ -71,11 +96,26 @@ export function useDirectMessages() {
     if (!user?.id) return null
     
     try {
-      const conversationId = await createConversation(user.id, otherUserId)
-      if (conversationId) {
-        await loadConversations()
+      const response = await fetch('/api/direct-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          otherUserId
+        })
+      })
+      
+      if (!response.ok) {
+        throw new Error('Failed to create conversation')
       }
-      return conversationId
+      
+      const data = await response.json()
+      if (data.conversationId) {
+        await loadConversations()
+        return data.conversationId
+      }
+      
+      return null
     } catch (error) {
       console.error('Error starting conversation:', error)
       return null

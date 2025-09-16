@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { X, Clock, Trash2, MoreVertical, Edit3, Share2 } from 'lucide-react'
-import type { ChatHistory } from '@/lib/profile-storage'
+import type { ChatHistory } from '@/lib/database-service-v2'
 
 interface ChatHistoryPanelProps {
   showHistory: boolean

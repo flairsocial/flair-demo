@@ -6,55 +6,115 @@ export async function GET() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey)
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
 
-    // Check if direct_messages tables exist in public schema
-    const { data: dmTables, error: dmTablesError } = await supabase
+    console.log('[Debug] Checking database tables...')
+
+    // Check if core tables exist
+    const { data: tables, error: tablesError } = await supabase
       .from('information_schema.tables')
       .select('table_name')
       .eq('table_schema', 'public')
-      .in('table_name', ['direct_conversations', 'direct_messages'])
+      .in('table_name', ['profiles', 'collections', 'saved_items', 'conversations', 'messages'])
 
-    if (dmTablesError) {
-      console.error('DM tables check error:', dmTablesError)
+    if (tablesError) {
+      console.error('[Debug] Error checking tables:', tablesError)
+      return NextResponse.json({ error: "Failed to check tables", details: tablesError }, { status: 500 })
     }
 
-    // Check tables in direct_messages schema
-    const { data: tables, error: tableError } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'direct_messages')
+    const existingTables = tables?.map(t => t.table_name) || []
+    console.log('[Debug] Existing tables:', existingTables)
 
-    if (tableError) {
-      console.error('Table check error:', tableError)
+    // Check collections table structure if it exists
+    let collectionsStructure = null
+    if (existingTables.includes('collections')) {
+      const { data: columns, error: columnsError } = await supabase
+        .from('information_schema.columns')
+        .select('column_name, data_type, is_nullable, column_default')
+        .eq('table_schema', 'public')
+        .eq('table_name', 'collections')
+        .order('ordinal_position')
+
+      if (!columnsError) {
+        collectionsStructure = columns
+      }
     }
 
-    // Check public schema tables
-    const { data: publicTables, error: publicError } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'public')
+    // Test a simple collections query
+    let collectionsTest = null
+    try {
+      const { data: testData, error: testError } = await supabase
+        .from('collections')
+        .select('count')
+        .limit(1)
+      
+      if (testError) {
+        collectionsTest = `Collections query error: ${testError.message}`
+      } else {
+        collectionsTest = 'Collections table accessible'
+      }
+    } catch (testErr) {
+      collectionsTest = `Collections test exception: ${testErr}`
+    }
 
-    if (publicError) {
-      console.error('Public table check error:', publicError)
+    // Check profiles with collections
+    let profilesWithCollections = null
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('clerk_id, id')
+        .limit(10)
+      
+      if (profileError) {
+        profilesWithCollections = `Profiles query error: ${profileError.message}`
+      } else {
+        // For each profile, try to count their collections
+        const profileCollectionCounts = []
+        for (const profile of profileData || []) {
+          try {
+            const { count, error: countError } = await supabase
+              .from('collections')
+              .select('id', { count: 'exact' })
+              .eq('profile_id', profile.id)
+            
+            profileCollectionCounts.push({
+              clerk_id: profile.clerk_id,
+              profile_id: profile.id,
+              collections_count: countError ? `Error: ${countError.message}` : count
+            })
+          } catch (countErr) {
+            profileCollectionCounts.push({
+              clerk_id: profile.clerk_id,
+              profile_id: profile.id,
+              collections_count: `Exception: ${countErr}`
+            })
+          }
+        }
+        profilesWithCollections = profileCollectionCounts
+      }
+    } catch (profileErr) {
+      profilesWithCollections = `Profiles test exception: ${profileErr}`
     }
 
     return NextResponse.json({
-      directMessagesTables: dmTables || [],
-      dmTablesError: dmTablesError?.message || null,
-      directMessagesTablesFound: dmTables?.length || 0,
-      allTables: tables || [],
-      tableError: tableError?.message || null,
-      publicTables: publicTables || [],
-      publicError: publicError?.message || null,
+      status: 'Database debug completed',
+      existing_tables: existingTables,
+      collections_structure: collectionsStructure,
+      collections_test: collectionsTest,
+      profiles_with_collections: profilesWithCollections,
       timestamp: new Date().toISOString()
     })
 
   } catch (error) {
-    console.error('Database debug error:', error)
-    return NextResponse.json({
-      error: error instanceof Error ? error.message : String(error),
-      timestamp: new Date().toISOString()
+    console.error('[Debug] Database debug error:', error)
+    return NextResponse.json({ 
+      error: "Database debug failed", 
+      details: error instanceof Error ? error.message : String(error) 
     }, { status: 500 })
   }
 }
