@@ -133,9 +133,9 @@ export default function CreateCollectionModal({
               <h2 className="text-lg font-semibold">Create Collection</h2>
               <button
                 onClick={handleClose}
-                className="p-1 rounded-full hover:bg-zinc-800 transition-colors"
+                className="p-1.5 sm:p-2 rounded-full hover:bg-zinc-800 transition-colors flex items-center justify-center"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
@@ -206,25 +206,25 @@ export default function CreateCollectionModal({
                   <button
                     type="button"
                     onClick={() => setIsPublic(false)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                       !isPublic 
                         ? 'bg-white text-black' 
                         : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
                     }`}
                   >
-                    <Lock className="w-4 h-4" />
+                    <Lock className="w-3 h-3 sm:w-4 sm:h-4" />
                     Private
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsPublic(true)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    className={`flex items-center justify-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                       isPublic 
                         ? 'bg-white text-black' 
                         : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'
                     }`}
                   >
-                    <Globe className="w-4 h-4" />
+                    <Globe className="w-3 h-3 sm:w-4 sm:h-4" />
                     Public
                   </button>
                 </div>
@@ -296,13 +296,13 @@ export default function CreateCollectionModal({
                 <button
                   onClick={handleCreate}
                   disabled={!collectionName.trim() || loading}
-                  className="flex-1 bg-white text-black rounded-lg px-4 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-200 transition-colors"
+                  className="flex-1 bg-white text-black rounded-lg px-3 sm:px-4 py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-zinc-200 transition-colors text-sm sm:text-base"
                 >
                   {loading ? 'Creating...' : 'Create Collection'}
                 </button>
                 <button
                   onClick={handleClose}
-                  className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors"
+                  className="px-3 sm:px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors text-sm sm:text-base"
                 >
                   Cancel
                 </button>

@@ -45,9 +45,13 @@ export default function Header() {
         {/* Left side: Logo and Credit Counter */}
         <div className="flex items-center justify-start flex-1 gap-3">
           {isMobile && (
-            <Link href="/" className="flex items-center">
+            <button 
+              onClick={() => setShowInfo(true)}
+              className="flex items-center hover:opacity-80 transition-opacity"
+              aria-label="About Flair"
+            >
               <Image src="/flair-logo.png" alt="Flair Logo" width={32} height={32} className="object-contain" />
-            </Link>
+            </button>
           )}
           {/* Credit Counter - Only show for signed in users */}
           <SignedIn>

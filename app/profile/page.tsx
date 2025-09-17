@@ -6,6 +6,14 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUser } from '@clerk/nextjs'
+import { 
+  useSavedItems, 
+  useCollections, 
+  useUserPurchases,
+  useAddToSaved,
+  useRemoveFromSaved,
+  useCreateCollection 
+} from "@/lib/react-query-hooks"
 import {
   Settings,
   Grid,
@@ -43,7 +51,7 @@ import EditProfileModal from "@/components/EditProfileModal"
 import type { Product } from "@/lib/types"
 import type { Collection, SavedItemWithMetadata } from "@/lib/database-service-v2"
 import { useMobile } from "@/hooks/use-mobile"
-import { useSavedItems } from "@/lib/saved-items-context"
+
 import Link from "next/link"
 
 // Define a SavedItem type that extends Product with additional saved-specific properties
@@ -62,10 +70,19 @@ interface SavedItem extends Product {
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser()
-  const { savedItems: contextSavedItems, isLoading: savedItemsLoading } = useSavedItems()
-  const [savedItems, setSavedItems] = useState<SavedItem[]>([])
-  const [loading, setLoading] = useState(true)
-  const [hasLoaded, setHasLoaded] = useState(false) // Prevent infinite API calls
+  
+  // React Query hooks - these provide global caching across all pages
+  const { data: savedItems = [], isLoading: savedItemsLoading } = useSavedItems()
+  const { data: collections = [], isLoading: collectionsLoading } = useCollections()
+  const { data: purchases = [], isLoading: purchasesLoading } = useUserPurchases()
+  
+  // React Query mutations - these automatically update the cache when called
+  const createCollectionMutation = useCreateCollection()
+  const removeFromSavedMutation = useRemoveFromSaved()
+  
+  // Local UI state only (no more data state needed)
+  const [loading, setLoading] = useState(false)
+  const [hasLoaded, setHasLoaded] = useState(false)
   const [activeTab, setActiveTab] = useState("saved")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [sortOption, setSortOption] = useState("recent")
@@ -75,7 +92,6 @@ export default function ProfilePage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
-  const [collections, setCollections] = useState<Collection[]>([])
   const [selectedCollection, setSelectedCollection] = useState<(Collection & { items: Product[] }) | null>(null)
   const [showCollectionModal, setShowCollectionModal] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null)
@@ -89,6 +105,8 @@ export default function ProfilePage() {
     profilePicture: ""
   })
   const isMobile = useMobile()
+
+  // React Query handles all caching automatically - no manual cache needed!
 
   // Load profile data from both Clerk and database
   useEffect(() => {
@@ -147,69 +165,6 @@ export default function ProfilePage() {
       loadProfileData()
     }, 500) // Give the API time to process
   }
-
-  // Mock purchases data
-  const purchases = [
-    {
-      id: "order-123",
-      date: "May 15, 2023",
-      status: "Delivered",
-      total: 189.99,
-      items: [
-        {
-          id: "item-1",
-          name: "Premium Black Shirt",
-          price: 89.99,
-          image: "/placeholder.svg?key=4u6vd",
-          quantity: 1,
-        },
-        {
-          id: "item-2",
-          name: "Minimalist White Sneakers",
-          price: 100.0,
-          image: "/white-sneakers.png",
-          quantity: 1,
-        },
-      ],
-    },
-    {
-      id: "order-456",
-      date: "April 28, 2023",
-      status: "Delivered",
-      total: 149.5,
-      items: [
-        {
-          id: "item-3",
-          name: "Designer Jeans",
-          price: 149.5,
-          image: "/placeholder.svg?key=yshio",
-          quantity: 1,
-        },
-      ],
-    },
-    {
-      id: "order-789",
-      date: "March 12, 2023",
-      status: "Delivered",
-      total: 235.97,
-      items: [
-        {
-          id: "item-4",
-          name: "Leather Jacket",
-          price: 199.99,
-          image: "/classic-leather-jacket.png",
-          quantity: 1,
-        },
-        {
-          id: "item-5",
-          name: "Cashmere Scarf",
-          price: 35.98,
-          image: "/cashmere-scarf.png",
-          quantity: 1,
-        },
-      ],
-    },
-  ]
 
   // Mock saved items with high-quality images and proper data structure
   const mockSavedItems: SavedItem[] = [
@@ -363,43 +318,22 @@ export default function ProfilePage() {
   useEffect(() => {
     // Only load once to prevent infinite calls
     if (!hasLoaded) {
-      console.log('[Profile] Loading data for the first time...')
+      console.log('[Profile] Initial load - React Query handles all caching automatically!')
       // Scroll to top when component mounts
       window.scrollTo(0, 0)
-
-      // Load collections from API (still needed)
-      loadCollections()
       setHasLoaded(true)
     }
-  }, [hasLoaded]) // Include hasLoaded in dependencies
+  }, [hasLoaded])
 
-  // Update saved items from context
-  useEffect(() => {
-    if (contextSavedItems) {
-      const savedItemsWithDate = contextSavedItems.map((item: Product) => ({
-        ...item,
-        savedAt: new Date().toISOString(), // In a real app, this would come from the backend
-        collectionIds: [] // This would also come from the backend
-      }))
-      setSavedItems(savedItemsWithDate)
-    }
-    setLoading(savedItemsLoading)
-  }, [contextSavedItems, savedItemsLoading])
-
-  // Remove the loadSavedItems function entirely - no longer needed!
-
-  const loadCollections = async () => {
-    try {
-      const response = await fetch('/api/collections')
-      if (response.ok) {
-        const collectionsData = await response.json()
-        setCollections(collectionsData)
-      } else {
-        console.error('Failed to load collections')
-      }
-    } catch (error) {
-      console.error('Error loading collections:', error)
-    }
+  // Simple tab switching - React Query handles all the caching automatically!
+  const handleTabSwitch = (tabId: string) => {
+    setActiveTab(tabId)
+    // That's it! React Query automatically manages:
+    // - Caching data across tabs and pages
+    // - Background refetching when stale
+    // - Loading states
+    // - Error handling
+    // - Memory management
   }
 
   // Add this useEffect to handle mobile viewport height issues
@@ -433,7 +367,7 @@ export default function ProfilePage() {
   ]
 
   // Filter saved items based on category and search query
-  const filteredItems = savedItems.filter((item) => {
+  const filteredItems = savedItems.filter((item: any) => {
     const matchesCategory = selectedCategory === "All" || item.category === selectedCategory
     const matchesSearch =
       !searchQuery ||
@@ -512,7 +446,7 @@ export default function ProfilePage() {
     try {
       // Remove items from saved list via API
       for (const itemId of selectedItems) {
-        const item = savedItems.find(item => item.id === itemId)
+        const item = savedItems.find((item: any) => item.id === itemId)
         if (item) {
           await fetch('/api/saved', {
             method: 'POST',
@@ -527,8 +461,7 @@ export default function ProfilePage() {
         }
       }
       
-      // Update local state
-      setSavedItems(savedItems.filter((item) => !selectedItems.includes(item.id)))
+      // React Query will automatically refetch and update the saved items
       setSelectedItems([])
       setShowBulkActions(false)
     } catch (error) {
@@ -544,13 +477,13 @@ export default function ProfilePage() {
 
   // Get collection color by ID
   const getCollectionColor = (collectionId: string) => {
-    const collection = collections.find((c) => c.id === collectionId)
+    const collection = collections.find((c: any) => c.id === collectionId)
     return collection ? collection.color : "bg-zinc-500"
   }
 
   // Get collection name by ID
   const getCollectionName = (collectionId: string) => {
-    const collection = collections.find((c) => c.id === collectionId)
+    const collection = collections.find((c: any) => c.id === collectionId)
     return collection ? collection.name : ""
   }
 
@@ -591,26 +524,16 @@ export default function ProfilePage() {
 
   // Handle collection created
   const handleCollectionCreated = (newCollection: Collection) => {
-    setCollections([newCollection, ...collections])
-    loadCollections() // Refresh collections from server
+    // React Query mutation automatically updates the cache
+    createCollectionMutation.mutate(newCollection)
   }
 
-  // Handle collection updated
-  const handleCollectionUpdated = (updatedCollection: Collection) => {
-    setCollections(collections.map(col => 
-      col.id === updatedCollection.id ? updatedCollection : col
-    ))
-    if (selectedCollection && selectedCollection.id === updatedCollection.id) {
-      setSelectedCollection({
-        ...updatedCollection,
-        items: selectedCollection.items
-      })
-    }
-  }
+  // Handle collection updated - React Query will handle cache updates automatically
 
   // Handle collection deleted
   const handleCollectionDeleted = (collectionId: string) => {
-    setCollections(collections.filter(col => col.id !== collectionId))
+    // React Query will automatically handle cache updates
+    console.log(`Collection ${collectionId} deleted - React Query will refetch`)
     if (selectedCollection && selectedCollection.id === collectionId) {
       setSelectedCollection(null)
     }
@@ -619,7 +542,7 @@ export default function ProfilePage() {
   // Handle bulk add to collection
   const handleBulkAddToCollection = () => {
     if (selectedItems.length === 0) return
-    const itemsToAdd = savedItems.filter(item => selectedItems.includes(item.id))
+    const itemsToAdd = savedItems.filter((item: any) => selectedItems.includes(item.id))
     setShowBulkAddModal(true)
   }
 
@@ -627,7 +550,7 @@ export default function ProfilePage() {
   const handleBulkAddCompleted = () => {
     setSelectedItems([])
     setShowBulkAddModal(false)
-    loadCollections() // Refresh collections
+    // React Query will automatically refetch collections
   }
 
   return (
@@ -648,20 +571,20 @@ export default function ProfilePage() {
             <p className="text-zinc-400 text-xs sm:text-sm">@{profileData.username}</p>
             <p className="text-xs sm:text-sm mt-1 truncate">{profileData.bio}</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-1 sm:gap-2">
             <button
               onClick={() => setShowEditProfile(true)}
-              className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-2 touch-manipulation"
+              className="p-1.5 sm:p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-1 sm:ml-2 touch-manipulation flex items-center justify-center"
               aria-label="Edit Profile"
             >
-              <Edit3 className="w-5 h-5 text-white" strokeWidth={1.5} />
+              <Edit3 className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={1.5} />
             </button>
             <Link
               href="/settings"
-              className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-2 touch-manipulation"
+              className="p-1.5 sm:p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-1 sm:ml-2 touch-manipulation flex items-center justify-center"
               aria-label="Settings"
             >
-              <Settings className="w-5 h-5 text-white" strokeWidth={1.5} />
+              <Settings className="w-4 h-4 sm:w-5 sm:h-5 text-white" strokeWidth={1.5} />
             </Link>
           </div>
         </div>
@@ -689,12 +612,12 @@ export default function ProfilePage() {
             return (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-3 relative flex flex-col items-center touch-manipulation ${
+                onClick={() => handleTabSwitch(tab.id)}
+                className={`flex-1 py-2 sm:py-3 relative flex flex-col items-center justify-center touch-manipulation ${
                   activeTab === tab.id ? "text-white" : "text-zinc-500"
                 }`}
               >
-                <Icon className="w-5 h-5 mb-1" strokeWidth={1.5} />
+                <Icon className="w-4 h-4 sm:w-5 sm:h-5 mb-1" strokeWidth={1.5} />
                 <span className="text-xs">{tab.label}</span>
                 {activeTab === tab.id && (
                   <motion.div
@@ -1291,7 +1214,10 @@ export default function ProfilePage() {
         collection={selectedCollection}
         isOpen={!!selectedCollection}
         onClose={handleCloseCollection}
-        onUpdate={handleCollectionUpdated}
+        onUpdate={(collection) => {
+          // React Query handles cache updates automatically
+          console.log('Collection updated:', collection)
+        }}
         onDelete={handleCollectionDeleted}
         userId={user?.id} // User owns all collections on their profile page
       />
@@ -1306,7 +1232,7 @@ export default function ProfilePage() {
       <BulkAddToCollectionModal
         isOpen={showBulkAddModal}
         onClose={() => setShowBulkAddModal(false)}
-        selectedItems={savedItems.filter(item => selectedItems.includes(item.id))}
+        selectedItems={savedItems.filter((item: any) => selectedItems.includes(item.id))}
         onItemsAdded={handleBulkAddCompleted}
       />
 

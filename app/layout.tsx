@@ -9,6 +9,7 @@ import { FileProvider } from "@/lib/file-context"
 import { AIToneProvider } from "@/lib/ai-tone-context"
 import { CreditProvider } from "@/lib/credit-context"
 import { SavedItemsProvider } from "@/lib/saved-items-context"
+import { QueryClientProvider } from "@/lib/query-provider"
 import CreditGuard from "@/components/CreditGuard"
 import Sidebar from "@/components/Sidebar"
 import Header from "@/components/Header"
@@ -33,20 +34,21 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${fontSans.variable} font-sans bg-black text-white antialiased`} suppressHydrationWarning>
-        <AuthProvider>
-          <CreditProvider>
-            <ProfileProvider>
-              <SavedItemsProvider>
-                <FileProvider>
-                  <AIToneProvider>
-                    <ThemeProvider
-                      attribute="class"
-                      defaultTheme="dark"
-                      enableSystem={false}
-                      forcedTheme="dark"
-                      disableTransitionOnChange
-                    >
-                      <CreditGuard>
+        <QueryClientProvider>
+          <AuthProvider>
+            <CreditProvider>
+              <ProfileProvider>
+                <SavedItemsProvider>
+                  <FileProvider>
+                    <AIToneProvider>
+                      <ThemeProvider
+                        attribute="class"
+                        defaultTheme="dark"
+                        enableSystem={false}
+                        forcedTheme="dark"
+                        disableTransitionOnChange
+                      >
+                        <CreditGuard>
                         <div className="flex min-h-screen">
                           <Sidebar />
                           <div className="flex-1 md:ml-16 transition-all duration-300 pb-16 md:pb-0">
@@ -55,13 +57,14 @@ export default function RootLayout({
                           </div>
                         </div>
                       </CreditGuard>
-                    </ThemeProvider>
-                  </AIToneProvider>
-                </FileProvider>
-              </SavedItemsProvider>
-            </ProfileProvider>
-          </CreditProvider>
-        </AuthProvider>
+                      </ThemeProvider>
+                    </AIToneProvider>
+                  </FileProvider>
+                </SavedItemsProvider>
+              </ProfileProvider>
+            </CreditProvider>
+          </AuthProvider>
+        </QueryClientProvider>
       </body>
     </html>
   )

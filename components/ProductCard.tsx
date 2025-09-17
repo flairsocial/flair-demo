@@ -107,27 +107,27 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           </div>
         </div>
 
-        <div className="absolute top-2 right-2 flex flex-col space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2 right-2 flex flex-col space-y-1.5 sm:space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
-            className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"
+            className="p-1 sm:p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md flex items-center justify-center"
             onClick={handleSaveToSaved}
             aria-label={isSaved ? "Remove from saved" : "Save item"}
           >
-            <Heart className="w-4 h-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2} />
+            <Heart className="w-3 h-3 sm:w-4 sm:h-4" fill={isSaved ? "currentColor" : "none"} strokeWidth={2} />
           </button>
           <button
-            className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"
+            className="p-1 sm:p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md flex items-center justify-center"
             onClick={handleAddToCollection}
             aria-label="Add to collection"
           >
-            <Plus className="w-4 h-4" strokeWidth={2} />
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4" strokeWidth={2} />
           </button>
           <button
-            className="p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md"
+            className="p-1 sm:p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md flex items-center justify-center"
             onClick={handleShare}
             aria-label="Share product"
           >
-            <Share2 className="w-4 h-4" strokeWidth={2} />
+            <Share2 className="w-3 h-3 sm:w-4 sm:h-4" strokeWidth={2} />
           </button>
         </div>
       </div>

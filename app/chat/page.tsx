@@ -478,19 +478,14 @@ export default function ChatPage() {
             <Link href="/" className="mr-3 p-1.5 rounded-full hover:bg-zinc-800 flex items-center justify-center">
               <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2} />
             </Link>
-            <div className="flex items-center">
-              <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-3">
-                <Sparkles className="w-5 h-5 text-black" strokeWidth={2} />
-              </div>
-              <div>
-                <h1 className={`font-medium text-white ${isMobile ? 'text-base' : 'text-lg'}`}>Flair Agent</h1>
-                <button
-                  onClick={() => setShowPersonalityPopup(true)}
-                  className={`text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer ${isMobile ? 'text-xs' : 'text-xs'}`}
-                >
-                  {isMobile ? 'Shopping Expert' : 'Your Personal Shopping Expert'}
-                </button>
-              </div>
+            <div className="flex flex-col justify-center">
+              <h1 className={`font-medium text-white mt-3 leading-tight ${isMobile ? 'text-base' : 'text-lg'}`}>Flair Agent</h1>
+              <button
+                onClick={() => setShowPersonalityPopup(true)}
+                className={`text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer text-left leading-tight ${isMobile ? 'text-xs -mt-3' : 'text-xs'}`}
+              >
+                {isMobile ? 'Shopping Assistant' : 'Your Personal Shopping Assistant'}
+              </button>
             </div>
           </div>
           <div className="flex items-center space-x-2">

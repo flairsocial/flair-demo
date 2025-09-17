@@ -78,10 +78,10 @@ export default function EditProfileModal({ isOpen, onClose, profileData, onSave 
           <h2 className="text-xl font-semibold">Edit Profile</h2>
           <button 
             onClick={onClose}
-            className="p-2 hover:bg-zinc-800 rounded-full transition-colors"
+            className="p-1.5 sm:p-2 hover:bg-zinc-800 rounded-full transition-colors flex items-center justify-center"
             disabled={saving}
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
         
@@ -104,8 +104,8 @@ export default function EditProfileModal({ isOpen, onClose, profileData, onSave 
                   </div>
                 )}
               </div>
-              <label className="absolute bottom-0 right-0 bg-white text-black p-2 rounded-full cursor-pointer hover:bg-gray-100 transition-colors shadow-lg">
-                <Camera className="w-4 h-4" />
+              <label className="absolute bottom-0 right-0 bg-white text-black p-1.5 sm:p-2 rounded-full cursor-pointer hover:bg-gray-100 transition-colors shadow-lg flex items-center justify-center">
+                <Camera className="w-3 h-3 sm:w-4 sm:h-4" />
                 <input
                   type="file"
                   accept="image/*"
@@ -175,19 +175,19 @@ export default function EditProfileModal({ isOpen, onClose, profileData, onSave 
           </div>
 
           {/* Save Button */}
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 sm:gap-3 pt-4">
             <button
               type="button"
               onClick={onClose}
               disabled={saving}
-              className="flex-1 py-3 px-6 border border-zinc-700 rounded-xl hover:bg-zinc-800 transition-all duration-200 disabled:opacity-50 font-medium"
+              className="flex-1 py-2.5 sm:py-3 px-4 sm:px-6 border border-zinc-700 rounded-xl hover:bg-zinc-800 transition-all duration-200 disabled:opacity-50 font-medium text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || !formData.displayName.trim() || !formData.username.trim()}
-              className="flex-1 py-3 px-6 bg-white text-black rounded-xl hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg"
+              className="flex-1 py-2.5 sm:py-3 px-4 sm:px-6 bg-white text-black rounded-xl hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed font-medium shadow-lg text-sm sm:text-base"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>

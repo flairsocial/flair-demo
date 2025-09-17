@@ -63,12 +63,12 @@ export default function CommunityPage() {
           {/* Post Button - Top Left */}
           <button 
             onClick={() => setShowCreatePost(true)}
-            className={`flex items-center gap-2 px-3 py-2 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium ${
+            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium ${
               isMobile ? 'text-xs' : 'text-sm'
             }`}
           >
-            <Plus className="w-4 h-4" />
-            {!isMobile && "Post"}
+            <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
+            {!isMobile && 'Post'}
           </button>
           
           {/* Tab Navigation - Center */}
@@ -106,8 +106,8 @@ export default function CommunityPage() {
           </div>
 
           {/* Messages - Top Right */}
-          <Link href="/inbox" className="p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors">
-            <Inbox className="w-5 h-5" />
+          <Link href="/inbox" className="p-1.5 sm:p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors flex items-center justify-center">
+            <Inbox className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
         </div>
 
@@ -661,33 +661,33 @@ function PostCard({
       {/* Actions */}
       <div className="flex items-center justify-between pt-4 border-t border-zinc-800/50">
         <div className="flex items-center gap-6">
-          <button 
+          <button
             onClick={() => setIsLiked(!isLiked)}
-            className={`flex items-center gap-2 text-sm transition-all duration-200 hover:scale-105 ${
+            className={`flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm p-1 sm:p-1.5 transition-all duration-200 hover:scale-105 ${
               isLiked ? 'text-red-500' : 'text-zinc-400 hover:text-red-400'
             }`}
           >
-            <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+            <Heart className={`w-3 h-3 sm:w-5 sm:h-5 ${isLiked ? 'fill-current' : ''}`} />
             <span className="font-medium">{likeCount}</span>
           </button>
           
-          <button className="flex items-center gap-2 text-sm text-zinc-400 hover:text-blue-400 transition-all duration-200 hover:scale-105">
-            <MessageCircle className="w-5 h-5" />
+          <button className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm p-1 sm:p-1.5 text-zinc-400 hover:text-blue-400 transition-all duration-200 hover:scale-105">
+            <MessageCircle className="w-3 h-3 sm:w-5 sm:h-5" />
             <span className="font-medium">{commentCount}</span>
           </button>
           
           <button 
             onClick={() => setIsSaved(!isSaved)}
-            className={`flex items-center gap-2 text-sm transition-all duration-200 hover:scale-105 ${
+            className={`flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm p-1 sm:p-1.5 transition-all duration-200 hover:scale-105 ${
               isSaved ? 'text-blue-500' : 'text-zinc-400 hover:text-blue-400'
             }`}
           >
-            <Bookmark className={`w-5 h-5 ${isSaved ? 'fill-current' : ''}`} />
+            <Bookmark className={`w-3 h-3 sm:w-5 sm:h-5 ${isSaved ? 'fill-current' : ''}`} />
             <span className="font-medium">{saveCount}</span>
           </button>
         </div>
         
-        <div className="flex items-center gap-1 text-xs text-zinc-500 bg-zinc-800/50 px-3 py-1 rounded-full">
+        <div className="flex items-center justify-center gap-1 text-xs text-zinc-500 bg-zinc-800/50 px-2 sm:px-3 py-1 rounded-full">
           <Eye className="w-3 h-3" />
           <span className="font-medium">{viewCount.toLocaleString()}</span>
         </div>

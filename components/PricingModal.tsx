@@ -88,27 +88,27 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
   }
 
   const ReviewsCarousel = () => (
-    <div className="relative overflow-hidden py-6 bg-zinc-900/30 rounded-lg border border-zinc-800/50 mb-8">
+    <div className="relative overflow-hidden py-4 sm:py-6 bg-zinc-900/30 rounded-lg border border-zinc-800/50 mb-4 sm:mb-8">
       <div 
         className="flex transition-transform duration-500 ease-in-out"
         style={{ transform: `translateX(-${currentReviewIndex * 100}%)` }}
       >
         {customerReviews.map((review, index) => (
-          <div key={index} className="w-full flex-shrink-0 px-6">
+          <div key={index} className="w-full flex-shrink-0 px-3 sm:px-6">
             <div className="text-center max-w-2xl mx-auto">
               <div className="flex justify-center mb-2">
                 {[...Array(review.rating)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-500 text-yellow-500" />
+                  <Star key={i} className="w-3 h-3 sm:w-4 sm:h-4 fill-yellow-500 text-yellow-500" />
                 ))}
               </div>
-              <Quote className="w-6 h-6 text-zinc-600 mx-auto mb-3" />
-              <p className="text-zinc-300 text-sm italic mb-4">"{review.review}"</p>
+              <Quote className="w-4 h-4 sm:w-6 sm:h-6 text-zinc-600 mx-auto mb-2 sm:mb-3" />
+              <p className="text-zinc-300 text-xs sm:text-sm italic mb-3 sm:mb-4">"{review.review}"</p>
               <div className="flex items-center justify-center">
-                <div className="w-8 h-8 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-medium text-white mr-3">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-zinc-700 rounded-full flex items-center justify-center text-xs font-medium text-white mr-2 sm:mr-3">
                   {review.avatar}
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-medium text-white">{review.name}</p>
+                  <p className="text-xs sm:text-sm font-medium text-white">{review.name}</p>
                   <p className="text-xs text-zinc-400">{review.role}</p>
                 </div>
               </div>
@@ -118,12 +118,12 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       </div>
       
       {/* Dots indicator */}
-      <div className="flex justify-center mt-4 space-x-2">
+      <div className="flex justify-center mt-3 sm:mt-4 space-x-1">
         {customerReviews.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentReviewIndex(index)}
-            className={`w-2 h-2 rounded-full transition-colors ${
+            className={`w-1 h-1 sm:w-2 sm:h-2 rounded-full transition-colors ${
               index === currentReviewIndex ? 'bg-blue-500' : 'bg-zinc-600'
             }`}
           />
@@ -223,32 +223,32 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl w-[95vw] max-h-[90vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white">
-        <DialogHeader className="text-center pb-4">
-          <DialogTitle className="text-3xl font-semibold">Upgrade your plan</DialogTitle>
+      <DialogContent className="max-w-7xl w-[95vw] max-h-[95vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white p-3 sm:p-6">
+        <DialogHeader className="text-center pb-2 sm:pb-4">
+          <DialogTitle className="text-xl sm:text-3xl font-semibold">Upgrade your plan</DialogTitle>
           
           {/* Trust Section */}
-          <div className="mt-4 mb-2">
+          <div className="mt-2 sm:mt-4 mb-2">
             <div className="flex items-center justify-center space-x-2 text-zinc-400">
               <div className="flex -space-x-2">
                 <img 
                   src="/placeholder-user.jpg" 
                   alt="Customer" 
-                  className="w-8 h-8 rounded-full border-2 border-zinc-700 object-cover"
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-zinc-700 object-cover"
                 />
                 <img 
                   src="/placeholder-user.jpg" 
                   alt="Customer" 
-                  className="w-8 h-8 rounded-full border-2 border-zinc-700 object-cover"
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-zinc-700 object-cover"
                 />
                 <img 
                   src="/placeholder-user.jpg" 
                   alt="Customer" 
-                  className="w-8 h-8 rounded-full border-2 border-zinc-700 object-cover"
+                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-zinc-700 object-cover"
                 />
                 
               </div>
-              <span className="text-sm font-medium">Trusted by Over 10,000+ Resellers</span>
+              <span className="text-xs sm:text-sm font-medium">Trusted by Over 10,000+ Resellers</span>
             </div>
           </div>
         </DialogHeader>
@@ -257,11 +257,11 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         <ReviewsCarousel />
 
         {/* Tab Selector */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-4 sm:mb-8">
           <div className="bg-zinc-900 p-1 rounded-full flex">
             <button
               onClick={() => setSelectedTab("personal")}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
                 selectedTab === "personal"
                   ? "bg-zinc-700 text-white"
                   : "text-zinc-400 hover:text-white"
@@ -271,7 +271,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
             </button>
             <button
               onClick={() => setSelectedTab("business")}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
                 selectedTab === "business"
                   ? "bg-zinc-700 text-white"
                   : "text-zinc-400 hover:text-white"
@@ -283,11 +283,11 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         </div>
 
         {/* Pricing Cards */}
-        <div className={`grid gap-6 ${selectedTab === "personal" ? "md:grid-cols-3" : "md:grid-cols-1 max-w-md mx-auto"}`}>
+        <div className={`grid gap-4 sm:gap-6 ${selectedTab === "personal" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 max-w-md mx-auto"}`}>
           {(selectedTab === "personal" ? personalPlans : businessPlans).map((plan) => (
             <div
               key={plan.name}
-              className={`relative p-6 rounded-2xl border-2 transition-all cursor-pointer ${
+              className={`relative p-4 sm:p-6 rounded-2xl border-2 transition-all cursor-pointer ${
                 plan.planType === selectedPlan
                   ? "border-blue-500 bg-gradient-to-b from-blue-950/50 to-zinc-900"
                   : plan.planType === currentPlan
@@ -301,44 +301,44 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
               }}
             >
               {(plan.planType === selectedPlan && plan.planType !== currentPlan) && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-blue-600 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium">
                     SELECTED
                   </span>
                 </div>
               )}
 
               {plan.planType === currentPlan && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-600 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium">
                     CURRENT PLAN
                   </span>
                 </div>
               )}
 
-              <div className="text-center mb-6">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  {plan.icon}
-                  <h3 className="text-xl font-semibold">{plan.name}</h3>
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="flex items-center justify-center gap-1 sm:gap-2 mb-1 sm:mb-2">
+                  {plan.icon && <div className="w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center">{plan.icon}</div>}
+                  <h3 className="text-base sm:text-xl font-semibold">{plan.name}</h3>
                 </div>
-                <div className="mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
-                  <span className="text-zinc-400 text-sm ml-1">{plan.period}</span>
+                <div className="mb-1 sm:mb-2">
+                  <span className="text-xl sm:text-4xl font-bold">{plan.price}</span>
+                  <span className="text-zinc-400 text-xs sm:text-sm ml-1">{plan.period}</span>
                 </div>
-                <p className="text-zinc-400 text-sm">{plan.description}</p>
+                <p className="text-zinc-400 text-xs sm:text-sm px-1">{plan.description}</p>
               </div>
 
-              <ul className="space-y-3 mb-8">
+              <ul className="space-y-1.5 sm:space-y-3 mb-4 sm:mb-8">
                 {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-3">
-                    <Check className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-sm text-zinc-300">{feature}</span>
+                  <li key={index} className="flex items-start gap-2 sm:gap-3">
+                    <Check className="w-3 h-3 sm:w-5 sm:h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-xs sm:text-sm text-zinc-300 leading-tight">{feature}</span>
                   </li>
                 ))}
               </ul>
 
               <Button
-                className={`w-full ${
+                className={`w-full h-8 sm:h-auto py-2 sm:py-3 text-xs sm:text-sm font-medium ${
                   plan.planType === currentPlan
                     ? "bg-green-600 hover:bg-green-700 text-white cursor-default"
                     : plan.planType === selectedPlan
@@ -370,10 +370,10 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
         {/* Business Plan Notice */}
         {selectedTab === "business" && (
-          <div className="text-center mt-6 p-4 bg-zinc-900 rounded-lg border border-zinc-800">
-            <Building2 className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-            <h4 className="font-semibold mb-2">Need more capabilities for your business?</h4>
-            <p className="text-sm text-zinc-400">
+          <div className="text-center mt-4 sm:mt-6 p-3 sm:p-4 bg-zinc-900 rounded-lg border border-zinc-800">
+            <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-2" />
+            <h4 className="font-semibold mb-2 text-sm sm:text-base">Need more capabilities for your business?</h4>
+            <p className="text-xs sm:text-sm text-zinc-400">
               Contact our team at{" "}
               <a 
                 href="mailto:admin@flair.social"
@@ -387,7 +387,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         )}
 
         {/* Footer Note */}
-        <div className="text-center mt-6 pt-6 border-t border-zinc-800">
+        <div className="text-center mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-zinc-800">
           <p className="text-xs text-zinc-500">
             The Plus plan utilizes our advanced PyBackend AI system for enhanced reasoning and analysis.
           </p>

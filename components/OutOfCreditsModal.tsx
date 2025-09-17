@@ -15,22 +15,22 @@ export default function OutOfCreditsModal({ isOpen, onClose, onUpgrade }: OutOfC
 
   const benefits = [
     {
-      icon: <Zap className="w-5 h-5 text-yellow-500" />,
+      icon: <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />,
       title: "More Daily Credits",
       description: "Get 500+ credits that reset daily"
     },
     {
-      icon: <TrendingUp className="w-5 h-5 text-blue-500" />,
+      icon: <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />,
       title: "Advanced AI Analysis",
       description: "Deep pricing insights & market analysis"
     },
     {
-      icon: <Shield className="w-5 h-5 text-green-500" />,
+      icon: <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />,
       title: "Fraud Detection",
       description: "Protect yourself from scams and fakes"
     },
     {
-      icon: <MessageCircle className="w-5 h-5 text-purple-500" />,
+      icon: <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />,
       title: "Unlimited Chat",
       description: "Chat with AI without credit limits"
     }
@@ -62,9 +62,9 @@ export default function OutOfCreditsModal({ isOpen, onClose, onUpgrade }: OutOfC
           >
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-1 rounded-lg hover:bg-zinc-800/50 transition-colors"
+              className="absolute top-3 sm:top-4 right-3 sm:right-4 p-1 rounded-lg hover:bg-zinc-800/50 transition-colors flex items-center justify-center"
             >
-              <X className="w-5 h-5 text-zinc-400" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-400" />
             </button>
 
             {/* Header */}
@@ -103,13 +103,13 @@ export default function OutOfCreditsModal({ isOpen, onClose, onUpgrade }: OutOfC
             <div className="space-y-3">
               <button
                 onClick={onUpgrade}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-2.5 sm:py-3 px-4 rounded-xl transition-all duration-200 shadow-lg hover:shadow-blue-500/25 text-sm sm:text-base"
               >
                 Upgrade Now
               </button>
               <button
                 onClick={onClose}
-                className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 px-4 rounded-lg transition-colors text-sm"
+                className="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 sm:py-2.5 px-4 rounded-lg transition-colors text-xs sm:text-sm"
               >
                 Wait for Tomorrow's Reset
               </button>

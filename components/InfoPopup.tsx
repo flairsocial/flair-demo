@@ -75,7 +75,7 @@ export default function InfoPopup({ onClose }: InfoPopupProps) {
             </div>
 
             <p className="text-zinc-300 text-sm leading-relaxed text-center mb-6">
-              Flair is your AI-powered style assistant, designed to help you discover fashion that truly represents you.
+              Flair is your AI-powered shopping assistant, designed to help you discover products that truly represents you.
               Explore, get inspired, and build your perfect wardrobe.
             </p>
 
