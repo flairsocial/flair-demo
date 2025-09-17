@@ -41,7 +41,7 @@ export default function Header() {
 
   return (
     <>
-      <div className="sticky top-0 z-20 bg-black/80 backdrop-blur-md px-4 py-4 flex items-center border-b border-zinc-900 h-16 relative">
+      <div className={`sticky top-0 z-20 bg-black/80 backdrop-blur-md border-b border-zinc-900 h-16 relative ${isMobile ? 'px-3 py-3' : 'px-4 py-4'} flex items-center`}>
         {/* Left side: Logo and Credit Counter */}
         <div className="flex items-center justify-start flex-1 gap-3">
           {isMobile && (
@@ -60,8 +60,8 @@ export default function Header() {
           <h1 className="text-lg font-medium tracking-tight whitespace-nowrap">{getTitle()}</h1>
         </div>
 
-        {/* Right side: Upgrade Plan, Settings, Auth, and Info Icons */}
-        <div className="flex items-center justify-end gap-2 flex-1">
+        {/* Right side: Upgrade Plan, Settings, Auth */}
+        <div className={`flex items-center justify-end flex-1 ${isMobile ? 'gap-0.5' : 'gap-2'}`}>
           {/* Upgrade Plan Button - Only show for signed in users */}
           <SignedIn>
             <button
@@ -73,21 +73,22 @@ export default function Header() {
               Upgrade your plan
             </button>
 
-            {/* Mobile Upgrade Plan Button */}
+            {/* Mobile Upgrade Plan Button - Crown icon only */}
             <button
               onClick={() => setShowPricing(true)}
-              className="sm:hidden p-1 rounded-full hover:bg-zinc-800 transition-colors"
+              className={`sm:hidden rounded-full hover:bg-zinc-800 transition-colors flex items-center justify-center ${isMobile ? 'p-2 w-10 h-10' : 'p-1.5'}`}
               aria-label="Upgrade your plan"
             >
               <Crown className="w-5 h-5 text-zinc-400" strokeWidth={1.5} />
             </button>
           </SignedIn>
+          
           {/* Settings button available on all pages except settings itself */}
           {pathname !== "/settings" && (
             <SignedIn>
               <Link
                 href="/settings"
-                className="p-1 rounded-full hover:bg-zinc-800 transition-colors"
+                className={`rounded-full hover:bg-zinc-800 transition-colors flex items-center justify-center ${isMobile ? 'p-2 w-10 h-10' : 'p-1.5'}`}
                 aria-label="User Settings"
               >
                 <Settings className="w-5 h-5 text-white" strokeWidth={1.5} />
@@ -98,33 +99,25 @@ export default function Header() {
           {/* Clerk Authentication */}
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="px-3 py-1.5 bg-white text-black text-sm rounded-full hover:bg-zinc-200 transition-colors font-medium">
+              <button className={`bg-white text-black text-sm rounded-full hover:bg-zinc-200 transition-colors font-medium ${isMobile ? 'px-2 py-1' : 'px-3 py-1.5'}`}>
                 Sign In
               </button>
             </SignInButton>
           </SignedOut>
           
           <SignedIn>
-            <UserButton 
-              appearance={{
-                elements: {
-                  avatarBox: "w-8 h-8",
-                  userButtonPopoverCard: "bg-zinc-900 border border-zinc-800",
-                  userButtonPopoverActionButton: "text-white hover:bg-zinc-800",
-                },
-              }}
-            />
+            <div className={isMobile ? 'ml-1' : ''}>
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: "w-8 h-8",
+                    userButtonPopoverCard: "bg-zinc-900 border border-zinc-800",
+                    userButtonPopoverActionButton: "text-white hover:bg-zinc-800",
+                  },
+                }}
+              />
+            </div>
           </SignedIn>
-
-          {isMobile && (
-            <button
-              onClick={() => setShowInfo(true)}
-              className="p-1 rounded-full hover:bg-zinc-800"
-              aria-label="About the founder"
-            >
-              <Info className="w-5 h-5 text-white" strokeWidth={1.5} />
-            </button>
-          )}
         </div>
       </div>
       {showInfo && <InfoPopup onClose={() => setShowInfo(false)} />}

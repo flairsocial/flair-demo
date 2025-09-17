@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import { useMobile } from "@/hooks/use-mobile"
 
 interface CategoryFilterProps {
   activeCategory: string
@@ -8,6 +9,7 @@ interface CategoryFilterProps {
 }
 
 export default function CategoryFilter({ activeCategory, onCategoryChange }: CategoryFilterProps) {
+  const isMobile = useMobile()
   const categories = [
     "All", 
     "Tops", 
@@ -22,12 +24,12 @@ export default function CategoryFilter({ activeCategory, onCategoryChange }: Cat
 
   return (
     <div className="overflow-x-auto scrollbar-hide">
-      <div className="flex space-x-2 pb-2">
+      <div className={`flex pb-2 ${isMobile ? 'space-x-2 min-w-max' : 'space-x-2'}`}>
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => onCategoryChange(category)}
-            className="relative whitespace-nowrap px-3 py-1.5 rounded-full text-xs"
+            className={`relative whitespace-nowrap rounded-full flex-shrink-0 ${isMobile ? 'px-4 py-2 text-xs' : 'px-3 py-1.5 text-xs'}`}
           >
             {activeCategory === category && (
               <motion.div
@@ -37,7 +39,7 @@ export default function CategoryFilter({ activeCategory, onCategoryChange }: Cat
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
               />
             )}
-            <span className={`relative z-10 ${activeCategory === category ? "text-black" : "text-zinc-400"}`}>
+            <span className={`relative z-10 font-medium ${activeCategory === category ? "text-black" : "text-zinc-400"}`}>
               {category}
             </span>
           </button>

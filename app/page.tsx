@@ -180,7 +180,7 @@ export default function Home() {
             />
           </button>
         </div>
-        <div className="overflow-x-auto scrollbar-hide">
+        <div className="overflow-x-auto scrollbar-hide px-1">
           <CategoryFilter activeCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
         </div>
       </div>

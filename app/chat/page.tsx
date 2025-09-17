@@ -475,7 +475,7 @@ export default function ChatPage() {
       <div className="sticky top-0 z-30 bg-black/80 backdrop-blur-md pt-4 pb-4 px-4 border-b border-zinc-900">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <div className="flex items-center">
-            <Link href="/" className="mr-3 p-1.5 rounded-full hover:bg-zinc-800">
+            <Link href="/" className="mr-3 p-1.5 rounded-full hover:bg-zinc-800 flex items-center justify-center">
               <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2} />
             </Link>
             <div className="flex items-center">
@@ -483,34 +483,45 @@ export default function ChatPage() {
                 <Sparkles className="w-5 h-5 text-black" strokeWidth={2} />
               </div>
               <div>
-                <h1 className="text-lg font-medium text-white">Flair Agent</h1>
+                <h1 className={`font-medium text-white ${isMobile ? 'text-base' : 'text-lg'}`}>Flair Agent</h1>
                 <button
                   onClick={() => setShowPersonalityPopup(true)}
-                  className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                  className={`text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer ${isMobile ? 'text-xs' : 'text-xs'}`}
                 >
-                  Your Personal Shopping Expert
+                  {isMobile ? 'Shopping Expert' : 'Your Personal Shopping Expert'}
                 </button>
               </div>
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <button
-              onClick={() => setShowPricing(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-blue-400/50 rounded-lg text-blue-400 hover:text-blue-300 font-medium text-xs transition-all duration-300 group"
-            >
-              <Crown className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform duration-300" />
-              Upgrade Plan
-            </button>
+            {!isMobile && (
+              <button
+                onClick={() => setShowPricing(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-blue-400/50 rounded-lg text-blue-400 hover:text-blue-300 font-medium text-xs transition-all duration-300 group"
+              >
+                <Crown className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform duration-300" />
+                Upgrade Plan
+              </button>
+            )}
+            {isMobile && (
+              <button
+                onClick={() => setShowPricing(true)}
+                className="p-2 rounded-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 hover:border-blue-400/50 text-blue-400 hover:text-blue-300 transition-all duration-300 flex items-center justify-center"
+                aria-label="Upgrade Plan"
+              >
+                <Crown className="w-4 h-4" />
+              </button>
+            )}
             <button
               onClick={toggleHistory}
-              className={`p-2 rounded-full ${showHistory ? "bg-white text-black" : "bg-zinc-900 text-white hover:bg-zinc-800"}`}
+              className={`p-2 rounded-full flex items-center justify-center ${showHistory ? "bg-white text-black" : "bg-zinc-900 text-white hover:bg-zinc-800"}`}
               aria-label="Chat History"
             >
               <Clock className="w-5 h-5" strokeWidth={1.5} />
             </button>
             <Link
               href="/settings"
-              className="p-2 rounded-full bg-zinc-900 text-white hover:bg-zinc-800"
+              className="p-2 rounded-full bg-zinc-900 text-white hover:bg-zinc-800 flex items-center justify-center"
               aria-label="User Settings"
             >
               <Settings className="w-5 h-5" strokeWidth={1.5} />
@@ -658,8 +669,8 @@ export default function ChatPage() {
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Ask about styles, outfits, trends..."
-                    className="w-full py-3.5 px-4 pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm"
+                    placeholder={isMobile ? "Ask about styles..." : "Ask about styles, outfits, trends..."}
+                    className={`w-full ${isMobile ? 'py-3 px-3' : 'py-3.5 px-4'} pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm`}
                     disabled={isLoading}
                   />
                   <button

@@ -63,17 +63,19 @@ export default function CommunityPage() {
           {/* Post Button - Top Left */}
           <button 
             onClick={() => setShowCreatePost(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium"
+            className={`flex items-center gap-2 px-3 py-2 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium ${
+              isMobile ? 'text-xs' : 'text-sm'
+            }`}
           >
             <Plus className="w-4 h-4" />
-      
+            {!isMobile && "Post"}
           </button>
           
           {/* Tab Navigation - Center */}
           <div className="flex items-center gap-1 bg-zinc-900/50 rounded-full p-1">
             <button
               onClick={() => setActiveTab('explore')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`${isMobile ? 'px-3 py-2 text-xs' : 'px-6 py-2 text-sm'} rounded-full font-medium transition-all duration-200 ${
                 activeTab === 'explore' 
                   ? 'bg-white text-black shadow-lg' 
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
@@ -83,7 +85,7 @@ export default function CommunityPage() {
             </button>
             <button
               onClick={() => setActiveTab('foryou')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`${isMobile ? 'px-3 py-2 text-xs' : 'px-6 py-2 text-sm'} rounded-full font-medium transition-all duration-200 ${
                 activeTab === 'foryou' 
                   ? 'bg-white text-black shadow-lg' 
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
@@ -93,7 +95,7 @@ export default function CommunityPage() {
             </button>
             <button
               onClick={() => setActiveTab('following')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+              className={`${isMobile ? 'px-3 py-2 text-xs' : 'px-6 py-2 text-sm'} rounded-full font-medium transition-all duration-200 ${
                 activeTab === 'following' 
                   ? 'bg-white text-black shadow-lg' 
                   : 'text-zinc-400 hover:text-white hover:bg-zinc-800'
@@ -117,10 +119,10 @@ export default function CommunityPage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input
                 type="text"
-                placeholder="Search posts and users..."
+                placeholder={isMobile ? "Search..." : "Search posts and users..."}
                 value={searchQuery}
                 onChange={(e) => handleSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 bg-zinc-900/50 rounded-full border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white placeholder-zinc-400 transition-colors"
+                className={`w-full pl-10 pr-4 ${isMobile ? 'py-2 text-sm' : 'py-3'} bg-zinc-900/50 rounded-full border border-zinc-800 focus:border-zinc-600 focus:outline-none text-white placeholder-zinc-400 transition-colors`}
               />
               
               {/* Search Results Dropdown */}

@@ -7,6 +7,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowLeft, MessageCircle, Heart, Bookmark, Eye, Calendar, MapPin, Link as LinkIcon, Mail, Grid3X3, FileText } from "lucide-react"
 import CollectionDetailModal from "@/components/CollectionDetailModal"
+import { useMobile } from "@/hooks/use-mobile"
 import MessageUserButton from "@/components/MessageUserButton"
 
 interface ProfileData {
@@ -30,6 +31,7 @@ export default function UserProfilePage() {
   const { username } = useParams()
   const router = useRouter()
   const { user } = useUser()
+  const isMobile = useMobile()
   const [profileData, setProfileData] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -159,41 +161,41 @@ export default function UserProfilePage() {
       <div className="sticky top-0 z-10 border-b border-zinc-900 bg-black/95 backdrop-blur-md">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center">
-            <Link href="/community" className="mr-4 p-1.5 rounded-full hover:bg-zinc-800">
+            <Link href="/community" className="mr-3 sm:mr-4 p-1.5 rounded-full hover:bg-zinc-800 touch-manipulation">
               <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2} />
             </Link>
-            <div>
-              <h1 className="text-lg font-medium text-white">{profile.display_name}</h1>
-              <p className="text-sm text-zinc-400">{posts.length} posts • {collections.length} collections</p>
+            <div className="min-w-0">
+              <h1 className={`font-medium text-white truncate ${isMobile ? 'text-lg' : 'text-lg'}`}>{profile.display_name}</h1>
+              <p className={`text-zinc-400 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>{posts.length} posts • {collections.length} collections</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Profile Info */}
-      <div className="p-6 border-b border-zinc-900">
-        <div className="flex items-start gap-4">
+      <div className={`p-4 sm:p-6 border-b border-zinc-900`}>
+        <div className="flex items-start gap-3 sm:gap-4">
           <Image
             src={profile.profile_picture_url || "/placeholder-user.svg"}
             alt={profile.display_name}
-            width={80}
-            height={80}
-            className="rounded-full ring-4 ring-zinc-800"
+            width={isMobile ? 64 : 80}
+            height={isMobile ? 64 : 80}
+            className="rounded-full ring-2 sm:ring-4 ring-zinc-800"
           />
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-white mb-1">{profile.display_name}</h2>
-            <p className="text-zinc-400 text-lg mb-3">@{profile.username}</p>
+          <div className="flex-1 min-w-0">
+            <h2 className={`font-bold text-white mb-1 ${isMobile ? 'text-xl' : 'text-2xl'}`}>{profile.display_name}</h2>
+            <p className={`text-zinc-400 mb-2 sm:mb-3 ${isMobile ? 'text-base' : 'text-lg'}`}>@{profile.username}</p>
             
             {profile.bio && (
-              <p className="text-zinc-300 mb-4 leading-relaxed">{profile.bio}</p>
+              <p className={`text-zinc-300 mb-3 sm:mb-4 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>{profile.bio}</p>
             )}
             
-            <div className="flex items-center gap-1 text-zinc-500 text-sm mb-4">
-              <Calendar className="w-4 h-4" />
+            <div className="flex items-center gap-1 text-zinc-500 text-xs sm:text-sm mb-3 sm:mb-4">
+              <Calendar className="w-3 h-3 sm:w-4 sm:h-4" />
               <span>Joined {formatDate(profile.created_at)}</span>
             </div>
             
-            <div className="flex gap-6 text-sm">
+            <div className="flex gap-4 sm:gap-6 text-xs sm:text-sm">
               <div className="flex items-center gap-1">
                 <span className="font-semibold text-white">{profile.following_count}</span>
                 <span className="text-zinc-400">Following</span>
@@ -205,14 +207,14 @@ export default function UserProfilePage() {
             </div>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <MessageUserButton
               userId={profile.clerk_id}
               username={profile.username}
               displayName={profile.display_name}
               variant="icon"
             />
-            <button className="px-4 py-2 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium">
+            <button className={`px-3 sm:px-4 py-2 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium touch-manipulation ${isMobile ? 'text-sm' : 'text-base'}`}>
               Follow
             </button>
           </div>
@@ -224,15 +226,15 @@ export default function UserProfilePage() {
         <div className="flex">
           <button
             onClick={() => setActiveTab('collections')}
-            className={`flex-1 py-4 px-6 text-center font-medium transition-colors relative ${
+            className={`flex-1 py-3 sm:py-4 px-4 sm:px-6 text-center font-medium transition-colors relative touch-manipulation ${
               activeTab === 'collections'
                 ? 'text-white'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1 sm:gap-2">
               <Grid3X3 className="w-4 h-4" />
-              Collections ({collections.length})
+              <span className={isMobile ? 'text-xs' : 'text-base'}>Collections ({collections.length})</span>
             </div>
             {activeTab === 'collections' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></div>
@@ -240,15 +242,15 @@ export default function UserProfilePage() {
           </button>
           <button
             onClick={() => setActiveTab('posts')}
-            className={`flex-1 py-4 px-6 text-center font-medium transition-colors relative ${
+            className={`flex-1 py-3 sm:py-4 px-4 sm:px-6 text-center font-medium transition-colors relative touch-manipulation ${
               activeTab === 'posts'
                 ? 'text-white'
                 : 'text-zinc-500 hover:text-zinc-300'
             }`}
           >
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-1 sm:gap-2">
               <FileText className="w-4 h-4" />
-              Posts ({posts.length})
+              <span className={isMobile ? 'text-xs' : 'text-base'}>Posts ({posts.length})</span>
             </div>
             {activeTab === 'posts' && (
               <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white"></div>
@@ -258,18 +260,18 @@ export default function UserProfilePage() {
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-3 sm:p-4">
         {activeTab === 'posts' ? (
           <>
             {posts.length === 0 ? (
-              <div className="text-center py-12">
-                <FileText className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-                <p className="text-zinc-400">No posts yet</p>
+              <div className="text-center py-8 sm:py-12">
+                <FileText className="w-8 h-8 sm:w-12 sm:h-12 text-zinc-700 mx-auto mb-3 sm:mb-4" />
+                <p className="text-zinc-400 text-sm sm:text-base">No posts yet</p>
               </div>
             ) : (
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6">
                 {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
+                  <PostCard key={post.id} post={post} isMobile={isMobile} />
                 ))}
               </div>
             )}
@@ -277,17 +279,18 @@ export default function UserProfilePage() {
         ) : (
           <>
             {collections.length === 0 ? (
-              <div className="text-center py-12">
-                <Grid3X3 className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-                <p className="text-zinc-400">No public collections</p>
+              <div className="text-center py-8 sm:py-12">
+                <Grid3X3 className="w-8 h-8 sm:w-12 sm:h-12 text-zinc-700 mx-auto mb-3 sm:mb-4" />
+                <p className="text-zinc-400 text-sm sm:text-base">No public collections</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
                 {collections.map((collection) => (
                   <CollectionCard 
                     key={collection.id} 
                     collection={collection} 
                     onClick={() => handleCollectionClick(collection)}
+                    isMobile={isMobile}
                   />
                 ))}
               </div>
@@ -309,7 +312,7 @@ export default function UserProfilePage() {
   )
 }
 
-function PostCard({ post }: { post: any }) {
+function PostCard({ post, isMobile }: { post: any, isMobile?: boolean }) {
   const formatTimeAgo = (dateString: string) => {
     const date = new Date(dateString)
     const now = new Date()
@@ -324,26 +327,26 @@ function PostCard({ post }: { post: any }) {
   }
 
   return (
-    <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-6 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300">
+    <div className={`bg-zinc-900/50 backdrop-blur-sm rounded-2xl border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300 ${isMobile ? 'p-4' : 'p-6'}`}>
       {/* Post Header */}
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <span className={`text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
           {formatTimeAgo(post.created_at)}
         </span>
-        <span className="text-xs text-zinc-500 capitalize">
+        <span className={`text-zinc-500 capitalize ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
           {post.post_type}
         </span>
       </div>
 
       {/* Content */}
-      <div className="mb-4">
-        <h3 className="text-xl font-semibold mb-3 text-white leading-tight">{post.title}</h3>
+      <div className="mb-3 sm:mb-4">
+        <h3 className={`font-semibold mb-2 sm:mb-3 text-white leading-tight ${isMobile ? 'text-lg' : 'text-xl'}`}>{post.title}</h3>
         {post.description && (
-          <p className="text-zinc-300 mb-4 leading-relaxed">{post.description}</p>
+          <p className={`text-zinc-300 mb-3 sm:mb-4 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>{post.description}</p>
         )}
         
         {post.image_url && (
-          <div className="rounded-xl overflow-hidden border border-zinc-800 mb-4">
+          <div className="rounded-xl overflow-hidden border border-zinc-800 mb-3 sm:mb-4">
             <Image
               src={post.image_url}
               alt={post.title}
@@ -355,14 +358,14 @@ function PostCard({ post }: { post: any }) {
         )}
 
         {post.link_url && (
-          <div className="border border-zinc-800 rounded-xl p-4 bg-zinc-800/30 backdrop-blur-sm">
+          <div className={`border border-zinc-800 rounded-xl bg-zinc-800/30 backdrop-blur-sm ${isMobile ? 'p-3' : 'p-4'}`}>
             <a 
               href={post.link_url} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-blue-400 hover:text-blue-300 text-sm break-all transition-colors flex items-center gap-2"
+              className={`text-blue-400 hover:text-blue-300 break-all transition-colors flex items-center gap-2 ${isMobile ? 'text-xs' : 'text-sm'}`}
             >
-              <LinkIcon className="w-4 h-4 flex-shrink-0" />
+              <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
               {post.link_url}
             </a>
           </div>
@@ -370,25 +373,25 @@ function PostCard({ post }: { post: any }) {
       </div>
 
       {/* Engagement */}
-      <div className="flex items-center justify-between pt-4 border-t border-zinc-800/50">
-        <div className="flex items-center gap-6">
-          <span className="flex items-center gap-2 text-sm text-zinc-400">
-            <Heart className="w-5 h-5" />
+      <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-zinc-800/50">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <span className={`flex items-center gap-2 text-zinc-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium">{post.like_count || 0}</span>
           </span>
           
-          <span className="flex items-center gap-2 text-sm text-zinc-400">
-            <MessageCircle className="w-5 h-5" />
+          <span className={`flex items-center gap-2 text-zinc-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+            <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium">{post.comment_count || 0}</span>
           </span>
           
-          <span className="flex items-center gap-2 text-sm text-zinc-400">
-            <Bookmark className="w-5 h-5" />
+          <span className={`flex items-center gap-2 text-zinc-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+            <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="font-medium">{post.save_count || 0}</span>
           </span>
         </div>
         
-        <div className="flex items-center gap-1 text-xs text-zinc-500 bg-zinc-800/50 px-3 py-1 rounded-full">
+        <div className={`flex items-center gap-1 text-zinc-500 bg-zinc-800/50 px-2 sm:px-3 py-1 rounded-full ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
           <Eye className="w-3 h-3" />
           <span className="font-medium">{post.view_count || 0}</span>
         </div>
@@ -397,59 +400,59 @@ function PostCard({ post }: { post: any }) {
   )
 }
 
-function CollectionCard({ collection, onClick }: { collection: any, onClick?: () => void }) {
+function CollectionCard({ collection, onClick, isMobile }: { collection: any, onClick?: () => void, isMobile?: boolean }) {
   return (
     <div 
-      className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-6 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300 group cursor-pointer"
+      className={`bg-zinc-900/50 backdrop-blur-sm rounded-2xl border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300 group cursor-pointer touch-manipulation ${isMobile ? 'p-4' : 'p-6'}`}
       onClick={onClick}
     >
       {/* Collection Header */}
-      <div className="flex items-start justify-between mb-4">
-        <div className="flex-1">
-          <h3 className="text-lg font-semibold text-white mb-2 group-hover:text-zinc-100">
+      <div className="flex items-start justify-between mb-3 sm:mb-4">
+        <div className="flex-1 min-w-0">
+          <h3 className={`font-semibold text-white mb-2 group-hover:text-zinc-100 truncate ${isMobile ? 'text-base' : 'text-lg'}`}>
             {collection.name}
           </h3>
           {collection.description && (
-            <p className="text-zinc-400 text-sm mb-3 leading-relaxed">
+            <p className={`text-zinc-400 mb-2 sm:mb-3 leading-relaxed line-clamp-2 ${isMobile ? 'text-xs' : 'text-sm'}`}>
               {collection.description}
             </p>
           )}
         </div>
         <div 
-          className={`w-3 h-3 rounded-full ${collection.color || 'bg-blue-500'} flex-shrink-0 ml-3 mt-1`}
+          className={`rounded-full ${collection.color || 'bg-blue-500'} flex-shrink-0 ml-2 sm:ml-3 mt-1 ${isMobile ? 'w-2.5 h-2.5' : 'w-3 h-3'}`}
         />
       </div>
 
       {/* Collection Stats */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 text-sm text-zinc-400">
+        <div className={`flex items-center gap-2 sm:gap-4 text-zinc-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
           <span className="flex items-center gap-1">
-            <Grid3X3 className="w-4 h-4" />
+            <Grid3X3 className="w-3 h-3 sm:w-4 sm:h-4" />
             {collection.item_count || 0} items
           </span>
           {collection.view_count > 0 && (
             <span className="flex items-center gap-1">
-              <Eye className="w-4 h-4" />
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
               {collection.view_count}
             </span>
           )}
           {collection.like_count > 0 && (
             <span className="flex items-center gap-1">
-              <Heart className="w-4 h-4" />
+              <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
               {collection.like_count}
             </span>
           )}
         </div>
         
-        <div className="text-xs text-zinc-500 bg-zinc-800/50 px-2 py-1 rounded-full">
+        <div className={`text-zinc-500 bg-zinc-800/50 px-2 py-1 rounded-full ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
           {new Date(collection.created_at).toLocaleDateString()}
         </div>
       </div>
 
       {/* Collection Preview (if items exist) */}
       {collection.item_count > 0 && (
-        <div className="mt-4 pt-4 border-t border-zinc-800/50">
-          <div className="text-xs text-zinc-500 text-center">
+        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-zinc-800/50">
+          <div className={`text-zinc-500 text-center ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
             {collection.item_count} curated items
           </div>
         </div>
