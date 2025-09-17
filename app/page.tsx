@@ -1,10 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { RefreshCw } from "lucide-react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import MasonryProductGrid from "@/components/MasonryProductGrid"
-import CategoryFilter from "@/components/CategoryFilter"
-import SearchBar from "@/components/SearchBar"
+import SearchAndCategories from "@/components/SearchAndCategories"
 import ProductDetail from "@/components/ProductDetail"
 import { useProfile } from "@/lib/profile-context"
 import { useCredits } from "@/lib/credit-context"
@@ -14,19 +12,43 @@ import type { Product } from "@/lib/types"
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [hasInitialLoad, setHasInitialLoad] = useState(false)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const [lastQuery, setLastQuery] = useState("")
+  const [lastCategory, setLastCategory] = useState("All")
+  const [isHeaderSticky, setIsHeaderSticky] = useState(false)
+  
+  // Refs for infinite scroll
+  const observerRef = useRef<IntersectionObserver | null>(null)
+  const loadingRef = useRef<HTMLDivElement | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   // Get profile context for personalized product search
   const { getSearchContext, profile, isLoaded: profileLoaded } = useProfile()
   const { useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
 
+  // Track sticky header state
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY > 64
+      setIsHeaderSticky(scrolled)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    handleScroll() // Check initial state
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
   useEffect(() => {
     window.scrollTo(0, 0)
-    fetchProducts()
+    fetchInitialProducts()
 
     const urlParams = new URLSearchParams(window.location.search)
     const productId = urlParams.get("product")
@@ -36,98 +58,210 @@ export default function Home() {
     }
   }, [])
 
+  // Reset pagination when search query or category changes
+  useEffect(() => {
+    if (hasInitialLoad && (searchQuery !== lastQuery || selectedCategory !== lastCategory)) {
+      setProducts([])
+      setPage(1)
+      setHasMore(true)
+      setLastQuery(searchQuery)
+      setLastCategory(selectedCategory)
+      fetchProducts(searchQuery, selectedCategory, 1, true)
+    }
+  }, [searchQuery, selectedCategory, hasInitialLoad])
+
   // Refresh products when profile changes (for better personalization)
   useEffect(() => {
     if (profileLoaded && hasInitialLoad && selectedCategory === "All" && !searchQuery) {
       console.log('[Discover] Profile changed, refreshing products for better personalization')
-      fetchProducts("", "All")
+      handleRefresh()
     }
-  }, [profile, profileLoaded, hasInitialLoad])
+  }, [profile, profileLoaded])
 
+  // Set up intersection observer for infinite scroll
   useEffect(() => {
-    if (hasInitialLoad && (searchQuery || selectedCategory !== "All")) {
-      fetchProducts(searchQuery, selectedCategory)
-    }
-  }, [searchQuery, selectedCategory, hasInitialLoad])
+    if (loading || !hasMore) return
 
-  const fetchProducts = async (query = "", category = "All", isRefresh = false) => {
+    if (observerRef.current) {
+      observerRef.current.disconnect()
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0]
+        if (first.isIntersecting && !loadingMore && hasMore) {
+          loadMoreProducts()
+        }
+      },
+      { 
+        threshold: 0.1,
+        rootMargin: '200px' // Start loading 200px before reaching the bottom
+      }
+    )
+
+    if (loadingRef.current) {
+      observerRef.current.observe(loadingRef.current)
+    }
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [loading, loadingMore, hasMore, page])
+
+  const buildEnhancedQuery = useCallback((query: string, category: string) => {
+    let enhancedQuery = query
+    
+    // For "All" category with no search query, use profile preferences to enhance search
+    if (!query && category === "All") {
+      const profileContext = getSearchContext()
+      if (profileContext) {
+        // Extract style preferences from profile context
+        const styleMatch = profileContext.match(/Style preferences: ([^.]+)/)
+        
+        if (styleMatch && styleMatch[1]) {
+          enhancedQuery = styleMatch[1].split(',')[0].trim() + " fashion clothing"
+        }
+        
+        console.log('[Discover] Enhanced query for "All" tab with profile:', enhancedQuery)
+      }
+    }
+    
+    return enhancedQuery
+  }, [getSearchContext])
+
+  const fetchProducts = async (
+    query = "", 
+    category = "All", 
+    pageNum = 1, 
+    isReset = false,
+    isRefresh = false
+  ) => {
+    // Cancel any ongoing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort()
+    }
+    
+    abortControllerRef.current = new AbortController()
+
     // Check credits before making any request (except initial load)
-    if ((query || category !== "All" || isRefresh) && !checkCreditsAvailable(1)) {
+    if ((query || category !== "All" || isRefresh || pageNum > 1) && !checkCreditsAvailable(1)) {
       showOutOfCreditsModal()
       return
     }
     
     if (isRefresh) {
       setIsRefreshing(true)
-    } else {
+    } else if (pageNum === 1) {
       setLoading(true)
+    } else {
+      setLoadingMore(true)
     }
     
     try {
       let url = "/api/products"
       const params = new URLSearchParams()
 
-      // Enhanced query building with profile context
-      let enhancedQuery = query
-      
-      // For "All" category with no search query, use profile preferences to enhance search
-      if (!query && category === "All") {
-        const profileContext = getSearchContext()
-        if (profileContext) {
-          // Extract style preferences from profile context
-          const styleMatch = profileContext.match(/Style preferences: ([^.]+)/)
-          const budgetMatch = profileContext.match(/Budget: ([^.]+)/)
-          
-          if (styleMatch && styleMatch[1]) {
-            enhancedQuery = styleMatch[1].split(',')[0].trim() + " fashion clothing"
-          }
-          
-          console.log('[Discover] Enhanced query for "All" tab with profile:', enhancedQuery)
-        }
-      }
+      const enhancedQuery = buildEnhancedQuery(query, category)
 
       if (enhancedQuery) params.append("query", enhancedQuery)
       if (category !== "All") params.append("category", category)
-      params.append("limit", "50")
+      
+      // Optimize batch sizes: smaller initial load, larger subsequent loads
+      const limit = pageNum === 1 ? 20 : 15
+      params.append("limit", limit.toString())
+      params.append("page", pageNum.toString())
+      
+      // Add variety to subsequent pages by slightly modifying the query
+      if (pageNum > 1 && enhancedQuery) {
+        const variations = [
+          enhancedQuery + " trending",
+          enhancedQuery + " popular",
+          enhancedQuery + " new",
+          enhancedQuery + " style",
+          enhancedQuery + " collection"
+        ]
+        const variation = variations[(pageNum - 2) % variations.length]
+        params.set("query", variation)
+      }
       
       // Add a timestamp to force fresh data on refresh
       if (isRefresh) params.append("t", Date.now().toString())
 
       if (params.toString()) url += `?${params.toString()}`
 
-      const response = await fetch(url)
+      const response = await fetch(url, {
+        signal: abortControllerRef.current.signal
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
       const data = await response.json()
       
       // Check if credits were used and deduct them
       const creditsUsedHeader = response.headers.get('X-Credits-Used')
       if (creditsUsedHeader) {
         const creditsUsed = parseInt(creditsUsedHeader)
-        // Product searches consume 1 credit each (builds up to 10 after 10-15 searches)
         if (!consumeCredits(creditsUsed)) {
           showOutOfCreditsModal()
-          return // Exit early if not enough credits
+          return
         }
       }
       
-      // Ensure we always set an array to products state
-      if (Array.isArray(data)) {
-        setProducts(data)
+      // Ensure we always get an array
+      const newProducts = Array.isArray(data) ? data : []
+      
+      if (isReset || pageNum === 1) {
+        setProducts(newProducts)
       } else {
-        console.error("Invalid products data received:", data)
-        setProducts([])
+        // Filter out duplicates when appending
+        setProducts(prevProducts => {
+          const existingIds = new Set(prevProducts.map(p => p.id))
+          const uniqueNewProducts = newProducts.filter(p => !existingIds.has(p.id))
+          return [...prevProducts, ...uniqueNewProducts]
+        })
       }
+      
+      // Update pagination state
+      setPage(pageNum + 1)
+      setHasMore(newProducts.length > 0)
       setHasInitialLoad(true)
-    } catch (error) {
+      
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Request aborted')
+        return
+      }
       console.error("Error fetching products:", error)
       setHasInitialLoad(true)
+      if (pageNum === 1) {
+        setProducts([])
+      }
     } finally {
       setLoading(false)
+      setLoadingMore(false)
       setIsRefreshing(false)
     }
   }
 
+  const fetchInitialProducts = () => {
+    fetchProducts("", "All", 1, true)
+  }
+
+  const loadMoreProducts = () => {
+    if (!loadingMore && hasMore && !loading) {
+      fetchProducts(searchQuery, selectedCategory, page, false)
+    }
+  }
+
   const handleRefresh = () => {
-    fetchProducts(searchQuery, selectedCategory, true)
+    setProducts([])
+    setPage(1)
+    setHasMore(true)
+    fetchProducts(searchQuery, selectedCategory, 1, true, true)
   }
 
   const fetchProductById = async (id: string) => {
@@ -161,41 +295,75 @@ export default function Home() {
     window.history.replaceState({}, "", url)
   }
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+      if (observerRef.current) {
+        observerRef.current.disconnect()
+      }
+    }
+  }, [])
+
   return (
     <div className="min-h-screen w-full">
-      <div className="sticky top-0 z-10 bg-black pt-0 pb-2 px-3 sm:px-4 border-b border-zinc-900">
-        <div className="py-3 flex items-center gap-3">
-          <div className="flex-1">
-            <SearchBar onSearch={handleSearch} />
+      {/* Search and categories - sticky component */}
+      <SearchAndCategories
+        searchQuery={searchQuery}
+        selectedCategory={selectedCategory}
+        loading={loading}
+        isRefreshing={isRefreshing}
+        onSearch={handleSearch}
+        onCategoryChange={handleCategoryChange}
+        onRefresh={handleRefresh}
+      />
+
+      {/* Content area - add padding when header is fixed */}
+      <div className={`w-full ${isHeaderSticky ? 'pt-[120px]' : ''} transition-all duration-200`}>
+        {loading && products.length === 0 ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="w-8 h-8 border-2 border-zinc-800 border-t-white rounded-full animate-spin"></div>
           </div>
-          <button
-            onClick={handleRefresh}
-            disabled={loading || isRefreshing}
-            className="p-2.5 rounded-full bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            aria-label="Refresh products"
-          >
-            <RefreshCw 
-              className={`w-5 h-5 text-white ${isRefreshing ? 'animate-spin' : ''}`} 
-              strokeWidth={1.5} 
-            />
-          </button>
-        </div>
-        <div className="overflow-x-auto scrollbar-hide px-1">
-          <CategoryFilter activeCategory={selectedCategory} onCategoryChange={handleCategoryChange} />
-        </div>
+        ) : (
+          <div className="w-full">
+            <MasonryProductGrid products={products} onProductClick={handleProductClick} />
+            
+            {/* Infinite scroll loading indicator */}
+            {hasMore && (
+              <div 
+                ref={loadingRef}
+                className="flex justify-center items-center h-20 py-4"
+              >
+                {loadingMore ? (
+                  <div className="flex items-center gap-2 text-zinc-400">
+                    <div className="w-5 h-5 border-2 border-zinc-700 border-t-zinc-400 rounded-full animate-spin"></div>
+                    <span className="text-sm">Loading more products...</span>
+                  </div>
+                ) : (
+                  <div className="text-zinc-500 text-sm">Scroll to load more</div>
+                )}
+              </div>
+            )}
+            
+            {/* End of results indicator */}
+            {!hasMore && products.length > 0 && (
+              <div className="flex justify-center items-center h-20 py-4">
+                <div className="text-zinc-500 text-sm">You've reached the end! 🎉</div>
+              </div>
+            )}
+            
+            {/* Empty state */}
+            {!loading && products.length === 0 && (
+              <div className="flex flex-col justify-center items-center h-64 text-center px-4">
+                <div className="text-zinc-400 text-lg mb-2">No products found</div>
+                <div className="text-zinc-500 text-sm">Try adjusting your search or category filters</div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
-
-      {/* AI Analysis Banner Removed */}
-
-      {loading ? (
-        <div className="flex justify-center items-center h-64">
-          <div className="w-8 h-8 border-2 border-zinc-800 border-t-white rounded-full animate-spin"></div>
-        </div>
-      ) : (
-        <div className="w-full">
-          <MasonryProductGrid products={products} onProductClick={handleProductClick} />
-        </div>
-      )}
 
       {selectedProduct && <ProductDetail product={selectedProduct} onClose={handleCloseDetail} />}
     </div>
