@@ -154,7 +154,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     {
       name: "Plus",
       price: "$2.99",
-      period: "USD / month",
+      period: "/ Month",
       description: "Full AI access for Individuals",
       features: [
         "500 Daily Credits",
@@ -173,7 +173,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     {
       name: "Pro",
       price: "$9.99",
-      period: "USD / Month",
+      period: "/ Month",
       description: "Professional features for resellers",
       features: [
         "5,000 Daily Credits",
@@ -223,45 +223,21 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl w-[95vw] max-h-[95vh] overflow-y-auto bg-zinc-950 border-zinc-800 text-white p-3 sm:p-6">
-        <DialogHeader className="text-center pb-2 sm:pb-4">
-          <DialogTitle className="text-xl sm:text-3xl font-semibold">Upgrade your plan</DialogTitle>
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] overflow-y-auto bg-black border-zinc-800 text-white p-6">
+        <DialogHeader className="text-center pb-6">
+          <DialogTitle className="text-xl text-center italic  mb-2">Choose your plan</DialogTitle>
           
-          {/* Trust Section */}
-          <div className="mt-2 sm:mt-4 mb-2">
-            <div className="flex items-center justify-center space-x-2 text-zinc-400">
-              <div className="flex -space-x-2">
-                <img 
-                  src="/placeholder-user.jpg" 
-                  alt="Customer" 
-                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-zinc-700 object-cover"
-                />
-                <img 
-                  src="/placeholder-user.jpg" 
-                  alt="Customer" 
-                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-zinc-700 object-cover"
-                />
-                <img 
-                  src="/placeholder-user.jpg" 
-                  alt="Customer" 
-                  className="w-6 h-6 sm:w-8 sm:h-8 rounded-full border-2 border-zinc-700 object-cover"
-                />
-                
-              </div>
-              <span className="text-xs sm:text-sm font-medium">Trusted by Over 10,000+ Resellers</span>
-            </div>
-          </div>
         </DialogHeader>
 
         {/* Customer Reviews Carousel */}
         <ReviewsCarousel />
 
         {/* Tab Selector */}
-        <div className="flex justify-center mb-4 sm:mb-8">
+        <div className="flex justify-center mb-4">
           <div className="bg-zinc-900 p-1 rounded-full flex">
             <button
               onClick={() => setSelectedTab("personal")}
-              className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                 selectedTab === "personal"
                   ? "bg-zinc-700 text-white"
                   : "text-zinc-400 hover:text-white"
@@ -271,7 +247,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
             </button>
             <button
               onClick={() => setSelectedTab("business")}
-              className={`px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
                 selectedTab === "business"
                   ? "bg-zinc-700 text-white"
                   : "text-zinc-400 hover:text-white"
@@ -283,16 +259,16 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         </div>
 
         {/* Pricing Cards */}
-        <div className={`grid gap-4 sm:gap-6 ${selectedTab === "personal" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 max-w-md mx-auto"}`}>
+        <div className={`grid gap-6 ${selectedTab === "personal" ? "grid-cols-1 md:grid-cols-3" : "grid-cols-1 max-w-md mx-auto"}`}>
           {(selectedTab === "personal" ? personalPlans : businessPlans).map((plan) => (
             <div
               key={plan.name}
-              className={`relative p-4 sm:p-6 rounded-2xl border-2 transition-all cursor-pointer ${
-                plan.planType === selectedPlan
-                  ? "border-blue-500 bg-gradient-to-b from-blue-950/50 to-zinc-900"
+              className={`relative p-6 rounded-2xl transition-all cursor-pointer border ${
+                plan.popular
+                  ? "border-blue-500 bg-gradient-to-b from-blue-950/20 to-black shadow-blue-500/20 shadow-lg"
                   : plan.planType === currentPlan
-                  ? "border-green-500 bg-gradient-to-b from-green-950/30 to-zinc-900"
-                  : "border-zinc-800 bg-zinc-900 hover:border-zinc-700"
+                  ? "border-green-500 bg-gradient-to-b from-green-950/20 to-black"
+                  : "border-zinc-800 bg-zinc-950/50 hover:border-zinc-700"
               }`}
               onClick={() => {
                 if (plan.planType) {
@@ -300,54 +276,57 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
                 }
               }}
             >
-              {(plan.planType === selectedPlan && plan.planType !== currentPlan) && (
-                <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-blue-600 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium">
-                    SELECTED
+              {plan.popular && (
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                    POPULAR
                   </span>
                 </div>
               )}
 
               {plan.planType === currentPlan && (
-                <div className="absolute -top-2 sm:-top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-green-600 text-white px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs font-medium">
+                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-green-600 text-white px-3 py-1 rounded-full text-xs font-medium">
                     CURRENT PLAN
                   </span>
                 </div>
               )}
 
-              <div className="text-center mb-4 sm:mb-6">
-                <div className="flex items-center justify-center gap-1 sm:gap-2 mb-1 sm:mb-2">
-                  {plan.icon && <div className="w-3 h-3 sm:w-4 sm:h-4 flex items-center justify-center">{plan.icon}</div>}
-                  <h3 className="text-base sm:text-xl font-semibold">{plan.name}</h3>
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-2">
+                  {plan.icon && <div className="w-4 h-4 flex items-center justify-center">{plan.icon}</div>}
+                  <h3 className="text-lg font-semibold">{plan.name}</h3>
                 </div>
-                <div className="mb-1 sm:mb-2">
-                  <span className="text-xl sm:text-4xl font-bold">{plan.price}</span>
-                  <span className="text-zinc-400 text-xs sm:text-sm ml-1">{plan.period}</span>
+                <div className="mb-3">
+                  <span className="text-3xl font-bold">{plan.price}</span>
+                  <span className="text-gray-400 text-sm">{plan.period}</span>
                 </div>
-                <p className="text-zinc-400 text-xs sm:text-sm px-1">{plan.description}</p>
+                <p className="text-gray-400 text-sm">{plan.description}</p>
               </div>
 
-              <ul className="space-y-1.5 sm:space-y-3 mb-4 sm:mb-8">
-                {plan.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-2 sm:gap-3">
-                    <Check className="w-3 h-3 sm:w-5 sm:h-5 text-green-500 flex-shrink-0 mt-0.5" />
-                    <span className="text-xs sm:text-sm text-zinc-300 leading-tight">{feature}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="mb-6">
+                <h4 className="text-sm font-medium mb-3 text-gray-300">What's included</h4>
+                <ul className="space-y-2">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-3">
+                      <Check className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
+                      <span className="text-sm text-gray-300">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <Button
-                className={`w-full h-8 sm:h-auto py-2 sm:py-3 text-xs sm:text-sm font-medium ${
+                className={`w-full py-3 text-sm font-medium rounded-lg ${
                   plan.planType === currentPlan
                     ? "bg-green-600 hover:bg-green-700 text-white cursor-default"
-                    : plan.planType === selectedPlan
+                    : plan.popular
                     ? "bg-blue-600 hover:bg-blue-700 text-white"
-                    : "bg-white text-black hover:bg-zinc-200"
+                    : "bg-zinc-800 text-white hover:bg-zinc-700 border border-zinc-700"
                 }`}
                 disabled={plan.planType === currentPlan}
                 onClick={(e) => {
-                  e.stopPropagation() // Prevent card click when button is clicked
+                  e.stopPropagation()
                   if (plan.name === "Business") {
                     handleContactAdmin()
                   } else if (plan.planType && plan.planType !== currentPlan) {
@@ -370,10 +349,10 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
 
         {/* Business Plan Notice */}
         {selectedTab === "business" && (
-          <div className="text-center mt-4 sm:mt-6 p-3 sm:p-4 bg-zinc-900 rounded-lg border border-zinc-800">
-            <Building2 className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500 mx-auto mb-2" />
-            <h4 className="font-semibold mb-2 text-sm sm:text-base">Need more capabilities for your business?</h4>
-            <p className="text-xs sm:text-sm text-zinc-400">
+          <div className="text-center mt-6 p-4 bg-zinc-900 rounded-lg border border-zinc-800">
+            <Building2 className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+            <h4 className="font-semibold mb-2">Need more capabilities for your business?</h4>
+            <p className="text-sm text-zinc-400">
               Contact our team at{" "}
               <a 
                 href="mailto:admin@flair.social"
@@ -387,7 +366,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         )}
 
         {/* Footer Note */}
-        <div className="text-center mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-zinc-800">
+        <div className="text-center mt-6 pt-6 border-t border-zinc-800">
           <p className="text-xs text-zinc-500">
             The Plus plan utilizes our advanced PyBackend AI system for enhanced reasoning and analysis.
           </p>
