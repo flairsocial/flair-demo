@@ -10,6 +10,7 @@ import { AIToneProvider } from "@/lib/ai-tone-context"
 import { CreditProvider } from "@/lib/credit-context"
 import { SavedItemsProvider } from "@/lib/saved-items-context"
 import { QueryClientProvider } from "@/lib/query-provider"
+import { ShoppingModeProvider } from "@/lib/shopping-mode-context"
 import CreditGuard from "@/components/CreditGuard"
 import Sidebar from "@/components/Sidebar"
 import Header from "@/components/Header"
@@ -41,13 +42,14 @@ export default function RootLayout({
                 <SavedItemsProvider>
                   <FileProvider>
                     <AIToneProvider>
-                      <ThemeProvider
-                        attribute="class"
-                        defaultTheme="dark"
-                        enableSystem={false}
-                        forcedTheme="dark"
-                        disableTransitionOnChange
-                      >
+                      <ShoppingModeProvider>
+                        <ThemeProvider
+                          attribute="class"
+                          defaultTheme="dark"
+                          enableSystem={false}
+                          forcedTheme="dark"
+                          disableTransitionOnChange
+                        >
                         <CreditGuard>
                         <div className="flex min-h-screen">
                           <Sidebar />
@@ -58,6 +60,7 @@ export default function RootLayout({
                         </div>
                       </CreditGuard>
                       </ThemeProvider>
+                      </ShoppingModeProvider>
                     </AIToneProvider>
                   </FileProvider>
                 </SavedItemsProvider>

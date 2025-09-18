@@ -136,7 +136,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     {
       name: "Free",
       price: "$0",
-      period: "forever",
+      period: " /forever",
       description: "Limited access for everyday tasks",
       features: [
         "50 Daily Credits",
@@ -196,7 +196,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     {
       name: "Business",
       price: "$50",
-      period: "USD / Month",
+      period: "/ Month",
       description: "Everything Plus has, with business-grade features",
       features: [
         "Everything in Plus",

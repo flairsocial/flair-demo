@@ -20,6 +20,15 @@ export interface Product {
     avatar: string
   }
   link?: string // Add this for chat product recommendations
+  marketplace?: {
+    provider: string
+    condition?: 'new' | 'used' | 'refurbished'
+    seller?: {
+      name: string
+      rating?: number
+      verified?: boolean
+    }
+  }
 }
 
 export interface Message {

@@ -1,18 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowLeft, Save, User, Ruler, Package } from "lucide-react"
+import { ArrowLeft, Save, User, Ruler, Package, ShoppingBag } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { RedirectToSignIn } from "@clerk/nextjs"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { useProfile } from "@/lib/profile-context"
+import { useShoppingMode } from "@/lib/shopping-mode-context"
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn, user } = useUser()
   
   // Use global profile context instead of local state
   const { profile, updateProfile, saveProfile, isLoading: profileLoading, isLoaded: profileLoaded } = useProfile()
+  const { mode: shoppingMode, setMode: setShoppingMode } = useShoppingMode()
   
   const [isLoading, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
@@ -183,6 +185,50 @@ export default function SettingsPage() {
               placeholder="Enter your age"
               className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20"
             />
+          </div>
+        </div>
+
+        {/* Shopping Preferences */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 mb-4">
+            <ShoppingBag className="w-5 h-5 text-white" />
+            <h2 className="text-xl font-semibold">Shopping Preferences</h2>
+          </div>
+
+          {/* Shopping Mode */}
+          <div>
+            
+            <p className="text-xs text-zinc-400 mb-3">
+              Choose your preferred shopping mode. You can always switch between modes while browsing.
+            </p>
+            <div className="grid grid-cols-1 gap-3">
+              <button
+                onClick={() => setShoppingMode('default')}
+                className={`p-4 rounded-lg border text-left transition-colors ${
+                  shoppingMode === 'default'
+                    ? "bg-white text-black border-white"
+                    : "bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700"
+                }`}
+              >
+                <div className="flex flex-col">
+                  <span className="font-medium">Default Mode</span>
+                  <span className="text-sm opacity-70">Fast, comprehensive results</span>
+                </div>
+              </button>
+              <button
+                onClick={() => setShoppingMode('marketplace')}
+                className={`p-4 rounded-lg border text-left transition-colors ${
+                  shoppingMode === 'marketplace'
+                    ? "bg-white text-black border-white"
+                    : "bg-zinc-800 text-white border-zinc-700 hover:bg-zinc-700"
+                }`}
+              >
+                <div className="flex flex-col">
+                  <span className="font-medium">Marketplace Mode</span>
+                  <span className="text-sm opacity-70">Multi-platform - Facebook, Grailed, Etsy, eBay, StockX, Poshmark, AliExpress, etc</span>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
 

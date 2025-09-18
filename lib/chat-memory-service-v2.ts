@@ -78,25 +78,84 @@ export async function storeChatContext(context: ChatContext): Promise<boolean> {
     const supabase = getSupabaseClient()
     const profileId = await getOrCreateProfile(context.userId)
 
-    const { error } = await supabase
+    // First, try to update existing record
+    const { data: existingRecord, error: selectError } = await supabase
       .from('ai_chat_memory')
-      .upsert({
-        profile_id: profileId,
-        memory_data: {
-          discussedProducts: context.discussedProducts,
-          searchQueries: context.searchQueries,
-          userIntents: context.userIntents,
-          stylePreferences: context.stylePreferences,
-          lastSearchResults: context.lastSearchResults,
-          conversationThemes: context.conversationThemes,
-          timestamp: context.timestamp
-        },
-        updated_at: new Date().toISOString()
-      })
+      .select('id')
+      .eq('profile_id', profileId)
+      .single()
 
-    if (error) {
-      console.error('Error storing chat context:', error)
-      return false
+    if (existingRecord) {
+      // Update existing record
+      const { error: updateError } = await supabase
+        .from('ai_chat_memory')
+        .update({
+          memory_data: {
+            discussedProducts: context.discussedProducts,
+            searchQueries: context.searchQueries,
+            userIntents: context.userIntents,
+            stylePreferences: context.stylePreferences,
+            lastSearchResults: context.lastSearchResults,
+            conversationThemes: context.conversationThemes,
+            timestamp: context.timestamp
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('profile_id', profileId)
+
+      if (updateError) {
+        console.error('Error updating chat context:', updateError)
+        return false
+      }
+    } else {
+      // Insert new record
+      const { error: insertError } = await supabase
+        .from('ai_chat_memory')
+        .insert({
+          profile_id: profileId,
+          memory_data: {
+            discussedProducts: context.discussedProducts,
+            searchQueries: context.searchQueries,
+            userIntents: context.userIntents,
+            stylePreferences: context.stylePreferences,
+            lastSearchResults: context.lastSearchResults,
+            conversationThemes: context.conversationThemes,
+            timestamp: context.timestamp
+          },
+          updated_at: new Date().toISOString()
+        })
+
+      if (insertError) {
+        // If insert fails due to race condition, try upsert as fallback
+        if (insertError.code === '23505') {
+          console.log('Race condition detected, retrying with upsert...')
+          const { error: upsertError } = await supabase
+            .from('ai_chat_memory')
+            .upsert({
+              profile_id: profileId,
+              memory_data: {
+                discussedProducts: context.discussedProducts,
+                searchQueries: context.searchQueries,
+                userIntents: context.userIntents,
+                stylePreferences: context.stylePreferences,
+                lastSearchResults: context.lastSearchResults,
+                conversationThemes: context.conversationThemes,
+                timestamp: context.timestamp
+              },
+              updated_at: new Date().toISOString()
+            }, {
+              onConflict: 'profile_id'
+            })
+
+          if (upsertError) {
+            console.error('Error upserting chat context after race condition:', upsertError)
+            return false
+          }
+        } else {
+          console.error('Error inserting chat context:', insertError)
+          return false
+        }
+      }
     }
 
     return true
@@ -334,8 +393,17 @@ export const chatMemoryService = {
         }
       }
       
-      contextData.discussedProducts.push(product)
-      contextData.conversationThemes.push('product discussion')
+      // Avoid duplicate products
+      const existingProduct = contextData.discussedProducts.find(p => p.id === product.id)
+      if (!existingProduct) {
+        contextData.discussedProducts.push(product)
+      }
+      
+      // Avoid duplicate themes
+      if (!contextData.conversationThemes.includes('product discussion')) {
+        contextData.conversationThemes.push('product discussion')
+      }
+      
       contextData.timestamp = new Date().toISOString()
       await storeChatContext(contextData)
     } catch (error) {
@@ -362,9 +430,15 @@ export const chatMemoryService = {
         }
       }
       
-      contextData.searchQueries.push(query)
+      // Keep only unique search queries (last 10)
+      const queries = [...new Set([...contextData.searchQueries, query])].slice(-10)
+      contextData.searchQueries = queries
+      
+      // Keep only unique intents (last 5)
+      const intents = [...new Set([...contextData.userIntents, searchType])].slice(-5)
+      contextData.userIntents = intents
+      
       contextData.lastSearchResults = results.slice(0, 5) // Keep last 5 results
-      contextData.userIntents.push(searchType)
       contextData.timestamp = new Date().toISOString()
       await storeChatContext(contextData)
     } catch (error) {

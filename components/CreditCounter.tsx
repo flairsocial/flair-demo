@@ -55,7 +55,7 @@ export default function CreditCounter() {
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className="fixed top-12 left-22 z-[9999] bg-zinc-900/95 backdrop-blur-md rounded-xl p-4 w-80 border border-zinc-700/50 shadow-2xl"
+            className="fixed top-10 left-20 z-[9999] bg-zinc-900/95 backdrop-blur-md rounded-xl p-4 w-80 border border-zinc-700/50 shadow-2xl"
           >
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">

@@ -51,7 +51,7 @@ async function getUserSavedItems(userId?: string) {
 
 export async function POST(request: Request) {
   try {
-    const { message, history = [], productLimit = 6, attachedFiles = [], aiTone = "casual" } = await request.json()
+    const { message, history = [], productLimit = 6, attachedFiles = [], aiTone = "casual", shoppingMode = "default" } = await request.json()
 
     console.log(`[Chat API] Processing message: "${message}"`)
     console.log(`[Chat API] Attached files: ${attachedFiles.length}`)
@@ -614,7 +614,8 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
             mostRecentUserProduct,
             searchType,
             hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit,
-            userId || undefined
+            userId || undefined,
+            shoppingMode
           )
           
           console.log(`[Chat] Competitor search returned ${products.length} products`)
@@ -669,7 +670,8 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
               mostRecentUserProduct,
               searchType,
               hasCompetitorRequest ? Math.min(productLimit + 2, 10) : productLimit,
-              userId || undefined
+              userId || undefined,
+              shoppingMode
             )
             console.log(`[Chat] ALTERNATIVE search returned ${products.length} products`)
             
@@ -691,7 +693,7 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
             
             try {
               console.log(`[Chat] Using contextual product search...`)
-              products = await searchForProducts(searchQuery, searchLimit, userId || undefined, false)
+              products = await searchForProducts(searchQuery, searchLimit, userId || undefined, false, shoppingMode)
               
               // Track search in memory
               chatMemoryService.addSearchQuery(
@@ -775,7 +777,7 @@ Keep the conversation flowing naturally while being their knowledgeable, well-in
           // Skip broken RealSearch service, go directly to working ProductsService
           try {
             console.log(`[Chat] Using direct product search (RealSearch disabled)...`)
-            products = await searchForProducts(searchQuery, searchLimit, userId || undefined, !!imageAnalysisQuery)
+            products = await searchForProducts(searchQuery, searchLimit, userId || undefined, !!imageAnalysisQuery, shoppingMode)
             
             // Track search in memory
             chatMemoryService.addSearchQuery(

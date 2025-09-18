@@ -14,9 +14,11 @@ import { FileAttachmentList } from "@/components/FileAttachment"
 import PricingModal from "@/components/PricingModal"
 import ChatProductCard from "@/components/ChatProductCard"
 import ChatHistoryPanel from "@/components/ChatHistoryPanel"
+import ShoppingModeToggle from "@/components/ShoppingModeToggle"
 import { useFiles, type ChatFile } from "@/lib/file-context"
 import { useAITone } from "@/lib/ai-tone-context"
 import { useCredits } from "@/lib/credit-context"
+import { useShoppingMode } from "@/lib/shopping-mode-context"
 import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
 import type { ChatHistory, ChatMessage as ChatHistoryMessage } from "@/lib/database-service-v2"
@@ -60,6 +62,7 @@ export default function ChatPage() {
   const { attachedFiles, removeFile, clearFiles } = useFiles()
   const { tone } = useAITone()
   const { credits, useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
+  const { mode: shoppingMode } = useShoppingMode()
   const autoMessageSentRef = useRef(false) // Track if auto-message has been sent
 
   // Load chat history on component mount
@@ -276,6 +279,7 @@ export default function ChatPage() {
           productLimit: productCount, // Include the product limit
           attachedFiles: attachedFiles, // Include attached files
           aiTone: tone, // Send just the tone preference
+          shoppingMode: shoppingMode, // Include shopping mode
         }),
       })
 
@@ -359,6 +363,7 @@ export default function ChatPage() {
           message: lastProductQuery,
           history: messages.slice(-8),
           productLimit: productCount, // Send the new product limit
+          shoppingMode: shoppingMode, // Include current shopping mode
         }),
       })
 
@@ -385,6 +390,13 @@ export default function ChatPage() {
       setError("Failed to update products")
     } finally {
       setIsLoading(false)
+    }
+  }
+
+  const handleShoppingModeChange = async (newMode: 'default' | 'marketplace') => {
+    // Refetch products with new shopping mode if we have a recent product query
+    if (lastProductQuery) {
+      await handleRefetchProducts()
     }
   }
 
@@ -482,7 +494,7 @@ export default function ChatPage() {
               <h1 className={`font-medium text-white mt-3 leading-tight ${isMobile ? 'text-base' : 'text-lg'}`}>Flair Agent</h1>
               <button
                 onClick={() => setShowPersonalityPopup(true)}
-                className={`text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer text-left leading-tight ${isMobile ? 'text-xs -mt-3' : 'text-xs'}`}
+                className={`text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer mt-1 text-left leading-tight ${isMobile ? 'text-xs -mt-3' : 'text-xs'}`}
               >
                 {isMobile ? 'Shopping Assistant' : 'Your Personal Shopping Assistant'}
               </button>
@@ -547,9 +559,18 @@ export default function ChatPage() {
                 transition={{ duration: 0.3 }}
               >
                 <ChatMessage message={message} />
+                {/* Shopping Mode Toggle - Show below AI messages */}
+                {message.sender === "ai" && (
+                  <div className="mt-3 ml-12">
+                    <ShoppingModeToggle 
+                      onModeChange={handleShoppingModeChange}
+                      className=""
+                    />
+                  </div>
+                )}
                 {/* Product recommendations */}
                 {message.sender === "ai" && message.products && message.products.length > 0 && (
-                  <div className="mt-3 ml-10">
+                  <div className="mt-2 ml-10">
                     <button
                       onClick={handleProductSettingsOpen}
                       className="text-xs text-zinc-400 mb-2 hover:text-white transition-colors cursor-pointer underline decoration-dotted"

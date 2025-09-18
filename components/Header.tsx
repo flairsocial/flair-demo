@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Info, Settings, Crown } from "lucide-react"
+import { Info, Settings, Crown, ChevronDown } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
 import { useMobile } from "@/hooks/use-mobile"
+import { useShoppingMode } from "@/lib/shopping-mode-context"
+import { AnimatePresence, motion } from "framer-motion"
 import InfoPopup from "./InfoPopup"
 import PricingModal from "./PricingModal"
 import CreditCounter from "./CreditCounter"
@@ -14,8 +16,10 @@ import Link from "next/link"
 export default function Header() {
   const [showInfo, setShowInfo] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
+  const [showShoppingModeDropdown, setShowShoppingModeDropdown] = useState(false)
   const pathname = usePathname()
   const isMobile = useMobile()
+  const { mode, setMode } = useShoppingMode()
 
   if (pathname === "/chat") {
     return null
@@ -37,6 +41,25 @@ export default function Header() {
         }
         return "Flair"
     }
+  }
+
+  const isDiscoverPage = pathname === "/"
+
+  const renderDiscoverTitle = () => {
+    if (!isDiscoverPage) {
+      return <h1 className="text-lg font-medium tracking-tight whitespace-nowrap">{getTitle()}</h1>
+    }
+
+    return (
+      <button
+        onClick={() => setShowShoppingModeDropdown(!showShoppingModeDropdown)}
+        className="flex items-center gap-1.5 text-lg font-medium tracking-tight hover:text-zinc-300 transition-colors"
+      >
+        
+        Discover
+        <ChevronDown className="w-3 h-3" />
+      </button>
+    )
   }
 
   return (
@@ -61,7 +84,7 @@ export default function Header() {
 
         {/* Center: Page Title - Absolutely positioned for perfect centering */}
         <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
-          <h1 className="text-lg font-medium tracking-tight whitespace-nowrap">{getTitle()}</h1>
+          {renderDiscoverTitle()}
         </div>
 
         {/* Right side: Upgrade Plan, Settings, Auth */}
@@ -126,6 +149,59 @@ export default function Header() {
       </div>
       {showInfo && <InfoPopup onClose={() => setShowInfo(false)} />}
       {showPricing && <PricingModal isOpen={showPricing} onClose={() => setShowPricing(false)} />}
+      
+      {/* Shopping Mode Dropdown - Portal Style */}
+      <AnimatePresence>
+        {showShoppingModeDropdown && (
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-16">
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/20 backdrop-blur-sm"
+              onClick={() => setShowShoppingModeDropdown(false)}
+            />
+            
+            {/* Dropdown menu */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              className="relative bg-zinc-900 border border-zinc-800 rounded-xl shadow-lg py-1 min-w-[160px] mt-2"
+            >
+              <button
+                onClick={() => {
+                  setMode('default')
+                  setShowShoppingModeDropdown(false)
+                }}
+                className={`w-full px-3 py-2 text-left hover:bg-zinc-800 transition-colors ${
+                  mode === 'default' ? 'text-white bg-zinc-800' : 'text-zinc-400'
+                }`}
+              >
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">Default</span>
+                  <span className="text-xs text-zinc-500">Google Shopping</span>
+                </div>
+              </button>
+              <button
+                onClick={() => {
+                  setMode('marketplace')
+                  setShowShoppingModeDropdown(false)
+                }}
+                className={`w-full px-3 py-2 text-left hover:bg-zinc-800 transition-colors ${
+                  mode === 'marketplace' ? 'text-white bg-zinc-800' : 'text-zinc-400'
+                }`}
+              >
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">Marketplace</span>
+                  <span className="text-xs text-zinc-500">Multi-platform</span>
+                </div>
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   )
 }

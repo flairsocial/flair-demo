@@ -1,4 +1,6 @@
 import type { Product } from "@/lib/types"
+import { marketplaceService } from "./marketplace-service"
+import type { ShoppingMode } from "./shopping-mode-context"
 
 // Helper function to parse price string (e.g., "$23.74") to number
 function parsePrice(priceString: string | null | undefined): number {
@@ -43,18 +45,96 @@ function extractBrand(title: string, source: string): string {
   return "Brand"
 }
 
+// Convert marketplace product to standard product format
+function convertMarketplaceProduct(marketplaceProduct: any): Product {
+  return {
+    id: marketplaceProduct.id,
+    image: marketplaceProduct.imageUrl,
+    title: marketplaceProduct.title,
+    price: marketplaceProduct.price,
+    brand: marketplaceProduct.brand || extractBrand(marketplaceProduct.title, marketplaceProduct.provider),
+    category: marketplaceProduct.category || "Product",
+    description: marketplaceProduct.description || marketplaceProduct.title,
+    hasAiInsights: false,
+    saved: false,
+    link: marketplaceProduct.url,
+    marketplace: {
+      provider: marketplaceProduct.provider,
+      condition: marketplaceProduct.condition,
+      seller: marketplaceProduct.seller
+    }
+  }
+}
+
+// Search marketplace products using marketplace service
+async function searchMarketplaceProducts(
+  query: string,
+  limit: number,
+  userId?: string
+): Promise<Product[]> {
+  try {
+    console.log(`[ProductsService] Searching marketplace for: "${query}"`)
+    
+    const searchParams = {
+      query,
+      limit,
+      sortBy: 'relevance' as const
+    }
+    
+    const results = await marketplaceService.searchMultipleProviders(searchParams)
+    
+    if (!results.products.length) {
+      console.log(`[ProductsService] No marketplace results found for: "${query}"`)
+      return []
+    }
+    
+    const products = results.products
+      .slice(0, limit)
+      .map(convertMarketplaceProduct)
+    
+    console.log(`[ProductsService] Converted ${products.length} marketplace products`)
+    return products
+  } catch (error) {
+    console.error("[ProductsService] Error searching marketplace products:", error)
+    return []
+  }
+}
+
 // Enhanced competitor/alternative product search function
 export async function searchForCompetitorProducts(
   originalProduct: Product,
   searchType: 'competitors' | 'alternatives' | 'similar',
   limit = 6,
-  userId?: string
+  userId?: string,
+  shoppingMode: ShoppingMode = 'default'
 ): Promise<Product[]> {
   try {
     const serperApiKey = process.env.SERPER_API_KEY
     if (!serperApiKey) {
       console.error("[ProductsService] SERPER_API_KEY not available")
       return []
+    }
+
+    // If marketplace mode, search marketplace first
+    if (shoppingMode === 'marketplace') {
+      // For competitors, try marketplace search with adjusted query
+      let searchQuery = ""
+      switch (searchType) {
+        case 'competitors':
+        case 'alternatives':
+          const mainKeywords = originalProduct.title.split(' ').slice(0, 3).join(' ')
+          searchQuery = `${mainKeywords} alternatives`
+          break
+        case 'similar':
+          searchQuery = `${originalProduct.title} similar`
+          break
+      }
+      
+      const marketplaceResults = await searchMarketplaceProducts(searchQuery, limit, userId)
+      if (marketplaceResults.length > 0) {
+        return marketplaceResults
+      }
+      // Fall through to default search if marketplace returns no results
     }
 
     let searchQuery = ""
@@ -162,11 +242,18 @@ export async function searchForProducts(
   query: string, 
   limit = 6, 
   userId?: string, 
-  isImageAnalysis = false
+  isImageAnalysis = false,
+  shoppingMode: ShoppingMode = 'default'
 ): Promise<Product[]> {
   try {
-    console.log(`[ProductsService] Searching for products: "${query}"`)
+    console.log(`[ProductsService] Searching for products: "${query}" (mode: ${shoppingMode})`)
     
+    // If marketplace mode, use marketplace service
+    if (shoppingMode === 'marketplace') {
+      return await searchMarketplaceProducts(query, limit, userId)
+    }
+    
+    // Default mode - use existing Serper API logic
     const serperApiKey = process.env.SERPER_API_KEY
     if (!serperApiKey) {
       console.error("[ProductsService] SERPER_API_KEY not available")
