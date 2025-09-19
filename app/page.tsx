@@ -6,25 +6,31 @@ import SearchAndCategories from "@/components/SearchAndCategories"
 import ProductDetail from "@/components/ProductDetail"
 import { useProfile } from "@/lib/profile-context"
 import { useCredits } from "@/lib/credit-context"
+import { useProfileEnhancedSearch } from "@/hooks/use-profile-enhanced-search"
+import { useShoppingMode } from "@/lib/shopping-mode-context"
 import { showOutOfCreditsModal } from "@/components/CreditGuard"
+import { useProducts } from "@/lib/react-query-hooks"
 import type { Product } from "@/lib/types"
 
 export default function Home() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [loadingMore, setLoadingMore] = useState(false)
+  // UI State
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [selectedCategory, setSelectedCategory] = useState("All")
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [hasInitialLoad, setHasInitialLoad] = useState(false)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-  const [page, setPage] = useState(1)
-  const [hasMore, setHasMore] = useState(true)
-  const [lastQuery, setLastQuery] = useState("")
-  const [lastCategory, setLastCategory] = useState("All")
   const [isHeaderSticky, setIsHeaderSticky] = useState(false)
   
-  // Refs for infinite scroll
+  // Product state management - keep all existing state
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [page, setPage] = useState(1)
+  const [hasInitialLoad, setHasInitialLoad] = useState(false)
+  const [lastQuery, setLastQuery] = useState("")
+  const [lastCategory, setLastCategory] = useState("")
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  
+  // Refs for infinite scroll and request management
   const observerRef = useRef<IntersectionObserver | null>(null)
   const loadingRef = useRef<HTMLDivElement | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
@@ -32,6 +38,20 @@ export default function Home() {
   // Get profile context for personalized product search
   const { getSearchContext, profile, isLoaded: profileLoaded } = useProfile()
   const { useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
+  const { mode: shoppingMode } = useShoppingMode()
+  const { 
+    getDiscoverQuery, 
+    isProfileConfigured,
+    currentStyle,
+    hasMultipleStyles,
+    hasGender 
+  } = useProfileEnhancedSearch()
+
+  // React Query hooks for caching only - use when available
+  const { data: cachedProducts, isLoading: cacheLoading } = useProducts(searchQuery, selectedCategory, page)
+  // Disabled until API endpoints exist:
+  // const { data: trending } = useTrendingProducts()
+  // const { data: categories } = useCategories()
 
   // Track sticky header state
   useEffect(() => {
@@ -68,15 +88,7 @@ export default function Home() {
       setLastCategory(selectedCategory)
       fetchProducts(searchQuery, selectedCategory, 1, true)
     }
-  }, [searchQuery, selectedCategory, hasInitialLoad])
-
-  // Refresh products when profile changes (for better personalization)
-  useEffect(() => {
-    if (profileLoaded && hasInitialLoad && selectedCategory === "All" && !searchQuery) {
-      console.log('[Discover] Profile changed, refreshing products for better personalization')
-      handleRefresh()
-    }
-  }, [profile, profileLoaded])
+  }, [searchQuery, selectedCategory, hasInitialLoad]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Set up intersection observer for infinite scroll
   useEffect(() => {
@@ -110,34 +122,38 @@ export default function Home() {
     }
   }, [loading, loadingMore, hasMore, page])
 
-  const buildEnhancedQuery = useCallback((query: string, category: string) => {
+  const buildQueryForDiscovery = useCallback((query: string, category: string, isRefresh: boolean = false) => {
     let enhancedQuery = query
     
-    // For "All" category with no search query, use profile preferences to enhance search
+    // For "All" category with no search query, use profile-enhanced discovery
     if (!query && category === "All") {
-      const profileContext = getSearchContext()
-      if (profileContext) {
-        // Extract style preferences from profile context
-        const styleMatch = profileContext.match(/Style preferences: ([^.]+)/)
-        
-        if (styleMatch && styleMatch[1]) {
-          enhancedQuery = styleMatch[1].split(',')[0].trim() + " fashion clothing"
-        }
-        
-        console.log('[Discover] Enhanced query for "All" tab with profile:', enhancedQuery)
-      }
+      // Use profile-enhanced query with rotation on refresh
+      enhancedQuery = getDiscoverQuery(isRefresh)
+      
+      console.log('[Discover] Using profile-enhanced query:', enhancedQuery, {
+        isRefresh,
+        currentStyle,
+        isProfileConfigured
+      })
     }
     
     return enhancedQuery
-  }, [getSearchContext])
+  }, [getDiscoverQuery, currentStyle, isProfileConfigured])
 
-  const fetchProducts = async (
+  const fetchProducts = useCallback(async (
     query = "", 
     category = "All", 
     pageNum = 1, 
     isReset = false,
     isRefresh = false
   ) => {
+    // Check cache first if available
+    if (cachedProducts && !isRefresh && pageNum === 1) {
+      setProducts(cachedProducts as Product[])
+      setHasInitialLoad(true)
+      return
+    }
+
     // Cancel any ongoing request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort()
@@ -163,10 +179,11 @@ export default function Home() {
       let url = "/api/products"
       const params = new URLSearchParams()
 
-      const enhancedQuery = buildEnhancedQuery(query, category)
+      const enhancedQuery = buildQueryForDiscovery(query, category, isRefresh)
 
       if (enhancedQuery) params.append("query", enhancedQuery)
       if (category !== "All") params.append("category", category)
+      if (shoppingMode !== "default") params.append("shoppingMode", shoppingMode)
       
       // Optimize batch sizes: smaller initial load, larger subsequent loads
       const limit = pageNum === 1 ? 20 : 15
@@ -245,34 +262,35 @@ export default function Home() {
       setLoadingMore(false)
       setIsRefreshing(false)
     }
-  }
+  }, [buildQueryForDiscovery, checkCreditsAvailable, shoppingMode, cachedProducts])
 
-  const fetchInitialProducts = () => {
+  const fetchInitialProducts = useCallback(() => {
     fetchProducts("", "All", 1, true)
-  }
+  }, [fetchProducts])
 
-  const loadMoreProducts = () => {
+  const loadMoreProducts = useCallback(() => {
     if (!loadingMore && hasMore && !loading) {
       fetchProducts(searchQuery, selectedCategory, page, false)
     }
-  }
+  }, [fetchProducts, loadingMore, hasMore, loading, searchQuery, selectedCategory, page])
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
+    console.log('[Discover] Refreshing with style rotation')
     setProducts([])
     setPage(1)
     setHasMore(true)
     fetchProducts(searchQuery, selectedCategory, 1, true, true)
-  }
+  }, [searchQuery, selectedCategory, fetchProducts])
 
-  const fetchProductById = async (id: string) => {
+  const fetchProductById = async (productId: string) => {
     try {
-      const response = await fetch(`/api/products/${id}`)
+      const response = await fetch(`/api/products/${productId}`)
       if (response.ok) {
         const product = await response.json()
         setSelectedProduct(product)
       }
     } catch (error) {
-      console.error("Error fetching product by ID:", error)
+      console.error("Error fetching product:", error)
     }
   }
 
@@ -319,6 +337,30 @@ export default function Home() {
         onCategoryChange={handleCategoryChange}
         onRefresh={handleRefresh}
       />
+
+      {/* Style rotation indicator - only show for All category with no search and profile configured */}
+      {!searchQuery && selectedCategory === "All" && isProfileConfigured && (currentStyle || hasGender) && (
+        <div className="px-4 py-2 bg-zinc-900/50 border-b border-zinc-800/50">
+          <div className="flex items-center justify-center gap-2 text-xs text-zinc-400">
+            <span>Personalized for:</span>
+            {hasGender && (
+              <>
+                <span className="text-white font-medium">{profile.gender}</span>
+                {currentStyle && <span>•</span>}
+              </>
+            )}
+            {currentStyle && (
+              <span className="text-white font-medium">{currentStyle}</span>
+            )}
+            {hasMultipleStyles && (
+              <>
+                <span>•</span>
+                <span>Tap refresh to rotate styles</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Content area - add padding when header is fixed */}
       <div className={`w-full ${isHeaderSticky ? 'pt-[120px]' : ''} transition-all duration-200`}>

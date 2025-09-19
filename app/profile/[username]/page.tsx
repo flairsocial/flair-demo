@@ -9,6 +9,7 @@ import { ArrowLeft, MessageCircle, Heart, Bookmark, Eye, Calendar, MapPin, Link 
 import CollectionDetailModal from "@/components/CollectionDetailModal"
 import { useMobile } from "@/hooks/use-mobile"
 import MessageUserButton from "@/components/MessageUserButton"
+import FollowButton from "@/components/FollowButton"
 
 interface ProfileData {
   profile: {
@@ -214,9 +215,12 @@ export default function UserProfilePage() {
               displayName={profile.display_name}
               variant="icon"
             />
-            <button className={`px-3 sm:px-4 py-2 bg-white text-black rounded-full hover:bg-gray-100 transition-colors font-medium touch-manipulation ${isMobile ? 'text-sm' : 'text-base'}`}>
-              Follow
-            </button>
+            <FollowButton
+              targetUserId={profile.clerk_id}
+              targetUsername={profile.username}
+              className={`px-3 sm:px-4 py-2 rounded-full font-medium touch-manipulation ${isMobile ? 'text-sm' : 'text-base'}`}
+              showText={true}
+            />
           </div>
         </div>
       </div>

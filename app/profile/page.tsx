@@ -14,6 +14,7 @@ import {
   useRemoveFromSaved,
   useCreateCollection 
 } from "@/lib/react-query-hooks"
+import { useProfileCounts } from "@/hooks/use-profile-counts"
 import {
   Settings,
   Grid,
@@ -76,6 +77,9 @@ export default function ProfilePage() {
   const { data: collections = [], isLoading: collectionsLoading } = useCollections()
   const { data: purchases = [], isLoading: purchasesLoading } = useUserPurchases()
   
+  // Profile counts hook
+  const { counts, loading: countsLoading, refreshCounts } = useProfileCounts()
+  
   // React Query mutations - these automatically update the cache when called
   const createCollectionMutation = useCreateCollection()
   const removeFromSavedMutation = useRemoveFromSaved()
@@ -133,7 +137,7 @@ export default function ProfilePage() {
           displayName: dbProfile.display_name || user.fullName || user.firstName || user.username || "User",
           username: dbProfile.username || user.username || `user_${user.id.slice(-8)}`,
           bio: dbProfile.bio || "Fashion enthusiast",
-          profilePicture: dbProfile.profile_picture_url || user.imageUrl || "/placeholder-user.svg"
+          profilePicture: dbProfile.profile_picture_url || user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg"
         })
       } else {
         // Fallback to Clerk data
@@ -141,7 +145,7 @@ export default function ProfilePage() {
           displayName: user.fullName || user.firstName || user.username || "User",
           username: user.username || `user_${user.id.slice(-8)}`,
           bio: user.publicMetadata?.bio as string || "Fashion enthusiast",
-          profilePicture: user.imageUrl || "/placeholder-user.svg"
+          profilePicture: user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg"
         })
       }
     } catch (error) {
@@ -151,7 +155,7 @@ export default function ProfilePage() {
         displayName: user.fullName || user.firstName || user.username || "User",
         username: user.username || `user_${user.id.slice(-8)}`,
         bio: user.publicMetadata?.bio as string || "Fashion enthusiast",
-        profilePicture: user.imageUrl || "/placeholder-user.svg"
+        profilePicture: user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg"
       })
     }
   }
@@ -464,6 +468,8 @@ export default function ProfilePage() {
       // React Query will automatically refetch and update the saved items
       setSelectedItems([])
       setShowBulkActions(false)
+      // Refresh counts to reflect deleted items
+      refreshCounts()
     } catch (error) {
       console.error('Error deleting items:', error)
     }
@@ -526,6 +532,8 @@ export default function ProfilePage() {
   const handleCollectionCreated = (newCollection: Collection) => {
     // React Query mutation automatically updates the cache
     createCollectionMutation.mutate(newCollection)
+    // Refresh counts to reflect new collection
+    refreshCounts()
   }
 
   // Handle collection updated - React Query will handle cache updates automatically
@@ -537,6 +545,8 @@ export default function ProfilePage() {
     if (selectedCollection && selectedCollection.id === collectionId) {
       setSelectedCollection(null)
     }
+    // Refresh counts to reflect deleted collection
+    refreshCounts()
   }
 
   // Handle bulk add to collection
@@ -551,6 +561,8 @@ export default function ProfilePage() {
     setSelectedItems([])
     setShowBulkAddModal(false)
     // React Query will automatically refetch collections
+    // Refresh counts in case new collections were created
+    refreshCounts()
   }
 
   return (
@@ -591,16 +603,28 @@ export default function ProfilePage() {
 
         <div className="flex space-x-6 mb-6">
           <div className="text-center">
-            <p className="font-medium text-base sm:text-lg">124</p>
-            <p className="text-zinc-400 text-[10px] sm:text-xs">Items</p>
+            <p className="font-medium text-base sm:text-lg">
+              {countsLoading ? '...' : counts.savedItemsCount}
+            </p>
+            <p className="text-zinc-400 text-[10px] sm:text-xs">Saved</p>
           </div>
           <div className="text-center">
-            <p className="font-medium text-base sm:text-lg">36</p>
+            <p className="font-medium text-base sm:text-lg">
+              {countsLoading ? '...' : counts.ordersCount}
+            </p>
             <p className="text-zinc-400 text-[10px] sm:text-xs">Orders</p>
           </div>
           <div className="text-center">
-            <p className="font-medium text-base sm:text-lg">18</p>
-            <p className="text-zinc-400 text-[10px] sm:text-xs">Lists</p>
+            <p className="font-medium text-base sm:text-lg">
+              {countsLoading ? '...' : counts.collectionsCount}
+            </p>
+            <p className="text-zinc-400 text-[10px] sm:text-xs">Collections</p>
+          </div>
+          <div className="text-center">
+            <p className="font-medium text-base sm:text-lg">
+              {countsLoading ? '...' : counts.postsCount}
+            </p>
+            <p className="text-zinc-400 text-[10px] sm:text-xs">Posts</p>
           </div>
         </div>
       </div>

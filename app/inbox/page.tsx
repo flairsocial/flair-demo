@@ -7,90 +7,26 @@ import Image from "next/image"
 import Link from "next/link"
 import { useMobile } from "@/hooks/use-mobile"
 import { useDirectMessages } from "@/hooks/use-direct-messages"
+import { useUser } from "@clerk/nextjs"
+import { useUnreadMessages } from "@/hooks/use-unread-messages"
+import { 
+  useDirectMessages as useDirectMessagesQuery, 
+  useConversation
+} from "@/lib/react-query-hooks"
 
-// Mock conversations for testing
-const mockConversations = [
-  {
-    id: "conv-1",
-    participant: {
-      username: "fashion_guru",
-      display_name: "Sarah Chen",
-      profile_picture_url: "/placeholder-user.svg",
-      isOnline: true
-    },
-    lastMessage: {
-      content: "Those boots you shared are amazing! Where did you find them?",
-      timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-      isRead: false,
-      senderId: "user-2"
-    },
-    unreadCount: 2
-  },
-  {
-    id: "conv-2",
-    participant: {
-      username: "streetwear_king",
-      display_name: "Marcus Williams",
-      profile_picture_url: "/placeholder-user.svg",
-      isOnline: false
-    },
-    lastMessage: {
-      content: "Thanks for the style advice! 🙏",
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
-      isRead: true,
-      senderId: "user-3"
-    },
-    unreadCount: 0
-  },
-  {
-    id: "conv-3",
-    participant: {
-      username: "vintage_collector",
-      display_name: "Emma Rodriguez",
-      profile_picture_url: "/placeholder-user.svg",
-      isOnline: true
-    },
-    lastMessage: {
-      content: "I found some amazing vintage pieces at the thrift store today!",
-      timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
-      isRead: true,
-      senderId: "user-4"
-    },
-    unreadCount: 0
+// Type definitions for conversations
+interface ConversationType {
+  id: string
+  other_participant?: {
+    display_name?: string
+    username?: string
+    avatar_url?: string
   }
-]
-
-// Mock messages for a conversation
-const mockMessages = [
-  {
-    id: "msg-1",
-    content: "Hey! I saw your post about the vintage leather jacket. Do you know where I can find something similar?",
-    senderId: "user-2",
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-    isRead: true
-  },
-  {
-    id: "msg-2", 
-    content: "Hi Sarah! Yes, I found it at a small boutique downtown. I can send you the location if you'd like!",
-    senderId: "current-user",
-    timestamp: new Date(Date.now() - 1.5 * 60 * 60 * 1000),
-    isRead: true
-  },
-  {
-    id: "msg-3",
-    content: "That would be amazing, thank you so much! 😊",
-    senderId: "user-2", 
-    timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000),
-    isRead: true
-  },
-  {
-    id: "msg-4",
-    content: "Those boots you shared are amazing! Where did you find them?",
-    senderId: "user-2",
-    timestamp: new Date(Date.now() - 30 * 60 * 1000),
-    isRead: false
+  last_message?: {
+    content?: string
+    created_at?: string
   }
-]
+}
 
 const formatTimeString = (dateString: string) => {
   const date = new Date(dateString)
@@ -109,13 +45,16 @@ const formatTimeString = (dateString: string) => {
 
 export default function InboxPage() {
   const [searchQuery, setSearchQuery] = useState("")
-  const [selectedConversation, setSelectedConversation] = useState<any>(null)
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null)
   const [newMessage, setNewMessage] = useState("")
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [showSearchResults, setShowSearchResults] = useState(false)
   const searchParams = useSearchParams()
   const isMobile = useMobile()
+  const { user } = useUser()
+  const { refreshUnreadCount } = useUnreadMessages()
   
+  // Original hook for core functionality (preserved)
   const { 
     conversations, 
     currentMessages, 
@@ -125,6 +64,17 @@ export default function InboxPage() {
     sendNewMessage, 
     startConversation 
   } = useDirectMessages()
+
+  // React Query hooks for caching (optional layer) - only use working endpoints
+  const { data: cachedConversations } = useDirectMessagesQuery()
+  const { data: cachedCurrentMessages } = useConversation(selectedConversation || '')
+  // Disabled until API endpoints exist:
+  // const { data: cachedUnreadCount } = useUnreadCount()
+  // const markAsReadMutation = useMarkAsRead()
+
+  // Use cached data when available, fall back to original hooks
+  const displayConversations = cachedConversations?.conversations || conversations
+  const displayCurrentMessages = cachedCurrentMessages?.messages || currentMessages
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query)
@@ -148,32 +98,31 @@ export default function InboxPage() {
   }
 
   const handleSelectConversation = async (conversation: any) => {
-    setSelectedConversation(conversation)
+    setSelectedConversation(conversation.id)
     setShowSearchResults(false)
     setSearchQuery("")
+    
+    // Use original method for now (React Query mutations disabled until API endpoints exist)
     await loadMessages(conversation.id)
+    // Refresh unread count after viewing messages
+    refreshUnreadCount()
   }
 
   // Handle URL conversation parameter
   useEffect(() => {
     const conversationId = searchParams.get('conversation')
-    if (conversationId && conversations.length > 0) {
-      const conversation = conversations.find(conv => conv.id === conversationId)
+    if (conversationId && displayConversations.length > 0) {
+      const conversation = displayConversations.find((conv: ConversationType) => conv.id === conversationId)
       if (conversation) {
         handleSelectConversation(conversation)
       }
     }
-  }, [searchParams, conversations])
+  }, [searchParams, displayConversations])
 
   const handleStartConversation = async (user: any) => {
-    const conversationId = await startConversation(user.id)
+    const conversationId = await startConversation(user.clerk_id || user.id)
     if (conversationId) {
-      const newConv = {
-        id: conversationId,
-        other_participant: user,
-        last_message_at: new Date().toISOString()
-      }
-      setSelectedConversation(newConv)
+      setSelectedConversation(conversationId)
       setShowSearchResults(false)
       setSearchQuery("")
       await loadMessages(conversationId)
@@ -183,30 +132,30 @@ export default function InboxPage() {
   const handleSendMessage = async () => {
     if (!selectedConversation || !newMessage.trim()) return
     
-    const success = await sendNewMessage(selectedConversation.id, newMessage)
+    // Use original method for now (React Query mutations disabled until API endpoints exist)
+    const success = await sendNewMessage(selectedConversation, newMessage)
     if (success) {
       setNewMessage("")
+      refreshUnreadCount()
     }
   }
 
   const filteredConversations = showSearchResults ? [] : (searchQuery
-    ? conversations.filter((conv: any) =>
+    ? displayConversations.filter((conv: any) =>
         conv.other_participant?.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         conv.other_participant?.username?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         conv.last_message?.content?.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : conversations)
+    : displayConversations)
 
   // Get the selected conversation data
   const selectedConv = selectedConversation 
-    ? conversations.find(conv => conv.id === selectedConversation) || mockConversations.find(conv => conv.id === selectedConversation)
+    ? displayConversations.find((conv: any) => conv.id === selectedConversation)
     : null
 
   const sendMessage = () => {
     if (!newMessage.trim()) return
-    // Here you would implement actual message sending
-    console.log('Sending message:', newMessage)
-    setNewMessage("")
+    handleSendMessage()
   }
 
   if (isMobile && selectedConversation) {
@@ -225,16 +174,17 @@ export default function InboxPage() {
           {selectedConv && (
             <>
               <Image
-                src={selectedConv.participant?.profile_picture_url || selectedConv.other_participant?.profile_picture_url || "/placeholder-user.svg"}
-                alt={selectedConv.participant?.display_name || selectedConv.other_participant?.display_name || "User"}
+                src={selectedConv.other_participant?.profile_picture_url || "/placeholder-user.svg"}
+                alt={selectedConv.other_participant?.display_name || "User"}
                 width={40}
                 height={40}
                 className="rounded-full"
               />
               <div className="flex-1">
-                <h3 className="font-semibold">{selectedConv.participant?.display_name || selectedConv.other_participant?.display_name}</h3>
+                <h3 className="font-semibold">{selectedConv.other_participant?.display_name || selectedConv.other_participant?.username}</h3>
                 <p className="text-sm text-zinc-400">
-                  {selectedConv.participant?.isOnline || selectedConv.other_participant?.isOnline ? 'Online' : 'Offline'}
+                  {/* TODO: Add online status from presence system */}
+                  @{selectedConv.other_participant?.username}
                 </p>
               </div>
               
@@ -255,9 +205,19 @@ export default function InboxPage() {
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {mockMessages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
+          {loading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="text-zinc-500">Loading messages...</div>
+            </div>
+          ) : currentMessages.length > 0 ? (
+            currentMessages.map((message) => (
+              <MessageBubble key={message.id} message={message} currentUserId={user?.id} />
+            ))
+          ) : (
+            <div className="flex items-center justify-center h-32">
+              <div className="text-zinc-500">No messages yet</div>
+            </div>
+          )}
         </div>
 
         {/* Message Input */}
@@ -273,7 +233,7 @@ export default function InboxPage() {
             />
             <button 
               onClick={sendMessage}
-              disabled={!newMessage.trim()}
+              disabled={!newMessage.trim() || sending}
               className="p-3 bg-white text-black rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
             >
               <Send className="w-5 h-5" />
@@ -320,15 +280,57 @@ export default function InboxPage() {
         {/* Conversations List */}
         <div className={`${isMobile ? 'w-full' : 'w-1/3 border-r border-zinc-800'} ${selectedConversation && !isMobile ? 'hidden lg:block' : ''}`}>
           <div className="p-4 space-y-2">
-            {filteredConversations.map((conversation) => (
-              <ConversationItem
-                key={conversation.id}
-                conversation={conversation}
-                isSelected={selectedConversation === conversation.id}
-                onClick={() => setSelectedConversation(conversation.id)}
-                formatTimeString={formatTimeString}
-              />
-            ))}
+            {showSearchResults ? (
+              // Search Results
+              <>
+                <h3 className="text-sm font-semibold text-zinc-400 mb-2">Search Results</h3>
+                {searchResults.map((user) => (
+                  <button
+                    key={user.id}
+                    onClick={() => handleStartConversation(user)}
+                    className="w-full p-3 rounded-xl text-left transition-all duration-200 hover:bg-zinc-800/50"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Image
+                        src={user.profile_picture_url || "/placeholder-user.svg"}
+                        alt={user.display_name || user.username}
+                        width={48}
+                        height={48}
+                        className="rounded-full"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold truncate">{user.display_name || user.username}</h4>
+                        <p className="text-sm text-zinc-400 truncate">@{user.username}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
+                {searchResults.length === 0 && searchQuery.length > 2 && (
+                  <div className="text-center py-8">
+                    <p className="text-zinc-500">No users found</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              // Conversations
+              <>
+                {filteredConversations.map((conversation: ConversationType) => (
+                  <ConversationItem
+                    key={conversation.id}
+                    conversation={conversation}
+                    isSelected={selectedConversation === conversation.id}
+                    onClick={() => handleSelectConversation(conversation)}
+                    formatTimeString={formatTimeString}
+                  />
+                ))}
+                {filteredConversations.length === 0 && conversations.length === 0 && !loading && (
+                  <div className="text-center py-8">
+                    <p className="text-zinc-500">No conversations yet</p>
+                    <p className="text-zinc-600 text-sm mt-1">Search for users to start chatting</p>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
 
@@ -342,16 +344,16 @@ export default function InboxPage() {
                   {selectedConv && (
                     <>
                       <Image
-                        src={selectedConv.participant?.profile_picture_url || selectedConv.other_participant?.profile_picture_url || "/placeholder-user.svg"}
-                        alt={selectedConv.participant?.display_name || selectedConv.other_participant?.display_name || "User"}
+                        src={selectedConv.other_participant?.profile_picture_url || "/placeholder-user.svg"}
+                        alt={selectedConv.other_participant?.display_name || "User"}
                         width={40}
                         height={40}
                         className="rounded-full"
                       />
                       <div className="flex-1">
-                        <h3 className="font-semibold">{selectedConv.participant?.display_name || selectedConv.other_participant?.display_name}</h3>
+                        <h3 className="font-semibold">{selectedConv.other_participant?.display_name || selectedConv.other_participant?.username}</h3>
                         <p className="text-sm text-zinc-400">
-                          {selectedConv.participant?.isOnline || selectedConv.other_participant?.isOnline ? 'Online' : 'Offline'}
+                          @{selectedConv.other_participant?.username}
                         </p>
                       </div>
                       
@@ -372,9 +374,19 @@ export default function InboxPage() {
 
                 {/* Messages */}
                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {mockMessages.map((message) => (
-                    <MessageBubble key={message.id} message={message} />
-                  ))}
+                  {loading ? (
+                    <div className="flex items-center justify-center h-32">
+                      <div className="text-zinc-500">Loading messages...</div>
+                    </div>
+                  ) : currentMessages.length > 0 ? (
+                    currentMessages.map((message) => (
+                      <MessageBubble key={message.id} message={message} currentUserId={user?.id} />
+                    ))
+                  ) : (
+                    <div className="flex items-center justify-center h-32">
+                      <div className="text-zinc-500">No messages yet</div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Message Input */}
@@ -390,7 +402,7 @@ export default function InboxPage() {
                     />
                     <button 
                       onClick={sendMessage}
-                      disabled={!newMessage.trim()}
+                      disabled={!newMessage.trim() || sending}
                       className="p-3 bg-white text-black rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50"
                     >
                       <Send className="w-5 h-5" />
@@ -422,6 +434,9 @@ function ConversationItem({ conversation, isSelected, onClick, formatTimeString 
   onClick: () => void
   formatTimeString: (dateString: string) => string
 }) {
+  // Calculate unread count - this would ideally come from the database
+  const unreadCount = 0 // TODO: Implement unread count from database
+
   return (
     <button
       onClick={onClick}
@@ -434,32 +449,30 @@ function ConversationItem({ conversation, isSelected, onClick, formatTimeString 
       <div className="flex items-center gap-3">
         <div className="relative">
           <Image
-            src={conversation.participant?.profile_picture_url || conversation.other_participant?.profile_picture_url || "/placeholder-user.svg"}
-            alt={conversation.participant?.display_name || conversation.other_participant?.display_name || "User"}
+            src={conversation.other_participant?.profile_picture_url || "/placeholder-user.svg"}
+            alt={conversation.other_participant?.display_name || "User"}
             width={48}
             height={48}
             className="rounded-full"
           />
-          {(conversation.participant?.isOnline || conversation.other_participant?.isOnline) && (
-            <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-black rounded-full"></div>
-          )}
+          {/* TODO: Add online status indicator */}
         </div>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <h4 className="font-semibold truncate">{conversation.participant?.display_name || conversation.other_participant?.display_name}</h4>
+            <h4 className="font-semibold truncate">{conversation.other_participant?.display_name || conversation.other_participant?.username}</h4>
             <span className="text-xs text-zinc-500">
-              {formatTimeString(conversation.lastMessage?.timestamp?.toString() || conversation.last_message_at || new Date().toISOString())}
+              {formatTimeString(conversation.last_message_at || new Date().toISOString())}
             </span>
           </div>
           
           <div className="flex items-center justify-between">
             <p className="text-sm text-zinc-400 truncate pr-2">
-              {conversation.lastMessage?.content || conversation.last_message?.content || "No messages yet"}
+              {conversation.last_message?.content || "No messages yet"}
             </p>
-            {conversation.unreadCount > 0 && (
+            {unreadCount > 0 && (
               <div className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-medium">
-                {conversation.unreadCount}
+                {unreadCount}
               </div>
             )}
           </div>
@@ -469,8 +482,19 @@ function ConversationItem({ conversation, isSelected, onClick, formatTimeString 
   )
 }
 
-function MessageBubble({ message }: { message: any }) {
-  const isCurrentUser = message.senderId === "current-user"
+function MessageBubble({ message, currentUserId }: { message: any; currentUserId?: string }) {
+  // Check if the current user sent this message by comparing Clerk IDs
+  // The message.sender has the user's profile info including clerk_id
+  const isCurrentUser = currentUserId && message.sender?.clerk_id === currentUserId
+  
+  // Debug logging to help troubleshoot
+  console.log('[MessageBubble] Debug:', {
+    messageId: message.id,
+    currentUserId,
+    senderClerkId: message.sender?.clerk_id,
+    isCurrentUser,
+    content: message.content?.substring(0, 20) + '...'
+  })
   
   return (
     <div className={`flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
@@ -483,7 +507,7 @@ function MessageBubble({ message }: { message: any }) {
         <p className={`text-xs mt-1 ${
           isCurrentUser ? 'text-blue-100' : 'text-zinc-400'
         }`}>
-          {message.timestamp instanceof Date ? message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          {new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>
     </div>

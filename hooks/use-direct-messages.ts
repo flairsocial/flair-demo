@@ -47,11 +47,27 @@ export function useDirectMessages() {
       }
       const data = await response.json()
       setCurrentMessages(data.messages || [])
+      
+      // Mark messages as read when viewing them
+      await markConversationAsRead(conversationId)
     } catch (error) {
       console.error('Error loading messages:', error)
       setCurrentMessages([])
     } finally {
       setLoading(false)
+    }
+  }
+
+  const markConversationAsRead = async (conversationId: string) => {
+    if (!user?.id) return
+    
+    try {
+      await fetch(`/api/direct-messages/${conversationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' }
+      })
+    } catch (error) {
+      console.error('Error marking messages as read:', error)
     }
   }
 

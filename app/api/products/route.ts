@@ -28,6 +28,7 @@ export async function GET(request: Request) {
   const categoryParam = searchParams.get("category")
   const chatContext = searchParams.get("chatContext") // New parameter for chat context
   const imageAnalysis = searchParams.get("imageAnalysis") // New parameter for image analysis results
+  const shoppingMode = searchParams.get("shoppingMode") || "default" // Shopping mode parameter
   const limit = Number.parseInt(searchParams.get("limit") || "100") // Default to 100 for discovery
 
   // For discovery page, always fetch extensive results
@@ -39,6 +40,7 @@ export async function GET(request: Request) {
   const searchQuery = imageAnalysis || chatContext || userQuery
 
   console.log(`LOG: Using search query: "${searchQuery || 'discovery mode'}"`)
+  console.log(`LOG: Shopping mode: ${shoppingMode}`)
   console.log(`LOG: Image analysis used: ${imageAnalysis ? 'yes' : 'no'}`)
   console.log(`LOG: Category filter: ${categoryParam || 'none'}`)
   console.log(`LOG: Discovery page: ${isDiscoveryPage ? 'yes' : 'no'}`)

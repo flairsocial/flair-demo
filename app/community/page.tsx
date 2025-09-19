@@ -10,6 +10,8 @@ import { useCommunity } from "@/hooks/use-community"
 import { useUser } from "@clerk/nextjs"
 import CollectionDetailModal from "@/components/CollectionDetailModal"
 import MessageUserButton from "@/components/MessageUserButton"
+import { useUnreadMessages } from "@/hooks/use-unread-messages"
+import { useCommunityPosts } from "@/lib/react-query-hooks"
 
 export default function CommunityPage() {
   const [viewMode, setViewMode] = useState<'vertical' | 'collage'>('vertical')
@@ -23,8 +25,43 @@ export default function CommunityPage() {
   const isMobile = useMobile()
   const { user } = useUser()
   
-  // Use real community data
-  const { posts, loading, createPost, deletePost, creating } = useCommunity()
+  // Use real community data (original hooks preserved)
+  const { posts, followingPosts, loading, loadingFollowing, createPost, deletePost, creating } = useCommunity()
+
+  // React Query hooks for caching (working endpoint)
+  const { data: cachedPosts, isLoading: cacheLoading } = useCommunityPosts({ limit: 20, offset: 0 })
+
+  // Use cached data when available, fall back to original hooks
+  const displayPosts = cachedPosts || posts
+  const displayFollowingPosts = followingPosts // No following endpoint yet
+
+  // Get posts based on active tab
+  const getDisplayPosts = () => {
+    switch (activeTab) {
+      case 'following':
+        return displayFollowingPosts
+      case 'foryou':
+      case 'explore':
+      default:
+        return displayPosts
+    }
+  }
+  
+  // Get loading state based on active tab
+  const getIsLoading = () => {
+    switch (activeTab) {
+      case 'following':
+        return loadingFollowing
+      case 'foryou':
+      case 'explore':
+      default:
+        return loading
+    }
+  }
+  
+  const finalDisplayPosts = getDisplayPosts()
+  const isLoading = getIsLoading()
+  const { unreadCount } = useUnreadMessages()
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query)
@@ -48,12 +85,12 @@ export default function CommunityPage() {
   }
 
   const filteredPosts = searchQuery && !showSearchResults
-    ? posts.filter((post: any) => 
+    ? finalDisplayPosts.filter((post: any) => 
         post.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         post.author?.display_name?.toLowerCase().includes(searchQuery.toLowerCase())
       )
-    : posts
+    : finalDisplayPosts
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -203,7 +240,19 @@ export default function CommunityPage() {
           <CommunityFeed 
             posts={filteredPosts} 
             viewMode={viewMode} 
-            loading={loading} 
+            loading={isLoading} 
+            currentUser={user}
+            onDeletePost={deletePost}
+            onViewCollection={(collection) => {
+              setSelectedCollection(collection)
+              setShowCollectionModal(true)
+            }}
+          />
+        ) : activeTab === 'following' ? (
+          <CommunityFeed 
+            posts={displayPosts} 
+            viewMode={viewMode} 
+            loading={isLoading} 
             currentUser={user}
             onDeletePost={deletePost}
             onViewCollection={(collection) => {

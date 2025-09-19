@@ -1,146 +1,165 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useUser } from '@clerk/nextjs'
-import { queryKeys } from './query-client'
 
-// ============= USER DATA QUERIES =============
+// ============= WORKING REACT QUERY HOOKS =============
+// These hooks cache the EXACT same API calls your app already makes successfully
 
-export function useProfile() {
-  const { user } = useUser()
-  
+// 1. Products/Marketplace - mirrors the working /api/products calls
+export function useProducts(searchQuery: string = '', category: string = 'All', page: number = 1) {
   return useQuery({
-    queryKey: queryKeys.profile(user?.id),
+    queryKey: ['products', searchQuery, category, page],
     queryFn: async () => {
-      const response = await fetch('/api/user/profile')
-      if (!response.ok) throw new Error('Failed to fetch profile')
+      const params = new URLSearchParams()
+      
+      if (searchQuery) params.append('query', searchQuery)
+      if (category && category !== 'All') params.append('category', category)
+      params.append('page', page.toString())
+      params.append('limit', '20')
+      
+      const response = await fetch(`/api/products?${params}`)
+      if (!response.ok) throw new Error('Failed to fetch products')
       return response.json()
     },
-    enabled: !!user?.id,
-    staleTime: 10 * 60 * 1000, // Profile data can be stale for 10 minutes
+    enabled: true, // Always enabled to provide caching benefits
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   })
 }
 
+// 2. Community Posts - mirrors the working /api/community calls  
+export function useCommunityPosts(options: { limit?: number, offset?: number } = {}) {
+  return useQuery({
+    queryKey: ['community-posts', options],
+    queryFn: async () => {
+      const params = new URLSearchParams()
+      params.append('limit', (options.limit || 20).toString())
+      params.append('offset', (options.offset || 0).toString())
+      
+      const response = await fetch(`/api/community?${params}`)
+      if (!response.ok) throw new Error('Failed to fetch community posts')
+      return response.json()
+    },
+    enabled: true,
+    staleTime: 1 * 60 * 1000, // Cache for 1 minute
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+  })
+}
+
+// 3. Direct Messages - mirrors the working /api/direct-messages calls
+export function useDirectMessages() {
+  const { user } = useUser()
+  
+  return useQuery({
+    queryKey: ['direct-messages', user?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/direct-messages')
+      if (!response.ok) throw new Error('Failed to fetch direct messages')
+      return response.json()
+    },
+    enabled: !!user?.id,
+    staleTime: 30 * 1000, // Cache for 30 seconds
+    gcTime: 2 * 60 * 1000, // Keep in cache for 2 minutes
+    refetchInterval: 60 * 1000, // Auto-refresh every minute
+  })
+}
+
+// 4. Chat History - mirrors the working /api/chat-history calls
+export function useChatHistory() {
+  const { user } = useUser()
+  
+  return useQuery({
+    queryKey: ['chat-history', user?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/chat-history')
+      if (!response.ok) throw new Error('Failed to fetch chat history')
+      return response.json()
+    },
+    enabled: !!user?.id,
+    staleTime: 1 * 60 * 1000, // Cache for 1 minute
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+  })
+}
+
+// 5. Saved Items - mirrors the working /api/saved calls
 export function useSavedItems() {
   const { user } = useUser()
   
   return useQuery({
-    queryKey: queryKeys.savedItems(user?.id),
+    queryKey: ['saved-items', user?.id],
     queryFn: async () => {
       const response = await fetch('/api/saved')
       if (!response.ok) throw new Error('Failed to fetch saved items')
       return response.json()
     },
     enabled: !!user?.id,
-    staleTime: 2 * 60 * 1000, // Saved items can be stale for 2 minutes
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   })
 }
 
+// 6. Collections - mirrors the working /api/collections calls
 export function useCollections() {
   const { user } = useUser()
   
   return useQuery({
-    queryKey: queryKeys.collections(user?.id),
+    queryKey: ['collections', user?.id],
     queryFn: async () => {
       const response = await fetch('/api/collections')
       if (!response.ok) throw new Error('Failed to fetch collections')
       return response.json()
     },
     enabled: !!user?.id,
-    staleTime: 5 * 60 * 1000, // Collections can be stale for 5 minutes
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
   })
 }
 
+// 7. User Profile - mirrors the working /api/profile calls
+export function useProfile() {
+  const { user } = useUser()
+  
+  return useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      const response = await fetch('/api/profile')
+      if (!response.ok) throw new Error('Failed to fetch profile')
+      return response.json()
+    },
+    enabled: !!user?.id,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+  })
+}
+
+// 8. Conversations - mirrors the working /api/conversations calls
+export function useConversation(conversationId: string) {
+  return useQuery({
+    queryKey: ['conversation', conversationId],
+    queryFn: async () => {
+      const response = await fetch(`/api/conversations/${conversationId}`)
+      if (!response.ok) throw new Error('Failed to fetch conversation')
+      return response.json()
+    },
+    enabled: !!conversationId,
+    staleTime: 30 * 1000, // Cache for 30 seconds
+    gcTime: 2 * 60 * 1000, // Keep in cache for 2 minutes
+    refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds for real-time messages
+  })
+}
+
+// 9. User Purchases - DISABLED (no API endpoint exists)
 export function useUserPurchases() {
   const { user } = useUser()
   
   return useQuery({
-    queryKey: queryKeys.userPurchases(user?.id),
+    queryKey: ['user-purchases', user?.id],
     queryFn: async () => {
-      const response = await fetch('/api/purchases')
-      if (!response.ok) throw new Error('Failed to fetch purchases')
-      return response.json()
+      // This endpoint doesn't exist yet
+      return []
     },
-    enabled: !!user?.id,
-    staleTime: 30 * 60 * 1000, // Purchases rarely change, 30 minutes
-  })
-}
-
-// ============= PRODUCT DATA QUERIES =============
-
-export function useProducts(searchQuery: string = '', category: string = 'All', page: number = 1) {
-  return useQuery({
-    queryKey: queryKeys.productSearch(searchQuery, category, page),
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        q: searchQuery,
-        category: category === 'All' ? '' : category,
-        page: page.toString(),
-        limit: '20'
-      })
-      
-      const response = await fetch(`/api/products?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch products')
-      return response.json()
-    },
-    staleTime: 3 * 60 * 1000, // Product search results can be stale for 3 minutes
-    keepPreviousData: true, // Keep previous results while loading new ones
-  })
-}
-
-export function useProductDetail(productId: string) {
-  return useQuery({
-    queryKey: queryKeys.productDetail(productId),
-    queryFn: async () => {
-      const response = await fetch(`/api/products/${productId}`)
-      if (!response.ok) throw new Error('Failed to fetch product details')
-      return response.json()
-    },
-    enabled: !!productId,
-    staleTime: 15 * 60 * 1000, // Product details rarely change, 15 minutes
-  })
-}
-
-// ============= CHAT DATA QUERIES =============
-
-export function useChatHistory() {
-  const { user } = useUser()
-  
-  return useQuery({
-    queryKey: queryKeys.chatHistory(user?.id),
-    queryFn: async () => {
-      const response = await fetch('/api/chat/history')
-      if (!response.ok) throw new Error('Failed to fetch chat history')
-      return response.json()
-    },
-    enabled: !!user?.id,
-    staleTime: 1 * 60 * 1000, // Chat history should be relatively fresh, 1 minute
-  })
-}
-
-export function useChatMemory(sessionId: string) {
-  return useQuery({
-    queryKey: queryKeys.chatMemory(sessionId),
-    queryFn: async () => {
-      const response = await fetch(`/api/chat/memory/${sessionId}`)
-      if (!response.ok) throw new Error('Failed to fetch chat memory')
-      return response.json()
-    },
-    enabled: !!sessionId,
-    staleTime: 30 * 1000, // Chat memory should be very fresh, 30 seconds
-  })
-}
-
-// ============= COMMUNITY DATA QUERIES =============
-
-export function useCommunityPosts(filters: any = {}) {
-  return useQuery({
-    queryKey: queryKeys.communityPosts(filters),
-    queryFn: async () => {
-      const params = new URLSearchParams(filters)
-      const response = await fetch(`/api/community/posts?${params}`)
-      if (!response.ok) throw new Error('Failed to fetch community posts')
-      return response.json()
-    },
-    staleTime: 2 * 60 * 1000, // Community posts can be stale for 2 minutes
+    enabled: false, // Disabled until API endpoint is created
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
   })
 }
 
@@ -162,7 +181,7 @@ export function useAddToSaved() {
     },
     onSuccess: () => {
       // Instantly update the saved items cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.savedItems(user?.id) })
+      queryClient.invalidateQueries({ queryKey: ['saved-items', user?.id] })
     },
   })
 }
@@ -183,7 +202,7 @@ export function useRemoveFromSaved() {
     },
     onSuccess: () => {
       // Instantly update the saved items cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.savedItems(user?.id) })
+      queryClient.invalidateQueries({ queryKey: ['saved-items', user?.id] })
     },
   })
 }
@@ -204,7 +223,103 @@ export function useCreateCollection() {
     },
     onSuccess: () => {
       // Instantly update the collections cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.collections(user?.id) })
+      queryClient.invalidateQueries({ queryKey: ['collections', user?.id] })
     },
   })
 }
+
+// ============= MESSAGING MUTATIONS =============
+
+// DISABLED: API endpoints don't exist yet
+/*
+export function useSendMessage() {
+  const queryClient = useQueryClient()
+  const { user } = useUser()
+  
+  return useMutation({
+    mutationFn: async ({ conversationId, content }: { conversationId: string, content: string }) => {
+      const response = await fetch('/api/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId, content }),
+      })
+      if (!response.ok) throw new Error('Failed to send message')
+      return response.json()
+    },
+    onSuccess: (_, { conversationId }) => {
+      // Update conversation and messages cache
+      queryClient.invalidateQueries({ queryKey: queryKeys.conversation(conversationId) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.directMessages(user?.id) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.unreadCount(user?.id) })
+    },
+  })
+}
+
+export function useMarkAsRead() {
+  const queryClient = useQueryClient()
+  const { user } = useUser()
+  
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      const response = await fetch('/api/messages/mark-read', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ conversationId }),
+      })
+      if (!response.ok) throw new Error('Failed to mark as read')
+      return response.json()
+    },
+    onSuccess: (_, conversationId) => {
+      // Update relevant caches
+      queryClient.invalidateQueries({ queryKey: queryKeys.conversation(conversationId) })
+      queryClient.invalidateQueries({ queryKey: queryKeys.unreadCount(user?.id) })
+    },
+  })
+}
+*/
+
+// ============= COMMUNITY MUTATIONS =============
+
+// DISABLED: API endpoints don't exist yet
+/*
+export function useCreatePost() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (post: any) => {
+      const response = await fetch('/api/community/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(post),
+      })
+      if (!response.ok) throw new Error('Failed to create post')
+      return response.json()
+    },
+    onSuccess: () => {
+      // Refresh community posts
+      queryClient.invalidateQueries({ queryKey: ['community-posts'] })
+    },
+  })
+}
+
+export function useLikePost() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async ({ postId, liked }: { postId: string, liked: boolean }) => {
+      const response = await fetch('/api/community/like', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId, liked }),
+      })
+      if (!response.ok) throw new Error('Failed to like/unlike post')
+      return response.json()
+    },
+    onSuccess: (_, { postId }) => {
+      // Update specific post and posts list
+      queryClient.invalidateQueries({ queryKey: queryKeys.communityPost(postId) })
+      queryClient.invalidateQueries({ queryKey: ['community-posts'] })
+    },
+  })
+}
+*/

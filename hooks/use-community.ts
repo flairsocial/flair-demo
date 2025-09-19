@@ -7,8 +7,35 @@ import type { CommunityPost } from "@/lib/community-types"
 export function useCommunity() {
   const { user } = useUser()
   const [posts, setPosts] = useState<CommunityPost[]>([])
+  const [followingPosts, setFollowingPosts] = useState<CommunityPost[]>([])
   const [loading, setLoading] = useState(true)
+  const [loadingFollowing, setLoadingFollowing] = useState(true)
   const [creating, setCreating] = useState(false)
+
+  // Load following feed (posts from users you follow)
+  const loadFollowingFeed = async () => {
+    if (!user) return
+    
+    try {
+      setLoadingFollowing(true)
+      const response = await fetch('/api/community/following?limit=20&offset=0')
+      if (!response.ok) {
+        if (response.status === 404) {
+          // No following users, set empty array
+          setFollowingPosts([])
+          return
+        }
+        throw new Error('Failed to load following feed')
+      }
+      const feedData = await response.json()
+      setFollowingPosts(feedData)
+    } catch (error) {
+      console.error('Error loading following feed:', error)
+      setFollowingPosts([])
+    } finally {
+      setLoadingFollowing(false)
+    }
+  }
 
   // Load community feed
   const loadFeed = async () => {
@@ -126,14 +153,18 @@ export function useCommunity() {
   // Load feed on mount and when user changes
   useEffect(() => {
     loadFeed()
+    loadFollowingFeed()
   }, [user])
 
   return {
     posts,
+    followingPosts,
     loading,
+    loadingFollowing,
     creating,
     createPost,
     deletePost,
-    refreshFeed: loadFeed
+    refreshFeed: loadFeed,
+    refreshFollowingFeed: loadFollowingFeed
   }
 }

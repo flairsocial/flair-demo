@@ -24,10 +24,18 @@ export const queryKeys = {
   products: (filters: any) => ['products', filters],
   productDetail: (id: string) => ['product', id],
   productSearch: (query: string, category: string, page: number) => ['product-search', query, category, page],
+  categories: () => ['categories'],
+  trendingProducts: () => ['trending-products'],
+  recommendations: (userId?: string) => ['recommendations', userId],
   
   // Chat data
   chatHistory: (userId?: string) => ['chat-history', userId],
   chatMemory: (sessionId: string) => ['chat-memory', sessionId],
+  
+  // Messaging data
+  directMessages: (userId?: string) => ['direct-messages', userId],
+  conversation: (conversationId: string) => ['conversation', conversationId],
+  unreadCount: (userId?: string) => ['unread-count', userId],
   
   // Community data
   communityPosts: (filters: any) => ['community-posts', filters],

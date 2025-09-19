@@ -22,6 +22,7 @@ import { useShoppingMode } from "@/lib/shopping-mode-context"
 import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
 import type { ChatHistory, ChatMessage as ChatHistoryMessage } from "@/lib/database-service-v2"
+import { useChatHistory } from "@/lib/react-query-hooks"
 
 interface ChatMessageWithProducts extends Message {
   products?: Product[]
@@ -65,10 +66,21 @@ export default function ChatPage() {
   const { mode: shoppingMode } = useShoppingMode()
   const autoMessageSentRef = useRef(false) // Track if auto-message has been sent
 
+  // React Query hooks for caching (optional layer)
+  const { data: cachedChatHistory } = useChatHistory()
+
+  // Use cached data when available, fall back to state
+  const displayChatHistories = cachedChatHistory || chatHistories
+
   // Load chat history on component mount
   useEffect(() => {
-    loadChatHistory()
-  }, [])
+    // Use cached data if available, otherwise load fresh
+    if (cachedChatHistory) {
+      setChatHistories(cachedChatHistory)
+    } else {
+      loadChatHistory()
+    }
+  }, [cachedChatHistory])
 
   const loadChatHistory = async () => {
     try {
@@ -494,7 +506,7 @@ export default function ChatPage() {
               <h1 className={`font-medium text-white mt-3 leading-tight ${isMobile ? 'text-base' : 'text-lg'}`}>Flair Agent</h1>
               <button
                 onClick={() => setShowPersonalityPopup(true)}
-                className={`text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer mt-1 text-left leading-tight ${isMobile ? 'text-xs -mt-3' : 'text-xs'}`}
+                className={`text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer  text-left leading-tight ${isMobile ? 'text-xs -mt-3' : 'text-xs'}`}
               >
                 {isMobile ? 'Shopping Assistant' : 'Your Personal Shopping Assistant'}
               </button>
@@ -561,7 +573,7 @@ export default function ChatPage() {
                 <ChatMessage message={message} />
                 {/* Shopping Mode Toggle - Show below AI messages */}
                 {message.sender === "ai" && (
-                  <div className="mt-3 ml-12">
+                  <div className="mt-2 ml-12">
                     <ShoppingModeToggle 
                       onModeChange={handleShoppingModeChange}
                       className=""

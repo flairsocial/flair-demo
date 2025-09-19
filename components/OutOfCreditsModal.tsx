@@ -17,7 +17,7 @@ export default function OutOfCreditsModal({ isOpen, onClose, onUpgrade }: OutOfC
     {
       icon: <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />,
       title: "More Daily Credits",
-      description: "Get 500+ credits that reset daily"
+      description: "Get Unlimited Credits that reset daily"
     },
     {
       icon: <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500" />,

@@ -3,6 +3,8 @@
 
 import { createClient } from '@supabase/supabase-js'
 import type { Product } from './types'
+import { sendSMSNotification, shouldSendSMSNotification, getUserPhoneNumber } from './sms-notification-service'
+import { checkSMSRateLimit } from './sms-utils'
 
 // Re-export types for compatibility
 export interface Collection {
@@ -1259,7 +1261,7 @@ export async function getMessages(conversationId: string, clerkId: string): Prom
         created_at,
         is_read,
         sender_id,
-        sender:profiles!direct_messages_sender_id_fkey(id, username, display_name, profile_picture_url)
+        sender:profiles!direct_messages_sender_id_fkey(id, clerk_id, username, display_name, profile_picture_url)
       `)
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })
@@ -1326,6 +1328,53 @@ export async function sendMessage(conversationId: string, clerkId: string, conte
 
     if (updateError) {
       console.error('[Database] Error updating conversation:', updateError)
+    }
+
+    // Send SMS notification to the recipient
+    try {
+      const recipientId = conversation.participant_1_id === profileId ? conversation.participant_2_id : conversation.participant_1_id
+      
+      // Get recipient's clerk_id to fetch phone number
+      const { data: recipientProfile } = await supabase
+        .from('profiles')
+        .select('clerk_id, display_name, username')
+        .eq('id', recipientId)
+        .single()
+
+      // Get sender's display name
+      const { data: senderProfile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('id', profileId)
+        .single()
+
+      if (recipientProfile && senderProfile) {
+        const recipientClerkId = recipientProfile.clerk_id
+        const senderName = senderProfile.display_name || senderProfile.username || 'Someone'
+        
+        // Check if recipient wants SMS notifications
+        const shouldSend = await shouldSendSMSNotification(recipientClerkId)
+        if (shouldSend) {
+          const recipientPhone = await getUserPhoneNumber(recipientClerkId)
+          if (recipientPhone && checkSMSRateLimit(recipientPhone)) {
+            // Determine if this is the first message in the conversation
+            const isFirstMessage = conversation.message_count === 0
+
+            // Send SMS notification asynchronously (don't block the response)
+            sendSMSNotification({
+              recipientPhone,
+              senderName,
+              messageType: isFirstMessage ? 'new_message' : 'reply',
+              isFirstMessage
+            }).catch(error => {
+              console.error('[Database] Failed to send SMS notification:', error)
+            })
+          }
+        }
+      }
+    } catch (smsError) {
+      // Don't fail the message sending if SMS fails
+      console.error('[Database] Error processing SMS notification:', smsError)
     }
 
     return true
@@ -1396,5 +1445,412 @@ export async function createConversation(clerkId: string, otherUserId: string): 
   } catch (error) {
     console.error('[Database] Error creating conversation:', error)
     return null
+  }
+}
+
+// Get unread message count for a user across all conversations
+export async function getUnreadMessageCount(clerkId: string): Promise<number> {
+  if (!clerkId) return 0
+  
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+
+    // Get all conversations for this user
+    const { data: conversations } = await supabase
+      .from('direct_conversations')
+      .select('id')
+      .or(`participant_1_id.eq.${profileId},participant_2_id.eq.${profileId}`)
+      .eq('is_active', true)
+
+    if (!conversations || conversations.length === 0) return 0
+
+    const conversationIds = conversations.map(c => c.id)
+
+    // Count unread messages in these conversations where user is NOT the sender
+    const { count, error } = await supabase
+      .from('direct_messages')
+      .select('*', { count: 'exact', head: true })
+      .in('conversation_id', conversationIds)
+      .neq('sender_id', profileId)
+      .eq('is_read', false)
+
+    if (error) {
+      console.error('[Database] Error getting unread count:', error)
+      return 0
+    }
+
+    return count || 0
+  } catch (error) {
+    console.error('[Database] Error getting unread count:', error)
+    return 0
+  }
+}
+
+// Mark all messages in a conversation as read for a user
+export async function markMessagesAsRead(conversationId: string, clerkId: string): Promise<boolean> {
+  if (!conversationId || !clerkId) return false
+  
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+
+    // Verify user is participant in this conversation
+    const { data: conversation } = await supabase
+      .from('direct_conversations')
+      .select('participant_1_id, participant_2_id')
+      .eq('id', conversationId)
+      .single()
+
+    if (!conversation || (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId)) {
+      console.error('[Database] User not authorized for this conversation')
+      return false
+    }
+
+    // Mark messages as read where user is NOT the sender
+    const { error } = await supabase
+      .from('direct_messages')
+      .update({ is_read: true })
+      .eq('conversation_id', conversationId)
+      .neq('sender_id', profileId)
+      .eq('is_read', false)
+
+    if (error) {
+      console.error('[Database] Error marking messages as read:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('[Database] Error marking messages as read:', error)
+    return false
+  }
+}
+
+// ============================================================================
+// FOLLOW/UNFOLLOW FUNCTIONS
+// ============================================================================
+
+export async function followUser(currentUserClerkId: string, targetUserClerkId: string): Promise<{ success: boolean; isFollowing: boolean; error?: string }> {
+  try {
+    const supabase = getSupabaseClient()
+    
+    // Get current user's profile ID
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('clerk_id', currentUserClerkId)
+      .single()
+    
+    if (!currentProfile) {
+      return { success: false, isFollowing: false, error: "Current user profile not found" }
+    }
+    
+    // Get target user's profile ID
+    const { data: targetProfile } = await supabase
+      .from('profiles')
+      .select('id, follower_count')
+      .eq('clerk_id', targetUserClerkId)
+      .single()
+    
+    if (!targetProfile) {
+      return { success: false, isFollowing: false, error: "Target user profile not found" }
+    }
+    
+    // Check if already following
+    const { data: existingFollow } = await supabase
+      .from('user_follows')
+      .select('id, is_active')
+      .eq('follower_id', currentProfile.id)
+      .eq('following_id', targetProfile.id)
+      .single()
+    
+    if (existingFollow?.is_active) {
+      return { success: false, isFollowing: true, error: "Already following this user" }
+    }
+    
+    if (existingFollow && !existingFollow.is_active) {
+      // Reactivate existing follow
+      await supabase
+        .from('user_follows')
+        .update({ is_active: true })
+        .eq('id', existingFollow.id)
+    } else {
+      // Create new follow relationship
+      await supabase
+        .from('user_follows')
+        .insert({
+          follower_id: currentProfile.id,
+          following_id: targetProfile.id,
+          is_active: true
+        })
+    }
+    
+    // Update follower count for target user
+    await supabase
+      .from('profiles')
+      .update({ 
+        follower_count: (targetProfile.follower_count || 0) + 1,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', targetProfile.id)
+    
+    // Update following count for current user
+    const { data: currentFollowingCount } = await supabase
+      .from('profiles')
+      .select('following_count')
+      .eq('id', currentProfile.id)
+      .single()
+    
+    await supabase
+      .from('profiles')
+      .update({ 
+        following_count: (currentFollowingCount?.following_count || 0) + 1,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', currentProfile.id)
+    
+    return { success: true, isFollowing: true }
+  } catch (error) {
+    console.error('[Database] Error following user:', error)
+    return { success: false, isFollowing: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+export async function unfollowUser(currentUserClerkId: string, targetUserClerkId: string): Promise<{ success: boolean; isFollowing: boolean; error?: string }> {
+  try {
+    const supabase = getSupabaseClient()
+    
+    // Get current user's profile ID
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('clerk_id', currentUserClerkId)
+      .single()
+    
+    if (!currentProfile) {
+      return { success: false, isFollowing: true, error: "Current user profile not found" }
+    }
+    
+    // Get target user's profile ID
+    const { data: targetProfile } = await supabase
+      .from('profiles')
+      .select('id, follower_count')
+      .eq('clerk_id', targetUserClerkId)
+      .single()
+    
+    if (!targetProfile) {
+      return { success: false, isFollowing: true, error: "Target user profile not found" }
+    }
+    
+    // Check if currently following
+    const { data: existingFollow } = await supabase
+      .from('user_follows')
+      .select('id')
+      .eq('follower_id', currentProfile.id)
+      .eq('following_id', targetProfile.id)
+      .eq('is_active', true)
+      .single()
+    
+    if (!existingFollow) {
+      return { success: false, isFollowing: false, error: "Not currently following this user" }
+    }
+    
+    // Deactivate follow relationship
+    await supabase
+      .from('user_follows')
+      .update({ is_active: false })
+      .eq('id', existingFollow.id)
+    
+    // Update follower count for target user
+    await supabase
+      .from('profiles')
+      .update({ 
+        follower_count: Math.max(0, (targetProfile.follower_count || 0) - 1),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', targetProfile.id)
+    
+    // Update following count for current user
+    const { data: currentFollowingCount } = await supabase
+      .from('profiles')
+      .select('following_count')
+      .eq('id', currentProfile.id)
+      .single()
+    
+    await supabase
+      .from('profiles')
+      .update({ 
+        following_count: Math.max(0, (currentFollowingCount?.following_count || 0) - 1),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', currentProfile.id)
+    
+    return { success: true, isFollowing: false }
+  } catch (error) {
+    console.error('[Database] Error unfollowing user:', error)
+    return { success: false, isFollowing: true, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+export async function getFollowStatus(currentUserClerkId: string, targetUserClerkId: string): Promise<{ isFollowing: boolean; error?: string }> {
+  try {
+    const supabase = getSupabaseClient()
+    
+    // Get current user's profile ID
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('clerk_id', currentUserClerkId)
+      .single()
+    
+    if (!currentProfile) {
+      return { isFollowing: false, error: "Current user profile not found" }
+    }
+    
+    // Get target user's profile ID
+    const { data: targetProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('clerk_id', targetUserClerkId)
+      .single()
+    
+    if (!targetProfile) {
+      return { isFollowing: false, error: "Target user profile not found" }
+    }
+    
+    // Check if following
+    const { data: followStatus } = await supabase
+      .from('user_follows')
+      .select('is_active')
+      .eq('follower_id', currentProfile.id)
+      .eq('following_id', targetProfile.id)
+      .single()
+    
+    return { isFollowing: followStatus?.is_active || false }
+  } catch (error) {
+    console.error('[Database] Error checking follow status:', error)
+    return { isFollowing: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+}
+
+export async function getFollowingFeedPosts(userClerkId: string, limit: number = 20, offset: number = 0): Promise<any[]> {
+  try {
+    const supabase = getSupabaseClient()
+    
+    // Get current user's profile ID
+    const { data: currentProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('clerk_id', userClerkId)
+      .single()
+    
+    if (!currentProfile) {
+      return []
+    }
+    
+    // First get the IDs of users being followed
+    const { data: following } = await supabase
+      .from('user_follows')
+      .select('following_id')
+      .eq('follower_id', currentProfile.id)
+      .eq('is_active', true)
+    
+    if (!following || following.length === 0) {
+      return []
+    }
+    
+    const followingIds = following.map(f => f.following_id)
+    
+    // Get posts from users that the current user is following
+    const { data: posts, error } = await supabase
+      .from('community_posts')
+      .select(`
+        *,
+        author:profiles!community_posts_profile_id_fkey(
+          id,
+          clerk_id,
+          username,
+          display_name,
+          profile_picture_url
+        )
+      `)
+      .in('profile_id', followingIds)
+      .order('created_at', { ascending: false })
+      .range(offset, offset + limit - 1)
+    
+    if (error) {
+      console.error('[Database] Error getting following feed posts:', error)
+      return []
+    }
+    
+    return posts || []
+  } catch (error) {
+    console.error('[Database] Error getting following feed posts:', error)
+    return []
+  }
+}
+
+export async function getUserProfileCounts(userClerkId: string): Promise<{
+  savedItemsCount: number
+  collectionsCount: number
+  ordersCount: number
+  postsCount: number
+}> {
+  try {
+    const supabase = getSupabaseClient()
+    
+    // Get user's profile ID
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('clerk_id', userClerkId)
+      .single()
+    
+    if (!profile) {
+      return {
+        savedItemsCount: 0,
+        collectionsCount: 0,
+        ordersCount: 0,
+        postsCount: 0
+      }
+    }
+    
+    // Get saved items count
+    const { count: savedItemsCount } = await supabase
+      .from('saved_items')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', profile.id)
+    
+    // Get collections count
+    const { count: collectionsCount } = await supabase
+      .from('collections')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', profile.id)
+    
+    // Get orders count (this would need to be implemented based on your orders schema)
+    // For now, using a placeholder count
+    const ordersCount = 0
+    
+    // Get posts count
+    const { count: postsCount } = await supabase
+      .from('community_posts')
+      .select('*', { count: 'exact', head: true })
+      .eq('profile_id', profile.id)
+    
+    return {
+      savedItemsCount: savedItemsCount || 0,
+      collectionsCount: collectionsCount || 0,
+      ordersCount: ordersCount || 0,
+      postsCount: postsCount || 0
+    }
+  } catch (error) {
+    console.error('[Database] Error getting user profile counts:', error)
+    return {
+      savedItemsCount: 0,
+      collectionsCount: 0,
+      ordersCount: 0,
+      postsCount: 0
+    }
   }
 }

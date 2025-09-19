@@ -117,18 +117,18 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         ))}
       </div>
       
-      {/* Dots indicator */}
+      {/* Dots indicator 
       <div className="flex justify-center mt-3 sm:mt-4 space-x-1">
         {customerReviews.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentReviewIndex(index)}
-            className={`w-1 h-1 sm:w-2 sm:h-2 rounded-full transition-colors ${
+            className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-colors ${
               index === currentReviewIndex ? 'bg-blue-500' : 'bg-zinc-600'
             }`}
           />
         ))}
-      </div>
+      </div>  */}
     </div>
   )
 
