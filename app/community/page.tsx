@@ -143,8 +143,13 @@ export default function CommunityPage() {
           </div>
 
           {/* Messages - Top Right */}
-          <Link href="/inbox" className="p-1.5 sm:p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors flex items-center justify-center">
+          <Link href="/inbox" className="relative p-1.5 sm:p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors flex items-center justify-center">
             <Inbox className="w-4 h-4 sm:w-5 sm:h-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </Link>
         </div>
 

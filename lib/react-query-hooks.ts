@@ -57,9 +57,9 @@ export function useDirectMessages() {
       return response.json()
     },
     enabled: !!user?.id,
-    staleTime: 30 * 1000, // Cache for 30 seconds
-    gcTime: 2 * 60 * 1000, // Keep in cache for 2 minutes
-    refetchInterval: 60 * 1000, // Auto-refresh every minute
+    staleTime: 5 * 1000, // Cache for only 5 seconds (real-time messaging)
+    gcTime: 30 * 1000, // Keep in cache for 30 seconds
+    refetchInterval: 10 * 1000, // Auto-refresh every 10 seconds for new messages
   })
 }
 
@@ -141,9 +141,9 @@ export function useConversation(conversationId: string) {
       return response.json()
     },
     enabled: !!conversationId,
-    staleTime: 30 * 1000, // Cache for 30 seconds
-    gcTime: 2 * 60 * 1000, // Keep in cache for 2 minutes
-    refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds for real-time messages
+    staleTime: 5 * 1000, // Cache for only 5 seconds (real-time messaging)
+    gcTime: 30 * 1000, // Keep in cache for 30 seconds
+    refetchInterval: 10 * 1000, // Auto-refresh every 10 seconds for new messages
   })
 }
 
@@ -224,6 +224,57 @@ export function useCreateCollection() {
     onSuccess: () => {
       // Instantly update the collections cache
       queryClient.invalidateQueries({ queryKey: ['collections', user?.id] })
+    },
+  })
+}
+
+// ============= MESSAGING MUTATIONS =============
+
+export function useSendMessage() {
+  const queryClient = useQueryClient()
+  const { user } = useUser()
+  
+  return useMutation({
+    mutationFn: async ({ conversationId, content }: { conversationId: string, content: string }) => {
+      const response = await fetch('/api/direct-messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'send',
+          conversationId,
+          content: content.trim()
+        }),
+      })
+      if (!response.ok) throw new Error('Failed to send message')
+      return response.json()
+    },
+    onSuccess: (_, { conversationId }) => {
+      // Immediately refresh all message-related caches
+      queryClient.invalidateQueries({ queryKey: ['conversation', conversationId] })
+      queryClient.invalidateQueries({ queryKey: ['direct-messages', user?.id] })
+      // Note: Unread count uses original hook system, not React Query
+    },
+  })
+}
+
+export function useMarkAsRead() {
+  const queryClient = useQueryClient()
+  const { user } = useUser()
+  
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      const response = await fetch(`/api/direct-messages/${conversationId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+      })
+      if (!response.ok) throw new Error('Failed to mark as read')
+      return response.json()
+    },
+    onSuccess: (_, conversationId) => {
+      // Immediately update notification-related caches
+      queryClient.invalidateQueries({ queryKey: ['conversation', conversationId] })
+      queryClient.invalidateQueries({ queryKey: ['direct-messages', user?.id] })
+      // Note: Unread count uses original hook system, not React Query
     },
   })
 }
