@@ -15,6 +15,7 @@ import { marketplaceService } from "@/lib/marketplace-service"
 import CreditGuard from "@/components/CreditGuard"
 import Sidebar from "@/components/Sidebar"
 import Header from "@/components/Header"
+import PricingModalProvider from "@/components/PricingModalProvider"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -51,6 +52,7 @@ export default function RootLayout({
                           forcedTheme="dark"
                           disableTransitionOnChange
                         >
+                        <PricingModalProvider>
                         <CreditGuard>
                         <div className="flex min-h-screen">
                           <Sidebar />
@@ -60,6 +62,7 @@ export default function RootLayout({
                           </div>
                         </div>
                       </CreditGuard>
+                      </PricingModalProvider>
                       </ThemeProvider>
                       </ShoppingModeProvider>
                     </AIToneProvider>

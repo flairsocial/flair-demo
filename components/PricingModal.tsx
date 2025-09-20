@@ -75,6 +75,19 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     return () => clearInterval(interval)
   }, [])
 
+  // Listen for custom event to show pricing modal
+  useEffect(() => {
+    const handleShowPricingModal = () => {
+      // This will be called when the custom event is dispatched
+      // The modal will open because isOpen is controlled externally
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('showPricingModal', handleShowPricingModal)
+      return () => window.removeEventListener('showPricingModal', handleShowPricingModal)
+    }
+  }, [])
+
   // Initialize selected plan to current plan
   useEffect(() => {
     if (!selectedPlan) {
@@ -211,7 +224,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       buttonText: "Contact Admin",
       buttonDisabled: false,
       icon: <Building2 className="w-4 h-4" />,
-      popular: true,
+      popular: false,
       contactEmail: "admin@flair.social",
       planType: undefined
     }

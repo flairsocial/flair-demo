@@ -3,6 +3,7 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useShoppingMode } from '@/lib/shopping-mode-context'
 import { useProfile } from '@/lib/profile-context'
+import { useCredits } from '@/lib/credit-context'
 import { marketplaceService } from '@/lib/marketplace-service'
 import type {
   MarketplaceSearchParams,
@@ -31,6 +32,7 @@ interface UseMarketplaceSearchReturn extends UseMarketplaceSearchState {
 export function useMarketplaceSearch(): UseMarketplaceSearchReturn {
   const { isMarketplace } = useShoppingMode()
   const { profile } = useProfile()
+  const { currentPlan } = useCredits()
   const [state, setState] = useState<UseMarketplaceSearchState>({
     isLoading: false,
     results: null,
@@ -65,7 +67,34 @@ export function useMarketplaceSearch(): UseMarketplaceSearchReturn {
         city: params.city || profile.city || undefined
       }
 
-      const results = await marketplaceService.searchMultipleProviders(searchParamsWithRegion)
+      // Check if user needs to upgrade for marketplace features
+      const userAuth = {
+        isSignedIn: !!profile, // Assuming profile exists if user is signed in
+        currentPlan: currentPlan
+      }
+
+      const results = await marketplaceService.searchMultipleProviders(
+        searchParamsWithRegion,
+        undefined, // Use default providers
+        userAuth
+      )
+
+      // Check if upgrade is required
+      if (results.requiresUpgrade) {
+        setState(prev => ({
+          ...prev,
+          isLoading: false,
+          results: null,
+          error: results.upgradeMessage || 'Upgrade required for marketplace features'
+        }))
+
+        // Trigger pricing modal for upgrade by dispatching a custom event
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('showPricingModal'))
+        }
+
+        return
+      }
 
       setState(prev => ({
         ...prev,
@@ -86,7 +115,7 @@ export function useMarketplaceSearch(): UseMarketplaceSearchReturn {
         error: error instanceof Error ? error.message : 'Search failed'
       }))
     }
-  }, [isMarketplace, profile])
+  }, [isMarketplace, profile, currentPlan])
 
   const clearResults = useCallback(() => {
     setState({

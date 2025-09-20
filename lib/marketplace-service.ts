@@ -88,6 +88,8 @@ export interface AggregatedSearchResult {
   totalSearchTime: number
   successfulProviders: MarketplaceProvider[]
   failedProviders: MarketplaceProvider[]
+  requiresUpgrade?: boolean
+  upgradeMessage?: string
 }
 
 /**
@@ -339,9 +341,28 @@ class MarketplaceService {
    */
   public async searchMultipleProviders(
     params: MarketplaceSearchParams,
-    providers?: MarketplaceProvider[]
+    providers?: MarketplaceProvider[],
+    userAuth?: { isSignedIn: boolean; currentPlan: 'free' | 'plus' | 'pro' }
   ): Promise<AggregatedSearchResult> {
     const startTime = Date.now()
+
+    // Check if user is signed in and has appropriate subscription for marketplace mode
+    if (userAuth && (!userAuth.isSignedIn || userAuth.currentPlan === 'free')) {
+      console.log('MarketplaceService: User not signed in or on free plan - blocking marketplace API calls')
+
+      // Return empty results with a special error indicating upgrade needed
+      return {
+        products: [],
+        results: [],
+        totalSearchTime: Date.now() - startTime,
+        successfulProviders: [],
+        failedProviders: [],
+        requiresUpgrade: true,
+        upgradeMessage: userAuth.isSignedIn
+          ? 'Upgrade to Plus or Pro to access multi-marketplace search features.'
+          : 'Sign in and upgrade to Plus or Pro to access multi-marketplace search features.'
+      }
+    }
 
     // Use all enabled providers if none specified
     const targetProviders = providers || Object.keys(MARKETPLACE_CONFIGS)
