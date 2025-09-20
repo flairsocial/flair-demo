@@ -41,14 +41,14 @@ const customerReviews = [
   {
     name: "David Kim",
     role: "Wholesale Buyer",
-    review: "AI deal discovery found me suppliers I never would have found manually. ROI is incredible.",
+    review: "AI deal discovery found me deals I never would have found manually. ROI here is incredible.",
     rating: 5,
     avatar: "DK"
   },
   {
     name: "Lisa Parker",
     role: "Fashion Consultant",
-    review: "The accuracy is unmatched. My clients love the personalized recommendations.",
+    review: "The accuracy and options are unmatched. My clients love the personalized recommendations.",
     rating: 5,
     avatar: "LP"
   },
@@ -82,8 +82,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     }
   }, [currentPlan, selectedPlan])
 
-  const handleUpgrade = (planType: 'plus' | 'pro') => {
-    setPlan(planType)
+  const handleUpgrade = async (planType: 'plus' | 'pro') => {
+    await setPlan(planType)
     onClose() // Close modal after upgrade
   }
 
@@ -162,7 +162,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         "Competitive Pricing Analysis",
         "Exclusive AI Deal Discovery",
         "Fraud / Product Scam Detection",
-        "Marketplaces, Vendors, and Suppliers"
+        "Search Multi-Marketplace Mode"
       ],
       buttonText: currentPlan === "plus" ? "Current Plan" : "Upgrade to Plus",
       buttonDisabled: false,
@@ -178,9 +178,9 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       features: [
         "5,000 Daily Credits",
         "Everything in Plus",
+        "Become a Verified Seller",
         "Advanced Resale Analytics",
         "ROI and Listings Dashboard",
-        "Sell and Monitor Profits",
         "24/7 Customer Support",
  
       ],
@@ -331,8 +331,7 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
                     handleContactAdmin()
                   } else if (plan.planType && plan.planType !== currentPlan) {
                     if (plan.planType === 'free') {
-                      setPlan('free')
-                      onClose()
+                      setPlan('free').then(() => onClose())
                     } else {
                       handleUpgrade(plan.planType)
                     }

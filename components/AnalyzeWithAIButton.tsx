@@ -23,26 +23,30 @@ export default function AnalyzeWithAIButton({
   const { checkCreditsAvailable, currentPlan, credits } = useCredits()
 
   const handleClick = () => {
-    // Check if user has enough credits for AI analysis (10 credits)
-    if (!checkCreditsAvailable(10)) {
-      if (currentPlan === 'free') {
-        // Free user with insufficient credits - show upgrade prompt
-        showPricingModal()
-      } else {
-        // Paid user out of credits - show out of credits modal
-        showOutOfCreditsModal()
-      }
+    // Check if user has Plus or Pro subscription tier
+    if (currentPlan === 'free') {
+      // Free user - show upgrade prompt
+      showPricingModal()
       return
     }
-    
+
+    // Check if user has enough credits for AI analysis (10 credits)
+    if (!checkCreditsAvailable(10)) {
+      // Paid user out of credits - show out of credits modal
+      showOutOfCreditsModal()
+      return
+    }
+
     // Proceed with AI analysis
     onClick()
   }
 
   // Determine if user has access to AI features
-  const hasAccess = checkCreditsAvailable(10)
+  const hasSubscriptionAccess = currentPlan === 'plus' || currentPlan === 'pro'
+  const hasCredits = checkCreditsAvailable(10)
+  const hasAccess = hasSubscriptionAccess && hasCredits
   const isFreeTier = currentPlan === 'free'
-  const needsUpgrade = !hasAccess && isFreeTier
+  const needsUpgrade = isFreeTier || (!hasSubscriptionAccess && !hasCredits)
 
   // Determine classes based on variant and size
   const getButtonClasses = () => {

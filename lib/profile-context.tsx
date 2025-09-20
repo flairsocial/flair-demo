@@ -23,6 +23,10 @@ export interface UserProfile {
   goals: string[]
   allergies: string
   notes: string
+  // Region fields for marketplace localization
+  country: string
+  state: string
+  city: string
 }
 
 interface ProfileContextType {
@@ -53,6 +57,10 @@ const defaultProfile: UserProfile = {
   goals: [],
   allergies: "",
   notes: "",
+  // Default region values
+  country: "",
+  state: "",
+  city: "",
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined)

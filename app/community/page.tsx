@@ -12,6 +12,7 @@ import CollectionDetailModal from "@/components/CollectionDetailModal"
 import MessageUserButton from "@/components/MessageUserButton"
 import { useUnreadMessages } from "@/hooks/use-unread-messages"
 import { useCommunityPosts } from "@/lib/react-query-hooks"
+import { ProfileNameWithBadge } from "@/components/ProfileNameWithBadge"
 
 export default function CommunityPage() {
   const [viewMode, setViewMode] = useState<'vertical' | 'collage'>('vertical')
@@ -458,17 +459,23 @@ function PostCard({
         {/* Content */}
         <div className="p-4">
           <div className="flex items-center gap-2 mb-3">
-            <Link href={`/profile/${username}`} className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <Image
-                src={profilePicture}
-                alt={displayName}
-                width={24}
-                height={24}
-                className="rounded-full ring-2 ring-zinc-700"
-              />
-              <span className="text-sm text-zinc-400 font-medium flex-1">@{username}</span>
-            </Link>
-            
+            <Image
+              src={profilePicture}
+              alt={displayName}
+              width={32}
+              height={32}
+              className="rounded-full"
+            />
+            <ProfileNameWithBadge
+              displayName={displayName}
+              username={username}
+              isPro={author.is_pro}
+              className="flex-1"
+              nameClassName="text-sm font-medium text-white"
+              usernameClassName="text-xs text-zinc-400"
+              badgeSize="sm"
+            />
+
             {/* Message button for collage layout */}
             <MessageUserButton
               userId={author.clerk_id}
@@ -477,7 +484,7 @@ function PostCard({
               variant="icon"
               className="!p-1"
             />
-            
+
             {isAuthor && (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
@@ -542,23 +549,28 @@ function PostCard({
     <div className="bg-zinc-900/50 backdrop-blur-sm rounded-2xl p-6 border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300 hover:shadow-xl">
       {/* Author */}
       <div className="flex items-center gap-3 mb-4">
-        <Link href={`/profile/${username}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <Image
-            src={profilePicture}
-            alt={displayName}
-            width={44}
-            height={44}
-            className="rounded-full ring-2 ring-zinc-700"
+        <Image
+          src={profilePicture}
+          alt={displayName}
+          width={48}
+          height={48}
+          className="rounded-full"
+        />
+        <div className="flex-1">
+          <ProfileNameWithBadge
+            displayName={displayName}
+            username={username}
+            isPro={author.is_pro}
+            className="flex-1"
+            nameClassName="text-lg font-semibold text-white"
+            usernameClassName="text-sm text-zinc-400"
+            badgeSize="md"
           />
-          <div className="flex-1">
-            <h4 className="font-semibold text-white">{displayName}</h4>
-            <p className="text-sm text-zinc-400">@{username}</p>
-          </div>
-        </Link>
-        
+        </div>
+
         <div className="flex items-center gap-2">
           <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">{formatTimeAgo(post.created_at)}</span>
-          
+
           {/* Message button for vertical layout */}
           <MessageUserButton
             userId={author.clerk_id}
@@ -567,7 +579,7 @@ function PostCard({
             variant="icon"
             className="!p-1.5"
           />
-          
+
           {isAuthor && (
             <div className="relative">
               <button
@@ -577,7 +589,7 @@ function PostCard({
               >
                 <Trash2 className="w-4 h-4" />
               </button>
-              
+
               {/* Delete confirmation popup */}
               {showDeleteConfirm && (
                 <div className="absolute right-0 top-8 bg-zinc-800 border border-zinc-700 rounded-lg shadow-xl z-50 p-3 min-w-48">

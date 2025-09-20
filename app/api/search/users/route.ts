@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     // Search users by username or display name
     const { data: users, error } = await supabase
       .from('profiles')
-      .select('id, clerk_id, username, display_name, profile_picture_url, follower_count, post_count')
+      .select('id, clerk_id, username, display_name, profile_picture_url, follower_count, post_count, is_pro')
       .or(`username.ilike.%${query}%,display_name.ilike.%${query}%`)
       .eq('is_public', true)
       .order('follower_count', { ascending: false })

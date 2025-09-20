@@ -77,31 +77,38 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
   })
   const router = useRouter()
   const { addProductAsFile } = useFiles()
-  const { useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
+  const { useCredits: consumeCredits, checkCreditsAvailable, currentPlan } = useCredits()
 
   // Real AI Analysis using APIs
   useEffect(() => {
     const performRealAnalysis = async () => {
-      // Check if user has enough credits BEFORE starting analysis
+      // Check if user has Plus or Pro subscription tier
+      if (currentPlan === 'free') {
+        showPricingModal()
+        onClose() // Close the analysis modal
+        return
+      }
+
+      // Check if user has enough credits for AI analysis (10 credits)
       if (!checkCreditsAvailable(10)) {
         showOutOfCreditsModal()
         onClose() // Close the analysis modal
         return
       }
-      
+
       setLoading(true)
-      
+
       try {
         // Start all analyses in parallel
         const analysisPromises = [
           analyzePricing(),
-          analyzeTrust(), 
+          analyzeTrust(),
           findCompetitors(),
           analyzeResellValue()
         ]
 
         await Promise.all(analysisPromises)
-        
+
       } catch (error) {
         console.error('AI Analysis failed:', error)
       } finally {
@@ -252,10 +259,31 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
     }, 100)
   }
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return "text-green-400"
-    if (score >= 60) return "text-yellow-400" 
-    return "text-red-400"
+  const getTrustScoreGradient = (score: number) => {
+    if (score >= 85) {
+      return "bg-gradient-to-r from-green-400 to-emerald-500 text-white"
+    } else if (score >= 75) {
+      return "bg-gradient-to-r from-green-500 to-green-600 text-white"
+    } else if (score >= 65) {
+      return "bg-gradient-to-r from-lime-500 to-green-600 text-white"
+    } else if (score >= 55) {
+      return "bg-gradient-to-r from-yellow-500 to-lime-600 text-white"
+    } else if (score >= 45) {
+      return "bg-gradient-to-r from-orange-500 to-yellow-600 text-white"
+    } else if (score >= 35) {
+      return "bg-gradient-to-r from-red-500 to-orange-600 text-white"
+    } else if (score >= 25) {
+      return "bg-gradient-to-r from-red-600 to-red-700 text-white"
+    } else {
+      return "bg-gradient-to-r from-red-700 to-red-800 text-white"
+    }
+  }
+
+  const getTrustScoreTextColor = (score: number) => {
+    if (score >= 75) return "text-green-300"
+    if (score >= 55) return "text-yellow-300"
+    if (score >= 35) return "text-orange-300"
+    return "text-red-300"
   }
 
   const renderPricingChart = (pricing: PricingData) => {
@@ -363,67 +391,107 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       onClick={onClose}
     >
       <motion.div
-        className="bg-zinc-900 w-full max-w-6xl h-full md:h-auto md:max-h-[95vh] overflow-y-auto rounded-none md:rounded-xl"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        transition={{ duration: 0.2 }}
+        className="bg-gradient-to-br from-zinc-900/95 via-zinc-800/95 to-zinc-900/95 w-full max-w-7xl h-full md:h-auto md:max-h-[95vh] overflow-y-auto rounded-none md:rounded-2xl border border-zinc-700/50 shadow-2xl backdrop-blur-xl"
+        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95, y: 20 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 w-full p-4 flex justify-between items-center bg-black/70 backdrop-blur-md border-b border-zinc-800">
+        <div className="sticky top-0 z-10 w-full p-6 flex justify-between items-center bg-gradient-to-r from-zinc-900/95 via-zinc-800/95 to-zinc-900/95 backdrop-blur-xl border-b border-zinc-700/50">
           <div className="flex items-center">
-            <button onClick={onClose} className="p-2 rounded-full bg-zinc-800/80 mr-3" aria-label="Back">
+            <button
+              onClick={onClose}
+              className="p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700/80 transition-colors mr-4"
+              aria-label="Back"
+            >
               <ArrowLeft className="w-5 h-5 text-white" strokeWidth={1.5} />
             </button>
             <div className="flex items-center">
-              <Sparkles className="w-5 h-5 text-white mr-2" strokeWidth={1.5} />
-              <h2 className="text-lg font-medium">AI Analysis</h2>
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3">
+                <Sparkles className="w-4 h-4 text-white" strokeWidth={1.5} />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-white">AI Analysis</h2>
+                <p className="text-xs text-zinc-400">Powered by Flair Intelligence</p>
+              </div>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 rounded-full bg-zinc-800/80" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700/80 transition-colors"
+            aria-label="Close"
+          >
             <X className="w-5 h-5 text-white" strokeWidth={1.5} />
           </button>
         </div>
 
-        <div className="p-4 md:p-6">
+        <div className="p-6 md:p-8">
           {/* Product Info */}
-          <div className="flex items-center mb-6">
-            <div className="w-20 h-20 bg-zinc-800 rounded-lg overflow-hidden relative">
-              <Image
-                src={product.image || "/placeholder.svg"}
-                alt={product.title || "Product"}
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-xl font-medium">{product.title}</h3>
-              <p className="text-zinc-400">{product.brand}</p>
-              <p className="text-white font-medium">${product.price}</p>
+          <div className="bg-gradient-to-r from-zinc-800/50 to-zinc-900/50 rounded-2xl p-6 mb-8 border border-zinc-700/30">
+            <div className="flex items-center">
+              <div className="w-24 h-24 bg-zinc-800 rounded-xl overflow-hidden relative shadow-lg">
+                <Image
+                  src={product.image || "/placeholder.svg"}
+                  alt={product.title || "Product"}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="ml-6 flex-1">
+                <h3 className="text-2xl font-semibold text-white mb-1 leading-tight">{product.title}</h3>
+                <p className="text-zinc-400 text-lg mb-2">{product.brand}</p>
+                <div className="flex items-center space-x-4">
+                  <span className="text-3xl font-bold text-white">${product.price}</span>
+                  <div className="px-3 py-1 bg-blue-500/20 rounded-full border border-blue-500/30">
+                    <span className="text-sm text-blue-300 font-medium">Live</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <div className="w-12 h-12 rounded-full border-2 border-zinc-800 border-t-white animate-spin mb-4"></div>
-              <p className="text-zinc-400">Flair AI is analyzing this item...</p>
-              
+            <div className="flex flex-col items-center justify-center py-16">
+              <div className="relative mb-8">
+                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                  <Sparkles className="w-8 h-8 text-white animate-pulse" strokeWidth={1.5} />
+                </div>
+                <div className="absolute inset-0 rounded-full border-2 border-blue-500/30 animate-ping"></div>
+              </div>
+
+              <div className="text-center mb-8">
+                <h3 className="text-xl font-semibold text-white mb-2">AI Analysis in Progress</h3>
+                <p className="text-zinc-400">Flair Intelligence is analyzing this product...</p>
+              </div>
+
               {/* Loading steps */}
-              <div className="mt-6 space-y-2 w-full max-w-sm">
+              <div className="w-full max-w-md space-y-3">
                 {Object.entries(loadingSteps).map(([step, isActive]) => (
-                  <div key={step} className={`flex items-center space-x-2 text-sm ${isActive ? 'text-blue-400' : 'text-zinc-600'}`}>
-                    <div className={`w-2 h-2 rounded-full ${isActive ? 'bg-blue-400 animate-pulse' : 'bg-zinc-600'}`}></div>
-                    <span>Analyzing {step}...</span>
+                  <div key={step} className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-300 ${isActive ? 'bg-blue-500/10 border border-blue-500/20' : 'bg-zinc-800/30'}`}>
+                    <div className={`w-3 h-3 rounded-full transition-all duration-300 ${isActive ? 'bg-blue-500 animate-pulse' : 'bg-zinc-600'}`}></div>
+                    <span className={`text-sm font-medium transition-colors duration-300 ${isActive ? 'text-blue-300' : 'text-zinc-400'}`}>
+                      Analyzing {step.charAt(0).toUpperCase() + step.slice(1)}...
+                    </span>
+                    {isActive && (
+                      <div className="ml-auto">
+                        <div className="w-4 h-4 border border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
+                      </div>
+                    )}
                   </div>
                 ))}
+              </div>
+
+              <div className="mt-8 text-center">
+                <p className="text-xs text-zinc-500">This may take a few moments</p>
               </div>
             </div>
           ) : (
@@ -497,17 +565,17 @@ export default function AIAnalysis({ product, onClose }: AIAnalysisProps) {
                       <div className="space-y-6">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-lg font-medium">Trust & Safety Analysis</h3>
-                          <div className={`text-2xl font-bold ${getScoreColor(analysisData.trust.trustScore)}`}>
+                          <div className={`px-4 py-2 rounded-full text-md ${getTrustScoreGradient(analysisData.trust.trustScore)}`}>
                             {analysisData.trust.trustScore}% Trust Score
                           </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                           <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
                             <p className="text-xs text-zinc-400">Trust Score</p>
-                            <p className={`text-xl font-bold ${getScoreColor(analysisData.trust.trustScore)}`}>
+                            <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full text-lg font-bold ${getTrustScoreGradient(analysisData.trust.trustScore)}`}>
                               {analysisData.trust.trustScore}%
-                            </p>
+                            </div>
                           </div>
                           <div className="bg-zinc-800/30 rounded-lg p-3 text-center">
                             <p className="text-xs text-zinc-400">Reviews</p>

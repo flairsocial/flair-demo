@@ -28,6 +28,9 @@ CREATE TABLE IF NOT EXISTS profiles (
     following_count INTEGER DEFAULT 0,
     post_count INTEGER DEFAULT 0,
     collection_count INTEGER DEFAULT 0,
+
+    -- Subscription status
+    is_pro BOOLEAN DEFAULT false,
     
     -- Legacy compatibility
     data JSONB DEFAULT '{}',

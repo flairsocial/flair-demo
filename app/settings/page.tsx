@@ -188,6 +188,63 @@ export default function SettingsPage() {
           </div>
         </div>
 
+        {/* Region Settings */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 mb-4">
+            <User className="w-5 h-5 text-white" />
+            <h2 className="text-xl font-semibold">Region Settings</h2>
+          </div>
+
+          <p className="text-sm text-zinc-400 mb-4">
+            Set your location to get personalized marketplace results from your region.
+            This helps find products available in your area and improves search relevance.
+          </p>
+
+          {/* Country */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">Country</label>
+            <select
+              value={profile.country}
+              onChange={(e) => handleInputChange("country", e.target.value)}
+              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-white/20"
+            >
+              <option value="">Select Country</option>
+              <option value="us">United States</option>
+              <option value="ca">Canada</option>
+              <option value="uk">United Kingdom</option>
+              <option value="au">Australia</option>
+              <option value="de">Germany</option>
+              <option value="fr">France</option>
+              <option value="jp">Japan</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          {/* State/Province */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">State/Province</label>
+            <input
+              type="text"
+              value={profile.state}
+              onChange={(e) => handleInputChange("state", e.target.value)}
+              placeholder="e.g., California, Ontario, Texas"
+              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20"
+            />
+          </div>
+
+          {/* City */}
+          <div>
+            <label className="block text-sm font-medium text-white mb-2">City</label>
+            <input
+              type="text"
+              value={profile.city}
+              onChange={(e) => handleInputChange("city", e.target.value)}
+              placeholder="e.g., Los Angeles, Toronto, New York"
+              className="w-full p-3 bg-zinc-800 border border-zinc-700 rounded-lg text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20"
+            />
+          </div>
+        </div>
+
         {/* Shopping Preferences */}
         <div className="space-y-6">
           <div className="flex items-center gap-2 mb-4">

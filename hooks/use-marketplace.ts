@@ -2,12 +2,13 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useShoppingMode } from '@/lib/shopping-mode-context'
+import { useProfile } from '@/lib/profile-context'
 import { marketplaceService } from '@/lib/marketplace-service'
-import type { 
-  MarketplaceSearchParams, 
-  AggregatedSearchResult, 
+import type {
+  MarketplaceSearchParams,
+  AggregatedSearchResult,
   MarketplaceProvider,
-  MarketplaceProduct 
+  MarketplaceProduct
 } from '@/lib/marketplace-service'
 
 interface UseMarketplaceSearchState {
@@ -29,6 +30,7 @@ interface UseMarketplaceSearchReturn extends UseMarketplaceSearchState {
  */
 export function useMarketplaceSearch(): UseMarketplaceSearchReturn {
   const { isMarketplace } = useShoppingMode()
+  const { profile } = useProfile()
   const [state, setState] = useState<UseMarketplaceSearchState>({
     isLoading: false,
     results: null,
@@ -54,8 +56,17 @@ export function useMarketplaceSearch(): UseMarketplaceSearchReturn {
     }))
 
     try {
-      const results = await marketplaceService.searchMultipleProviders(params)
-      
+      // Merge user region data with search parameters
+      const searchParamsWithRegion: MarketplaceSearchParams = {
+        ...params,
+        // Use user region if available, otherwise keep existing params or use defaults
+        country: params.country || profile.country || undefined,
+        state: params.state || profile.state || undefined,
+        city: params.city || profile.city || undefined
+      }
+
+      const results = await marketplaceService.searchMultipleProviders(searchParamsWithRegion)
+
       setState(prev => ({
         ...prev,
         isLoading: false,
@@ -65,8 +76,8 @@ export function useMarketplaceSearch(): UseMarketplaceSearchReturn {
 
       // Add to search history (keep last 10)
       setSearchHistory(prev => [
-        params,
-        ...prev.filter(p => p.query !== params.query).slice(0, 9)
+        searchParamsWithRegion,
+        ...prev.filter(p => p.query !== searchParamsWithRegion.query).slice(0, 9)
       ])
     } catch (error) {
       setState(prev => ({
@@ -75,7 +86,7 @@ export function useMarketplaceSearch(): UseMarketplaceSearchReturn {
         error: error instanceof Error ? error.message : 'Search failed'
       }))
     }
-  }, [isMarketplace])
+  }, [isMarketplace, profile])
 
   const clearResults = useCallback(() => {
     setState({
@@ -136,9 +147,9 @@ export function useMarketplaceHealth() {
 export function useMarketplaceConfig() {
   const [isConfigured, setIsConfigured] = useState(false)
 
-  const configureMarketplace = useCallback((apiKeys: Partial<Record<MarketplaceProvider, string>>) => {
+  const configureMarketplace = useCallback((apiKeys: Partial<Record<MarketplaceProvider, { key: string; host: string }>>) => {
     marketplaceService.initialize(apiKeys)
-    setIsConfigured(Object.values(apiKeys).some(key => !!key))
+    setIsConfigured(Object.values(apiKeys).some(credentials => !!credentials?.key))
   }, [])
 
   const enableProvider = useCallback((provider: MarketplaceProvider, config: { enabled: boolean }) => {

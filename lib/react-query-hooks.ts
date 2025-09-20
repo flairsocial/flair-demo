@@ -131,23 +131,7 @@ export function useProfile() {
   })
 }
 
-// 8. Conversations - mirrors the working /api/conversations calls
-export function useConversation(conversationId: string) {
-  return useQuery({
-    queryKey: ['conversation', conversationId],
-    queryFn: async () => {
-      const response = await fetch(`/api/conversations/${conversationId}`)
-      if (!response.ok) throw new Error('Failed to fetch conversation')
-      return response.json()
-    },
-    enabled: !!conversationId,
-    staleTime: 5 * 1000, // Cache for only 5 seconds (real-time messaging)
-    gcTime: 30 * 1000, // Keep in cache for 30 seconds
-    refetchInterval: 10 * 1000, // Auto-refresh every 10 seconds for new messages
-  })
-}
-
-// 9. User Purchases - DISABLED (no API endpoint exists)
+// 8. User Purchases - DISABLED (no API endpoint exists)
 export function useUserPurchases() {
   const { user } = useUser()
   
@@ -374,3 +358,45 @@ export function useLikePost() {
   })
 }
 */
+
+// ============= COMMUNITY MUTATIONS =============
+
+export function useCreateCommunityPost() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (postData: any) => {
+      const response = await fetch('/api/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(postData),
+      })
+      if (!response.ok) throw new Error('Failed to create community post')
+      return response.json()
+    },
+    onSuccess: () => {
+      // Refresh community posts but DON'T invalidate profile (to preserve user changes)
+      queryClient.invalidateQueries({ queryKey: ['community-posts'] })
+    },
+  })
+}
+
+export function useDeleteCommunityPost() {
+  const queryClient = useQueryClient()
+  
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      const response = await fetch('/api/community', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'delete', postId }),
+      })
+      if (!response.ok) throw new Error('Failed to delete community post')
+      return response.json()
+    },
+    onSuccess: () => {
+      // Refresh community posts but DON'T invalidate profile (to preserve user changes)
+      queryClient.invalidateQueries({ queryKey: ['community-posts'] })
+    },
+  })
+}

@@ -104,9 +104,10 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   }
 
   const handleShare = () => {
-    if (product.link) {
+    const productLink = product.link || (product as any).url
+    if (productLink) {
       // Open the product link in a new tab
-      window.open(product.link, '_blank', 'noopener,noreferrer')
+      window.open(productLink, '_blank', 'noopener,noreferrer')
     } else {
       console.log('No link available for this product')
     }

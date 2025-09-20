@@ -1188,8 +1188,8 @@ export async function getConversations(clerkId: string): Promise<any[]> {
         last_message_at,
         created_at,
         message_count,
-        participant_1:profiles!direct_conversations_participant_1_id_fkey(id, username, display_name, profile_picture_url),
-        participant_2:profiles!direct_conversations_participant_2_id_fkey(id, username, display_name, profile_picture_url)
+        participant_1:profiles!direct_conversations_participant_1_id_fkey(id, username, display_name, profile_picture_url, is_pro),
+        participant_2:profiles!direct_conversations_participant_2_id_fkey(id, username, display_name, profile_picture_url, is_pro)
       `)
       .or(`participant_1_id.eq.${profileId},participant_2_id.eq.${profileId}`)
       .eq('is_active', true)
@@ -1261,7 +1261,7 @@ export async function getMessages(conversationId: string, clerkId: string): Prom
         created_at,
         is_read,
         sender_id,
-        sender:profiles!direct_messages_sender_id_fkey(id, clerk_id, username, display_name, profile_picture_url)
+        sender:profiles!direct_messages_sender_id_fkey(id, clerk_id, username, display_name, profile_picture_url, is_pro)
       `)
       .eq('conversation_id', conversationId)
       .order('created_at', { ascending: true })

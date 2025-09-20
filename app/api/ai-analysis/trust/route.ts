@@ -120,7 +120,7 @@ async function searchProductReviews(product: Product) {
     
     return {
       reviewCount: totalReviews,
-      avgRating: ratingCount > 0 ? Number((totalRating / ratingCount).toFixed(1)) : 0,
+      avgRating: ratingCount > 0 ? Number((totalRating / ratingCount).toFixed(2)) : 0,
       sentimentBreakdown,
       reviewTexts,
     }
@@ -189,66 +189,103 @@ async function analyzeTrustworthiness(product: Product, reviewData: any) {
     let trustScore = 50 // Base score
     const commonIssues = []
     let recommendation = ''
-    
+
     // If no review data is available
     if (reviewData.reviewCount === 0 && reviewData.avgRating === 0) {
-      trustScore = 40 // Lower score for no data
+      trustScore = 35 // Lower score for no data
       commonIssues.push('No review data available for analysis')
-      recommendation = 'Insufficient review data to assess trustworthiness. Research this product manually and verify seller authenticity before purchasing.'
-      
+      recommendation = `Based on internet searches, there appears to be limited to no customer feedback available for "${product.title}". This could indicate a newer product or one that hasn't gained significant traction. Exercise extra caution and research thoroughly before purchasing.`
+
       return {
-        trustScore,
+        trustScore: Math.round(trustScore),
         commonIssues,
         recommendation,
       }
     }
-    
-    // Factor in review count
-    if (reviewData.reviewCount > 1000) trustScore += 20
-    else if (reviewData.reviewCount > 100) trustScore += 10
-    else if (reviewData.reviewCount > 10) trustScore += 5
-    else if (reviewData.reviewCount === 0) trustScore -= 10
-    
-    // Factor in average rating
-    if (reviewData.avgRating >= 4.5) trustScore += 20
-    else if (reviewData.avgRating >= 4.0) trustScore += 15
-    else if (reviewData.avgRating >= 3.5) trustScore += 10
-    else if (reviewData.avgRating < 2.0 && reviewData.avgRating > 0) trustScore -= 20
-    
-    // Factor in sentiment
-    const { positive, negative } = reviewData.sentimentBreakdown
-    if (positive > 70) trustScore += 15
-    else if (positive > 50) trustScore += 5
-    if (negative > 40) trustScore -= 15
-    else if (negative > 25) trustScore -= 5
-    
+
+    // More sophisticated trust score calculation
+    const { positive, negative, neutral } = reviewData.sentimentBreakdown
+
+    // Rating weight (40% of total score)
+    let ratingScore = 50
+    if (reviewData.avgRating >= 4.8) ratingScore = 95
+    else if (reviewData.avgRating >= 4.5) ratingScore = 85
+    else if (reviewData.avgRating >= 4.2) ratingScore = 75
+    else if (reviewData.avgRating >= 4.0) ratingScore = 70
+    else if (reviewData.avgRating >= 3.8) ratingScore = 65
+    else if (reviewData.avgRating >= 3.5) ratingScore = 55
+    else if (reviewData.avgRating >= 3.0) ratingScore = 45
+    else if (reviewData.avgRating >= 2.5) ratingScore = 35
+    else if (reviewData.avgRating >= 2.0) ratingScore = 25
+    else if (reviewData.avgRating >= 1.5) ratingScore = 15
+    else ratingScore = 5
+
+    // Sentiment weight (35% of total score)
+    let sentimentScore = 50
+    if (positive >= 80) sentimentScore = 90
+    else if (positive >= 70) sentimentScore = 80
+    else if (positive >= 60) sentimentScore = 70
+    else if (positive >= 50) sentimentScore = 60
+    else if (positive >= 40) sentimentScore = 50
+    else if (positive >= 30) sentimentScore = 40
+    else if (positive >= 20) sentimentScore = 30
+    else if (positive >= 10) sentimentScore = 20
+    else sentimentScore = 10
+
+    // Review volume weight (25% of total score)
+    let volumeScore = 50
+    if (reviewData.reviewCount >= 10000) volumeScore = 90
+    else if (reviewData.reviewCount >= 5000) volumeScore = 85
+    else if (reviewData.reviewCount >= 1000) volumeScore = 80
+    else if (reviewData.reviewCount >= 500) volumeScore = 70
+    else if (reviewData.reviewCount >= 100) volumeScore = 60
+    else if (reviewData.reviewCount >= 50) volumeScore = 55
+    else if (reviewData.reviewCount >= 20) volumeScore = 50
+    else if (reviewData.reviewCount >= 10) volumeScore = 45
+    else if (reviewData.reviewCount >= 5) volumeScore = 40
+    else volumeScore = 30
+
+    // Calculate weighted trust score
+    trustScore = (ratingScore * 0.4) + (sentimentScore * 0.35) + (volumeScore * 0.25)
+
     // Ensure score is within bounds
     trustScore = Math.max(0, Math.min(100, trustScore))
-    
-    // Generate common issues and recommendations based on actual data
-    if (reviewData.reviewCount > 0 && reviewData.avgRating < 3.0) {
-      commonIssues.push('Low customer satisfaction ratings')
+
+    // Generate common issues based on actual data patterns
+    if (reviewData.avgRating < 3.5 && reviewData.avgRating > 0) {
+      commonIssues.push(`Below-average rating of ${reviewData.avgRating}/5`)
     }
-    if (reviewData.sentimentBreakdown.negative > 30) {
-      commonIssues.push('Significant number of negative reviews')
+    if (negative > 40) {
+      commonIssues.push(`${negative}% of reviews express dissatisfaction`)
     }
-    if (reviewData.reviewCount > 0 && reviewData.reviewCount < 10) {
-      commonIssues.push('Limited review data available')
+    if (reviewData.reviewCount < 20 && reviewData.reviewCount > 0) {
+      commonIssues.push('Limited customer feedback available')
     }
-    
-    // Generate recommendations based on trust score and data quality
-    if (trustScore >= 80) {
-      recommendation = 'This product appears to be trustworthy with good customer feedback. Safe to purchase from reputable sellers.'
-    } else if (trustScore >= 60) {
-      recommendation = 'Generally trustworthy but do some additional research. Check seller reputation and return policies.'
-    } else if (trustScore >= 40) {
-      recommendation = 'Mixed reviews and moderate trust signals. Proceed with caution and verify authenticity.'
+    if (positive < 30 && reviewData.reviewCount > 10) {
+      commonIssues.push('Low positive sentiment in customer reviews')
+    }
+
+    // Generate honest recommendations based on actual data
+    if (trustScore >= 85) {
+      recommendation = `Excellent trust indicators with ${reviewData.avgRating}/5 stars from ${reviewData.reviewCount.toLocaleString()} reviews and ${positive}% positive sentiment. This product shows strong customer satisfaction and appears to be highly reliable.`
+    } else if (trustScore >= 75) {
+      recommendation = `Very good trust profile with ${reviewData.avgRating}/5 stars and ${positive}% positive reviews. The ${reviewData.reviewCount.toLocaleString()} customer reviews indicate generally positive experiences, though individual preferences may vary.`
+    } else if (trustScore >= 65) {
+      recommendation = `Good overall trust rating of ${reviewData.avgRating}/5 stars from ${reviewData.reviewCount.toLocaleString()} reviews. While ${positive}% of customers report positive experiences, there may be some quality inconsistencies to be aware of.`
+    } else if (trustScore >= 55) {
+      recommendation = `Moderate trust indicators with ${reviewData.avgRating}/5 stars across ${reviewData.reviewCount.toLocaleString()} reviews. ${positive}% positive sentiment suggests mixed customer experiences - research specific seller reputation and return policies.`
+    } else if (trustScore >= 45) {
+      recommendation = `Below-average trust signals with ${reviewData.avgRating}/5 stars and only ${positive}% positive reviews from ${reviewData.reviewCount.toLocaleString()} customers. Exercise caution and consider reading individual reviews carefully.`
+    } else if (trustScore >= 35) {
+      recommendation = `Concerning trust indicators with ${reviewData.avgRating}/5 stars and ${negative}% negative reviews. The ${reviewData.reviewCount.toLocaleString()} customer experiences suggest potential quality or satisfaction issues.`
+    } else if (trustScore >= 25) {
+      recommendation = `Poor trust profile with ${reviewData.avgRating}/5 stars and ${negative}% negative sentiment across ${reviewData.reviewCount.toLocaleString()} reviews. Significant customer dissatisfaction reported - approach with extreme caution.`
     } else {
-      recommendation = 'Low trust score detected. Be very careful and consider alternative products or sellers.'
+      recommendation = `Very concerning trust indicators with ${reviewData.avgRating}/5 stars and ${negative}% negative reviews. The customer feedback strongly suggests avoiding this product or thoroughly researching alternatives.`
     }
-    
+
     return {
-      trustScore,
+      trustScore: Math.round(trustScore),
       commonIssues,
       recommendation,
     }

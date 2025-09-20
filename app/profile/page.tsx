@@ -6,15 +6,17 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { motion, AnimatePresence } from "framer-motion"
 import { useUser } from '@clerk/nextjs'
-import { 
-  useSavedItems, 
-  useCollections, 
+import {
+  useSavedItems,
+  useCollections,
   useUserPurchases,
   useAddToSaved,
   useRemoveFromSaved,
-  useCreateCollection 
+  useCreateCollection
 } from "@/lib/react-query-hooks"
 import { useProfileCounts } from "@/hooks/use-profile-counts"
+import { SubscriptionService } from "@/lib/subscription-service"
+import { ProfileNameWithBadge } from "@/components/ProfileNameWithBadge"
 import {
   Settings,
   Grid,
@@ -106,7 +108,8 @@ export default function ProfilePage() {
     displayName: "",
     username: "",
     bio: "",
-    profilePicture: ""
+    profilePicture: "",
+    isPro: false
   })
   const isMobile = useMobile()
 
@@ -137,7 +140,8 @@ export default function ProfilePage() {
           displayName: dbProfile.display_name || user.fullName || user.firstName || user.username || "User",
           username: dbProfile.username || user.username || `user_${user.id.slice(-8)}`,
           bio: dbProfile.bio || "Fashion enthusiast",
-          profilePicture: dbProfile.profile_picture_url || user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg"
+          profilePicture: dbProfile.profile_picture_url || user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg",
+          isPro: dbProfile.is_pro || false
         })
       } else {
         // Fallback to Clerk data
@@ -145,19 +149,21 @@ export default function ProfilePage() {
           displayName: user.fullName || user.firstName || user.username || "User",
           username: user.username || `user_${user.id.slice(-8)}`,
           bio: user.publicMetadata?.bio as string || "Fashion enthusiast",
-          profilePicture: user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg"
+          profilePicture: user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg",
+          isPro: false
         })
       }
-    } catch (error) {
-      console.error('Error loading profile data:', error)
-      // Fallback to Clerk data on error
-      setProfileData({
-        displayName: user.fullName || user.firstName || user.username || "User",
-        username: user.username || `user_${user.id.slice(-8)}`,
-        bio: user.publicMetadata?.bio as string || "Fashion enthusiast",
-        profilePicture: user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg"
-      })
-    }
+      } catch (error) {
+        console.error('Error loading profile data:', error)
+        // Fallback to Clerk data on error
+        setProfileData({
+          displayName: user.fullName || user.firstName || user.username || "User",
+          username: user.username || `user_${user.id.slice(-8)}`,
+          bio: user.publicMetadata?.bio as string || "Fashion enthusiast",
+          profilePicture: user.publicMetadata?.customProfilePicture as string || user.imageUrl || "/placeholder-user.svg",
+          isPro: false
+        })
+      }
   }
 
   const handleProfileSave = async (newProfileData: any) => {
@@ -579,8 +585,15 @@ export default function ProfilePage() {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h2 className="text-lg sm:text-xl font-medium truncate">{profileData.displayName}</h2>
-            <p className="text-zinc-400 text-xs sm:text-sm">@{profileData.username}</p>
+            <ProfileNameWithBadge
+              displayName={profileData.displayName}
+              username={profileData.username}
+              isPro={profileData.isPro}
+              className="text-lg sm:text-xl font-medium"
+              nameClassName="truncate"
+              usernameClassName="text-zinc-400 text-xs sm:text-sm"
+              badgeSize="sm"
+            />
             <p className="text-xs sm:text-sm mt-1 truncate">{profileData.bio}</p>
           </div>
           <div className="flex gap-1 sm:gap-2">

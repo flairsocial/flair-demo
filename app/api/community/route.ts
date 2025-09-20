@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth, clerkClient } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { createClient } from '@supabase/supabase-js'
 
 // Use service role key for server-side operations
@@ -13,50 +13,22 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   }
 })
 
-// Helper function to get or create profile
+// Helper function to get or create profile WITHOUT overwriting existing data
 async function getOrCreateProfile(clerkId: string): Promise<string> {
   if (!clerkId) {
     throw new Error('ClerkId is required')
   }
 
-  // Get user data from Clerk first
-  let userData: any = null
-  try {
-    const client = await clerkClient()
-    userData = await client.users.getUser(clerkId)
-  } catch (error) {
-    console.error('Error fetching user from Clerk:', error)
-  }
-
-  // Try to get existing profile
+  // Try to get existing profile first
   const { data: existingProfile, error: selectError } = await supabase
     .from('profiles')
     .select('id')
     .eq('clerk_id', clerkId)
     .single()
   
-  // Always update profile with latest Clerk data (whether it exists or not)
-  const profileData = {
-    clerk_id: clerkId,
-    username: userData?.username || `user_${clerkId.slice(-8)}`,
-    display_name: userData?.fullName || userData?.firstName || userData?.username || 'User',
-    profile_picture_url: userData?.imageUrl || null,
-    updated_at: new Date().toISOString()
-  }
-
   if (existingProfile) {
-    // Update existing profile with latest Clerk data
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update(profileData)
-      .eq('clerk_id', clerkId)
-
-    if (updateError) {
-      console.error('Error updating profile:', updateError)
-    } else {
-      console.log('Profile updated with latest Clerk data')
-    }
-    
+    // Profile exists - return it WITHOUT updating to preserve user changes
+    console.log(`[Community API] Found existing profile: ${existingProfile.id}`)
     return existingProfile.id
   }
 
@@ -71,11 +43,18 @@ async function getOrCreateProfile(clerkId: string): Promise<string> {
     throw new Error(`Database error: ${selectError.message}`)
   }
 
-  // Create new profile with Clerk data
+  // Only create new profile if it doesn't exist - use minimal data
+  console.log(`[Community API] Creating new profile for clerk_id: ${clerkId}`)
+  
   const { data: newProfile, error: insertError } = await supabase
     .from('profiles')
     .insert({
-      ...profileData,
+      clerk_id: clerkId,
+      username: `user_${clerkId.slice(-8)}`,
+      display_name: 'User',
+      profile_picture_url: null,
+      is_public: true,
+      data: {},
       created_at: new Date().toISOString()
     })
     .select('id')
@@ -91,6 +70,7 @@ async function getOrCreateProfile(clerkId: string): Promise<string> {
     throw new Error(`Failed to create profile: ${insertError.message}`)
   }
 
+  console.log(`[Community API] Created new profile: ${newProfile.id}`)
   return newProfile.id
 }
 
@@ -115,7 +95,8 @@ export async function GET(request: NextRequest) {
           clerk_id,
           username,
           display_name,
-          profile_picture_url
+          profile_picture_url,
+          is_pro
         )
       `)
       .eq('is_public', true)

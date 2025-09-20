@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import type { Product } from "@/lib/types"
 import { auth } from '@clerk/nextjs/server'
 import { searchForProducts } from "@/lib/products-service"
+import { marketplaceService } from "@/lib/marketplace-service"
 
 // Credit tracking for API usage
 function trackCreditUsage(request: Request) {
@@ -49,14 +50,57 @@ export async function GET(request: Request) {
   try {
     // Track credit usage
     const creditsUsed = trackCreditUsage(request)
-    
-    // Use the shared products service
-    const products = await searchForProducts(
-      searchQuery || `${categoryParam || 'fashion'} trending`, 
-      effectiveLimit, 
-      userId || undefined, 
-      !!imageAnalysis
-    )
+
+    let products: Product[]
+
+    // Use marketplace search when in marketplace mode
+    if (shoppingMode === 'marketplace') {
+      console.log(`LOG: Using marketplace search for query: "${searchQuery || 'general search'}"`)
+
+      const marketplaceResult = await marketplaceService.searchMultipleProviders({
+        query: searchQuery || 'fashion',
+        limit: effectiveLimit
+      })
+
+      // Convert marketplace products to the expected Product format
+      products = marketplaceResult.products.map(mp => {
+        console.log(`Products API: Mapping marketplace product ${mp.title} with URL: ${mp.url}`)
+
+        return {
+          id: mp.id,
+          image: mp.imageUrl, // Map imageUrl to image field
+          title: mp.title,
+          price: mp.price,
+          brand: mp.brand || 'Unknown',
+          category: mp.category || 'marketplace',
+          description: mp.description,
+          link: mp.url, // This maps mp.url to product.link
+          // Add marketplace-specific data
+          marketplace: {
+            provider: mp.provider,
+            condition: mp.condition,
+            seller: mp.seller ? {
+              name: mp.seller.name,
+              rating: mp.seller.rating,
+              verified: mp.seller.verified
+            } : undefined
+          },
+          // Add default values for other required fields
+          hasAiInsights: false,
+          saved: false
+        }
+      })
+
+      console.log(`LOG: Marketplace search completed - ${products.length} products from ${marketplaceResult.successfulProviders.length} providers`)
+    } else {
+      // Use regular product search for default mode
+      products = await searchForProducts(
+        searchQuery || `${categoryParam || 'fashion'} trending`,
+        effectiveLimit,
+        userId || undefined,
+        !!imageAnalysis
+      )
+    }
 
     console.log(`LOG: Final product count: ${products.length}`)
 

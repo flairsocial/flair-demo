@@ -10,6 +10,7 @@ import CollectionDetailModal from "@/components/CollectionDetailModal"
 import { useMobile } from "@/hooks/use-mobile"
 import MessageUserButton from "@/components/MessageUserButton"
 import FollowButton from "@/components/FollowButton"
+import { ProfileNameWithBadge } from "@/components/ProfileNameWithBadge"
 
 interface ProfileData {
   profile: {
@@ -23,6 +24,7 @@ interface ProfileData {
     following_count: number
     post_count: number
     created_at: string
+    is_pro?: boolean
   }
   posts: any[]
   collections: any[]
@@ -184,8 +186,15 @@ export default function UserProfilePage() {
             className="rounded-full ring-2 sm:ring-4 ring-zinc-800"
           />
           <div className="flex-1 min-w-0">
-            <h2 className={`font-bold text-white mb-1 ${isMobile ? 'text-xl' : 'text-2xl'}`}>{profile.display_name}</h2>
-            <p className={`text-zinc-400 mb-2 sm:mb-3 ${isMobile ? 'text-base' : 'text-lg'}`}>@{profile.username}</p>
+            <ProfileNameWithBadge
+              displayName={profile.display_name}
+              username={profile.username}
+              isPro={profile.is_pro}
+              className="mb-2 sm:mb-3"
+              nameClassName={`font-bold text-white ${isMobile ? 'text-xl' : 'text-2xl'}`}
+              usernameClassName={`text-zinc-400 ${isMobile ? 'text-base' : 'text-lg'}`}
+              badgeSize="md"
+            />
             
             {profile.bio && (
               <p className={`text-zinc-300 mb-3 sm:mb-4 leading-relaxed ${isMobile ? 'text-sm' : 'text-base'}`}>{profile.bio}</p>

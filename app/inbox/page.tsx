@@ -9,10 +9,10 @@ import { useMobile } from "@/hooks/use-mobile"
 import { useDirectMessages } from "@/hooks/use-direct-messages"
 import { useUser } from "@clerk/nextjs"
 import { useUnreadMessages } from "@/hooks/use-unread-messages"
-import { 
-  useDirectMessages as useDirectMessagesQuery, 
-  useConversation
+import {
+  useDirectMessages as useDirectMessagesQuery
 } from "@/lib/react-query-hooks"
+import { ProfileNameWithBadge } from "@/components/ProfileNameWithBadge"
 
 // Type definitions for conversations
 interface ConversationType {
@@ -67,14 +67,13 @@ export default function InboxPage() {
 
   // React Query hooks for caching (optional layer) - only use working endpoints
   const { data: cachedConversations } = useDirectMessagesQuery()
-  const { data: cachedCurrentMessages } = useConversation(selectedConversation || '')
   // Disabled until API endpoints exist:
   // const { data: cachedUnreadCount } = useUnreadCount()
   // const markAsReadMutation = useMarkAsRead()
 
   // Use cached data when available, fall back to original hooks
   const displayConversations = cachedConversations?.conversations || conversations
-  const displayCurrentMessages = cachedCurrentMessages?.messages || currentMessages
+  const displayCurrentMessages = currentMessages
 
   const handleSearch = async (query: string) => {
     setSearchQuery(query)
@@ -181,11 +180,15 @@ export default function InboxPage() {
                 className="rounded-full"
               />
               <div className="flex-1">
-                <h3 className="font-semibold">{selectedConv.other_participant?.display_name || selectedConv.other_participant?.username}</h3>
-                <p className="text-sm text-zinc-400">
-                  {/* TODO: Add online status from presence system */}
-                  @{selectedConv.other_participant?.username}
-                </p>
+                <ProfileNameWithBadge
+                  displayName={selectedConv.other_participant?.display_name || selectedConv.other_participant?.username}
+                  username={selectedConv.other_participant?.username}
+                  isPro={selectedConv.other_participant?.is_pro}
+                  className="flex-1"
+                  nameClassName="text-lg font-semibold text-white"
+                  usernameClassName="text-sm text-zinc-400"
+                  badgeSize="md"
+                />
               </div>
               
               <div className="flex items-center gap-2">
@@ -299,8 +302,15 @@ export default function InboxPage() {
                         className="rounded-full"
                       />
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold truncate">{user.display_name || user.username}</h4>
-                        <p className="text-sm text-zinc-400 truncate">@{user.username}</p>
+                        <ProfileNameWithBadge
+                          displayName={user.display_name || user.username}
+                          username={user.username}
+                          isPro={user.is_pro}
+                          className="flex-1"
+                          nameClassName="text-sm font-semibold text-white truncate"
+                          usernameClassName="text-xs text-zinc-400"
+                          badgeSize="sm"
+                        />
                       </div>
                     </div>
                   </button>
@@ -351,10 +361,15 @@ export default function InboxPage() {
                         className="rounded-full"
                       />
                       <div className="flex-1">
-                        <h3 className="font-semibold">{selectedConv.other_participant?.display_name || selectedConv.other_participant?.username}</h3>
-                        <p className="text-sm text-zinc-400">
-                          @{selectedConv.other_participant?.username}
-                        </p>
+                        <ProfileNameWithBadge
+                          displayName={selectedConv.other_participant?.display_name || selectedConv.other_participant?.username}
+                          username={selectedConv.other_participant?.username}
+                          isPro={selectedConv.other_participant?.is_pro}
+                          className="flex-1"
+                          nameClassName="text-lg font-semibold text-white"
+                          usernameClassName="text-sm text-zinc-400"
+                          badgeSize="md"
+                        />
                       </div>
                       
                       <div className="flex items-center gap-2">
@@ -460,12 +475,22 @@ function ConversationItem({ conversation, isSelected, onClick, formatTimeString 
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <h4 className="font-semibold truncate">{conversation.other_participant?.display_name || conversation.other_participant?.username}</h4>
-            <span className="text-xs text-zinc-500">
+            <div className="flex-1 min-w-0">
+              <ProfileNameWithBadge
+                displayName={conversation.other_participant?.display_name || conversation.other_participant?.username}
+                username={conversation.other_participant?.username}
+                isPro={conversation.other_participant?.is_pro}
+                className="flex-1"
+                nameClassName="text-sm font-semibold text-white truncate"
+                usernameClassName="text-xs text-zinc-400"
+                badgeSize="sm"
+              />
+            </div>
+            <span className="text-xs text-zinc-500 ml-2">
               {formatTimeString(conversation.last_message_at || new Date().toISOString())}
             </span>
           </div>
-          
+
           <div className="flex items-center justify-between">
             <p className="text-sm text-zinc-400 truncate pr-2">
               {conversation.last_message?.content || "No messages yet"}

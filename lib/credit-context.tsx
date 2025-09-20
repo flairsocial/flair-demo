@@ -1,12 +1,14 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { SubscriptionService } from "@/lib/subscription-service"
+import { useUser } from "@clerk/nextjs"
 
 interface CreditContextType {
   credits: number
   useCredits: (amount: number) => boolean
   addCredits: (amount: number) => void
-  setPlan: (plan: 'free' | 'plus' | 'pro') => void
+  setPlan: (plan: 'free' | 'plus' | 'pro') => Promise<void>
   currentPlan: 'free' | 'plus' | 'pro'
   maxCredits: number
   isOutOfCredits: boolean
@@ -25,6 +27,7 @@ export function CreditProvider({ children }: { children: ReactNode }) {
   const [credits, setCredits] = useState(50) // Start with free tier
   const [currentPlan, setCurrentPlan] = useState<'free' | 'plus' | 'pro'>('free')
   const [maxCredits, setMaxCredits] = useState(PLAN_LIMITS.free)
+  const { user } = useUser()
 
   // Load credits from localStorage on mount
   useEffect(() => {
@@ -128,12 +131,30 @@ export function CreditProvider({ children }: { children: ReactNode }) {
     setCredits(prev => Math.min(maxCredits, prev + amount))
   }
 
-  const setPlan = (plan: 'free' | 'plus' | 'pro') => {
+  const setPlan = async (plan: 'free' | 'plus' | 'pro') => {
     const newMaxCredits = PLAN_LIMITS[plan]
     setCurrentPlan(plan)
     setMaxCredits(newMaxCredits)
     // Top up to new plan limit
     setCredits(newMaxCredits)
+
+    // Update Supabase is_pro field when upgrading to pro
+    if (plan === 'pro' && user?.id) {
+      try {
+        await SubscriptionService.updateSubscriptionStatus(user.id, true)
+        console.log('[Subscription] Updated user to PRO status in database')
+      } catch (error) {
+        console.error('[Subscription] Failed to update PRO status:', error)
+      }
+    } else if (plan !== 'pro' && user?.id) {
+      // Revoke pro status if downgrading
+      try {
+        await SubscriptionService.updateSubscriptionStatus(user.id, false)
+        console.log('[Subscription] Revoked PRO status in database')
+      } catch (error) {
+        console.error('[Subscription] Failed to revoke PRO status:', error)
+      }
+    }
   }
 
   return (
