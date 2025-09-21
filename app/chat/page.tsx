@@ -3,7 +3,7 @@ import { showOutOfCreditsModal } from '@/components/CreditGuard'
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Send, ArrowLeft, Sparkles, Settings, Clock, Loader2, AlertTriangle, X, Crown } from "lucide-react"
+import { Send, ArrowLeft, Sparkles, Settings, Clock, Loader2, AlertTriangle, X, Crown, Lock } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import ChatMessage from "@/components/ChatMessage"
@@ -23,6 +23,7 @@ import type { Message, Product } from "@/lib/types"
 import { useMobile } from "@/hooks/use-mobile"
 import type { ChatHistory, ChatMessage as ChatHistoryMessage } from "@/lib/database-service-v2"
 import { useChatHistory } from "@/lib/react-query-hooks"
+import { useUser } from "@clerk/nextjs"
 
 interface ChatMessageWithProducts extends Message {
   products?: Product[]
@@ -64,6 +65,7 @@ export default function ChatPage() {
   const { tone } = useAITone()
   const { credits, useCredits: consumeCredits, checkCreditsAvailable } = useCredits()
   const { mode: shoppingMode } = useShoppingMode()
+  const { isSignedIn } = useUser()
   const autoMessageSentRef = useRef(false) // Track if auto-message has been sent
 
   // React Query hooks for caching (optional layer)
@@ -693,17 +695,61 @@ export default function ChatPage() {
               <div className="flex items-end space-x-2">
                 <FileUpload />
                 <div className="flex-1 relative">
+                  {/* Access restriction message for non-signed-in users */}
+                  {!isSignedIn && (
+                    <div className="mb-2 p-3 bg-zinc-900/50 border border-zinc-700 rounded-lg flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm text-zinc-300 font-medium">Sign in to chat with Flair</p>
+                        <p className="text-xs text-zinc-400">Create an account to access our AI shopping assistant</p>
+                      </div>
+                      <button
+                        onClick={() => window.location.href = '/sign-in'}
+                        className="px-3 py-1 bg-white text-black text-xs font-medium rounded-full hover:bg-zinc-200 transition-colors"
+                      >
+                        Sign In
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Access restriction message for users with 0 credits */}
+                  {isSignedIn && credits <= 0 && (
+                    <div className="mb-2 p-3 bg-zinc-900/50 border border-zinc-700 rounded-lg flex items-center gap-2">
+                      <Lock className="w-4 h-4 text-zinc-400 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm text-zinc-300 font-medium">Out of credits</p>
+                        <p className="text-xs text-zinc-400">Upgrade your plan to continue chatting with Flair</p>
+                      </div>
+                      <button
+                        onClick={() => setShowPricing(true)}
+                        className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-medium rounded-full hover:from-blue-700 hover:to-purple-700 transition-colors"
+                      >
+                        Upgrade
+                      </button>
+                    </div>
+                  )}
+
                   <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder={isMobile ? "Ask about styles..." : "Ask about styles, outfits, trends..."}
-                    className={`w-full ${isMobile ? 'py-3 px-3' : 'py-3.5 px-4'} pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm`}
-                    disabled={isLoading}
+                    placeholder={
+                      !isSignedIn
+                        ? "Sign in to chat with Flair..."
+                        : credits <= 0
+                        ? "Upgrade to continue chatting..."
+                        : isMobile
+                        ? "Ask about styles..."
+                        : "Ask about styles, outfits, trends..."
+                    }
+                    className={`w-full ${isMobile ? 'py-3 px-3' : 'py-3.5 px-4'} pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm ${
+                      !isSignedIn || credits <= 0 ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    disabled={isLoading || !isSignedIn || credits <= 0}
                   />
                   <button
                     type="submit"
-                    disabled={(!input.trim() && attachedFiles.length === 0) || isLoading}
+                    disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || !isSignedIn || credits <= 0}
                     className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
                     aria-label="Send message"
                   >
