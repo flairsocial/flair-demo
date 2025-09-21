@@ -95,9 +95,37 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     }
   }, [currentPlan, selectedPlan])
 
-  const handleUpgrade = async (planType: 'plus' | 'pro') => {
-    await setPlan(planType)
-    onClose() // Close modal after upgrade
+  const handleUpgrade = async (planType: 'plus' | 'pro', billingCycle: 'monthly' | 'yearly' = 'monthly') => {
+    try {
+      // Create Stripe checkout session
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          plan: planType,
+          billingCycle: billingCycle,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Failed to create checkout session:', error)
+        return
+      }
+
+      const { url } = await response.json()
+
+      if (url) {
+        // Redirect to Stripe checkout
+        window.location.href = url
+      } else {
+        console.error('No checkout URL received')
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error)
+    }
   }
 
   const ReviewsCarousel = () => (

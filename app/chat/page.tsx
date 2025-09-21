@@ -695,22 +695,7 @@ export default function ChatPage() {
               <div className="flex items-end space-x-2">
                 <FileUpload />
                 <div className="flex-1 relative">
-                  {/* Access restriction message for non-signed-in users */}
-                  {!isSignedIn && (
-                    <div className="mb-2 p-3 bg-zinc-900/50 border border-zinc-700 rounded-lg flex items-center gap-2">
-                      <Lock className="w-4 h-4 text-zinc-400 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="text-sm text-zinc-300 font-medium">Sign in to chat with Flair</p>
-                        <p className="text-xs text-zinc-400">Create an account to access our AI shopping assistant</p>
-                      </div>
-                      <button
-                        onClick={() => window.location.href = '/sign-in'}
-                        className="px-3 py-1 bg-white text-black text-xs font-medium rounded-full hover:bg-zinc-200 transition-colors"
-                      >
-                        Sign In
-                      </button>
-                    </div>
-                  )}
+                  
 
                   {/* Access restriction message for users with 0 credits */}
                   {isSignedIn && credits <= 0 && (
