@@ -250,6 +250,274 @@ After setup is complete:
 4. Configure tax collection if needed
 5. Set up customer portal for subscription management
 
+## 🛒 Buy Now Pay Later (BNPL) & Free Trials Implementation
+
+### **🎁 Free Trials Setup**
+
+#### **1. Enable Trial Periods**
+Free trials are automatically configured in your checkout session:
+
+```typescript
+// In your checkout session (already implemented)
+subscription_data: {
+  trial_period_days: 7, // 7-day free trial
+  metadata: {
+    trial: 'true'
+  }
+}
+```
+
+#### **2. Trial User Experience**
+- Users get **7 days free** before being charged
+- Full access to all features during trial
+- Clear messaging about trial expiration
+- Automatic conversion to paid subscription
+
+#### **3. Trial Management**
+- Stripe automatically handles trial → paid conversion
+- Webhooks notify you of trial events
+- Users can cancel during trial period
+- No charges during trial (unless card fails validation)
+
+### **💳 Buy Now Pay Later (BNPL) Setup**
+
+#### **1. BNPL Providers Available**
+Your integration supports:
+- **Klarna** - Pay in 4 installments (US/UK)
+- **Afterpay/Clearpay** - Pay in 4 installments
+- **Affirm** - Longer-term financing (US)
+
+#### **2. BNPL Configuration**
+BNPL is automatically enabled when `paymentType: 'installments'`:
+
+```typescript
+// Payment methods for BNPL
+payment_method_types: [
+  'card',
+  'afterpay_clearpay', // Clearpay/Afterpay
+  'klarna',            // Klarna
+  'affirm',            // Affirm
+]
+
+// Payment method options
+payment_method_options: {
+  klarna: { preferred_locale: 'en-US' },
+  afterpay_clearpay: { preferred_locale: 'en-US' },
+  affirm: { preferred_locale: 'en-US' }
+}
+```
+
+#### **3. BNPL User Flow**
+1. User selects "Pay in Installments" option
+2. Stripe shows available BNPL providers
+3. User completes BNPL application
+4. Subscription starts immediately
+5. Payments spread over time (varies by provider)
+
+### **🎨 Frontend Implementation**
+
+#### **Payment Type Selection**
+Add buttons for different payment options:
+
+```jsx
+// Example payment type buttons
+<div className="flex gap-2 mb-4">
+  <button
+    onClick={() => handleUpgrade(plan, 'monthly', 'full')}
+    className="px-4 py-2 bg-blue-600 text-white rounded"
+  >
+    Pay Full Price
+  </button>
+
+  <button
+    onClick={() => handleUpgrade(plan, 'monthly', 'trial')}
+    className="px-4 py-2 bg-green-600 text-white rounded"
+  >
+    Start Free Trial
+  </button>
+
+  <button
+    onClick={() => handleUpgrade(plan, 'monthly', 'installments')}
+    className="px-4 py-2 bg-purple-600 text-white rounded"
+  >
+    Pay in Installments
+  </button>
+</div>
+```
+
+### **📊 Conversion Optimization**
+
+#### **Free Trials Benefits:**
+- **Higher Conversion**: 7-day trial reduces commitment fear
+- **Full Feature Access**: Users experience complete value
+- **Automatic Conversion**: Seamless transition to paid
+- **Retention Focus**: Trial users more likely to stay
+
+#### **BNPL Benefits:**
+- **Higher AOV**: Users buy more expensive plans
+- **Reduced Cart Abandonment**: No large upfront payment
+- **Broader Market**: Access price-sensitive customers
+- **Trust Building**: Familiar payment methods
+
+### **🔧 Technical Implementation**
+
+#### **1. Database Schema Updates**
+Add trial tracking to your user/subscription table:
+
+```sql
+ALTER TABLE users ADD COLUMN trial_ends_at TIMESTAMP;
+ALTER TABLE users ADD COLUMN payment_type VARCHAR(20);
+ALTER TABLE subscriptions ADD COLUMN trial_start DATE;
+ALTER TABLE subscriptions ADD COLUMN bnpl_provider VARCHAR(50);
+```
+
+#### **2. Webhook Handling**
+Update your webhook handler for trial and BNPL events:
+
+```typescript
+// Handle trial events
+case 'customer.subscription.trial_will_end':
+  // Send reminder email 3 days before trial ends
+  break
+
+case 'invoice.payment_succeeded':
+  // Handle BNPL installment payments
+  break
+```
+
+#### **3. User Experience**
+- Show trial countdown in UI
+- Display BNPL payment schedule
+- Send reminder emails before trial ends
+- Handle failed BNPL payments gracefully
+
+### **📈 Analytics & Monitoring**
+
+#### **Key Metrics to Track:**
+- **Trial Conversion Rate**: Trial users → Paid users
+- **BNPL Usage Rate**: % of purchases using BNPL
+- **Trial Length**: Average trial duration
+- **Payment Success Rate**: BNPL payment completion
+
+#### **Stripe Dashboard Insights:**
+- Monitor trial vs paid conversion
+- Track BNPL provider performance
+- Analyze payment failure reasons
+- Measure revenue impact
+
+### **⚖️ Legal & Compliance**
+
+#### **Free Trials:**
+- Clear trial terms in checkout
+- Easy cancellation during trial
+- Transparent pricing after trial
+- GDPR compliance for EU users
+
+#### **BNPL:**
+- Age verification (18+ typically)
+- Credit check requirements
+- Transparent fee disclosure
+- Consumer protection compliance
+
+### **🚀 Advanced Features**
+
+#### **1. Dynamic Trial Lengths**
+```typescript
+// Different trial lengths by plan
+const trialDays = {
+  plus: 7,
+  pro: 14,
+  business: 30
+}
+```
+
+#### **2. BNPL Provider Selection**
+```typescript
+// Route users to best BNPL provider
+const getBestBNPLProvider = (userLocation, purchaseAmount) => {
+  if (userLocation === 'US' && purchaseAmount > 100) {
+    return 'affirm' // Better for higher amounts
+  }
+  return 'klarna' // Default for most cases
+}
+```
+
+#### **3. A/B Testing**
+Test different trial lengths and BNPL options:
+- 7-day vs 14-day trials
+- BNPL vs full payment
+- Different BNPL providers
+
+### **💰 Revenue Optimization**
+
+#### **Pricing Strategy:**
+- **Trial Plans**: Same price as regular plans
+- **BNPL Plans**: Same price (BNPL fees separate)
+- **Discount Trials**: Optional trial discounts
+
+#### **Conversion Tactics:**
+- **Urgency**: Trial expiration reminders
+- **Social Proof**: "Most popular" badges
+- **Trust Signals**: Security badges, testimonials
+- **Scarcity**: Limited-time offers
+
+### **🔧 Testing BNPL & Trials**
+
+#### **Test Cards for BNPL:**
+```javascript
+// Klarna test cards
+'4000002500000003' // Approved
+'4000002760000016' // Denied
+
+// Afterpay test cards
+'342809250000000' // Approved
+'342809250000001' // Denied
+```
+
+#### **Trial Testing:**
+- Use Stripe's test mode
+- Set short trial periods for testing
+- Test trial expiration flows
+- Verify webhook events
+
+### **📞 Support & Troubleshooting**
+
+#### **Common Issues:**
+- **BNPL Not Showing**: Check geographic availability
+- **Trial Not Starting**: Verify webhook configuration
+- **Payment Failures**: Check BNPL provider requirements
+
+#### **Customer Support:**
+- Clear refund policies for trials
+- BNPL payment dispute handling
+- Trial extension for technical issues
+
+---
+
+## 🎯 **Implementation Summary**
+
+### **✅ What's Been Implemented:**
+- ✅ **Free Trial Support**: 7-day trial configuration
+- ✅ **BNPL Integration**: Klarna, Afterpay, Affirm support
+- ✅ **Dynamic Payment Types**: Full, Trial, Installments options
+- ✅ **Webhook Handling**: Trial and BNPL event processing
+- ✅ **User Experience**: Clear payment type selection
+
+### **🚀 Next Steps:**
+1. **Test Trial Flow**: Start free trial, verify 7-day period
+2. **Test BNPL Flow**: Try installment payments
+3. **Monitor Conversions**: Track trial → paid conversion rates
+4. **Optimize UX**: A/B test different payment options
+5. **Scale Up**: Add more BNPL providers as needed
+
+### **💡 Pro Tips:**
+- **Start with Trials**: Higher conversion than BNPL
+- **Monitor Analytics**: Track what works best
+- **Compliance First**: Follow BNPL regulations
+- **User Education**: Clear terms for trials and BNPL
+
+**🎉 Your Stripe integration now supports both Free Trials and Buy Now Pay Later options!** 🚀
+
 ---
 
 **🎉 Your Stripe billing integration is now ready! Users can subscribe to Plus/Pro plans with full Apple Pay support.**

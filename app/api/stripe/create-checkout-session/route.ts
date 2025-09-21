@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { plan, billingCycle = 'monthly' } = await request.json()
+    const { plan, billingCycle = 'monthly', paymentType = 'full' } = await request.json()
 
     if (!plan || !['plus', 'pro'].includes(plan)) {
       return NextResponse.json(
@@ -25,6 +25,13 @@ export async function POST(request: NextRequest) {
     if (!['monthly', 'yearly'].includes(billingCycle)) {
       return NextResponse.json(
         { error: 'Invalid billing cycle' },
+        { status: 400 }
+      )
+    }
+
+    if (!['full', 'trial', 'installments'].includes(paymentType)) {
+      return NextResponse.json(
+        { error: 'Invalid payment type' },
         { status: 400 }
       )
     }
@@ -44,35 +51,74 @@ export async function POST(request: NextRequest) {
     // Create or retrieve customer
     let customer
     try {
-      // Try to find existing customer
+      // Try to find existing customer by metadata first
       const customers = await stripe.customers.list({
-        email: `${userId}@clerk.dev`, // Using Clerk user ID as email for now
-        limit: 1,
+        limit: 100, // Increase limit to search through customers
       })
 
-      if (customers.data.length > 0) {
-        customer = customers.data[0]
-      } else {
-        // Create new customer
+      // Look for customer with matching Clerk user ID
+      customer = customers.data.find(cust =>
+        cust.metadata?.clerkUserId === userId
+      )
+
+      if (!customer) {
+        // Create new customer with a valid email format
         customer = await stripe.customers.create({
-          email: `${userId}@clerk.dev`,
+          email: `user-${userId}@flairsocial.local`, // Use a valid email format ???????????????????
+          name: `FlairSocial User ${userId.slice(-8)}`, // Add a name for better UX
           metadata: {
             clerkUserId: userId,
+            source: 'flairsocial_checkout',
           },
         })
+        console.log('Created new Stripe customer:', customer.id)
+      } else {
+        console.log('Found existing Stripe customer:', customer.id)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating/retrieving customer:', error)
       return NextResponse.json(
-        { error: 'Failed to create customer' },
+        {
+          error: 'Failed to create customer',
+          details: error.message,
+          type: error.type
+        },
         { status: 500 }
       )
     }
 
+    // Configure payment methods based on payment type
+    let paymentMethodTypes: string[] = ['card']
+
+    if (paymentType === 'installments') {
+      // Add BNPL providers
+      paymentMethodTypes = [
+        'card',
+        'afterpay_clearpay', // Clearpay/Afterpay
+        'klarna',            // Klarna
+        'affirm',            // Affirm
+      ]
+    }
+
+    // Configure subscription data
+    const subscriptionData: any = {
+      metadata: {
+        clerkUserId: userId,
+        plan: plan,
+        billingCycle: billingCycle,
+        paymentType: paymentType,
+      },
+    }
+
+    // Add trial period for trial payment type
+    if (paymentType === 'trial') {
+      subscriptionData.trial_period_days = 7 // 7-day free trial
+      subscriptionData.metadata.trial = 'true'
+    }
+
     // Create checkout session
-    const session = await stripe.checkout.sessions.create({
-      customer: customer.id,
-      payment_method_types: ['card', 'apple_pay', 'google_pay'],
+    const sessionParams: any = {
+      payment_method_types: paymentMethodTypes,
       line_items: [
         {
           price: priceId,
@@ -80,22 +126,35 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?success=true&session_id={CHECKOUT_SESSION_ID}&payment_type=${paymentType}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?canceled=true`,
       allow_promotion_codes: true,
+      customer: customer.id,
       metadata: {
         clerkUserId: userId,
         plan: plan,
         billingCycle: billingCycle,
+        paymentType: paymentType,
       },
-      subscription_data: {
-        metadata: {
-          clerkUserId: userId,
-          plan: plan,
-          billingCycle: billingCycle,
+      subscription_data: subscriptionData,
+    }
+
+    // Add payment method options for BNPL
+    if (paymentType === 'installments') {
+      sessionParams.payment_method_options = {
+        klarna: {
+          preferred_locale: 'en-US',
         },
-      },
-    })
+        afterpay_clearpay: {
+          preferred_locale: 'en-US',
+        },
+        affirm: {
+          preferred_locale: 'en-US',
+        },
+      }
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams)
 
     return NextResponse.json({
       sessionId: session.id,

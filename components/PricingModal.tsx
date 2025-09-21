@@ -95,8 +95,10 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     }
   }, [currentPlan, selectedPlan])
 
-  const handleUpgrade = async (planType: 'plus' | 'pro', billingCycle: 'monthly' | 'yearly' = 'monthly') => {
+  const handleUpgrade = async (planType: 'plus' | 'pro', billingCycle: 'monthly' | 'yearly' = 'monthly', paymentType: 'full' | 'trial' | 'installments' = 'full') => {
     try {
+      console.log('Creating checkout session for:', { planType, billingCycle })
+
       // Create Stripe checkout session
       const response = await fetch('/api/stripe/create-checkout-session', {
         method: 'POST',
@@ -106,25 +108,43 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         body: JSON.stringify({
           plan: planType,
           billingCycle: billingCycle,
+          paymentType: paymentType,
         }),
       })
 
+      console.log('Checkout session response status:', response.status)
+
       if (!response.ok) {
-        const error = await response.json()
-        console.error('Failed to create checkout session:', error)
+        let errorMessage = 'Failed to create checkout session'
+        try {
+          const error = await response.json()
+          console.error('Checkout session error details:', error)
+          errorMessage = error.error || error.message || errorMessage
+        } catch (parseError) {
+          console.error('Failed to parse error response:', parseError)
+          const text = await response.text()
+          console.error('Raw error response:', text)
+          errorMessage = text || errorMessage
+        }
+        alert(`Error: ${errorMessage}`)
         return
       }
 
-      const { url } = await response.json()
+      const data = await response.json()
+      console.log('Checkout session created successfully:', data)
 
-      if (url) {
+      if (data.url) {
         // Redirect to Stripe checkout
-        window.location.href = url
+        console.log('Redirecting to Stripe checkout:', data.url)
+        window.location.href = data.url
       } else {
-        console.error('No checkout URL received')
+        console.error('No checkout URL received in response')
+        alert('Error: No checkout URL received')
       }
     } catch (error) {
       console.error('Error creating checkout session:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create checkout session'
+      alert(`Error: ${errorMessage}`)
     }
   }
 
