@@ -3,9 +3,10 @@
 import { useState } from "react"
 import { Info, Settings, Crown, ChevronDown } from "lucide-react"
 import { usePathname } from "next/navigation"
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs"
+import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs"
 import { useMobile } from "@/hooks/use-mobile"
 import { useShoppingMode } from "@/lib/shopping-mode-context"
+import { useCredits } from "@/lib/credit-context"
 import { AnimatePresence, motion } from "framer-motion"
 import InfoPopup from "./InfoPopup"
 import PricingModal from "./PricingModal"
@@ -20,6 +21,8 @@ export default function Header() {
   const pathname = usePathname()
   const isMobile = useMobile()
   const { mode, setMode } = useShoppingMode()
+  const { isSignedIn } = useUser()
+  const { currentPlan } = useCredits()
 
   if (pathname === "/chat") {
     return null
@@ -186,6 +189,15 @@ export default function Header() {
               </button>
               <button
                 onClick={() => {
+                  // Check if user is trying to switch to marketplace mode
+                  if (!isSignedIn || currentPlan === 'free') {
+                    // Trigger pricing modal
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('showPricingModal'))
+                    }
+                    setShowShoppingModeDropdown(false)
+                    return // Don't change mode
+                  }
                   setMode('marketplace')
                   setShowShoppingModeDropdown(false)
                 }}

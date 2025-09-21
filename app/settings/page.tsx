@@ -8,14 +8,16 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { useProfile } from "@/lib/profile-context"
 import { useShoppingMode } from "@/lib/shopping-mode-context"
+import { useCredits } from "@/lib/credit-context"
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn, user } = useUser()
-  
+
   // Use global profile context instead of local state
   const { profile, updateProfile, saveProfile, isLoading: profileLoading, isLoaded: profileLoaded } = useProfile()
   const { mode: shoppingMode, setMode: setShoppingMode } = useShoppingMode()
-  
+  const { currentPlan } = useCredits()
+
   const [isLoading, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
 
@@ -273,7 +275,17 @@ export default function SettingsPage() {
                 </div>
               </button>
               <button
-                onClick={() => setShoppingMode('marketplace')}
+                onClick={() => {
+                  // Check if user is trying to switch to marketplace mode
+                  if (!isSignedIn || currentPlan === 'free') {
+                    // Trigger pricing modal
+                    if (typeof window !== 'undefined') {
+                      window.dispatchEvent(new CustomEvent('showPricingModal'))
+                    }
+                    return // Don't change mode
+                  }
+                  setShoppingMode('marketplace')
+                }}
                 className={`p-4 rounded-lg border text-left transition-colors ${
                   shoppingMode === 'marketplace'
                     ? "bg-white text-black border-white"
