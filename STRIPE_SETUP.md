@@ -54,6 +54,50 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ## 🔗 Step 5: Set Up Webhooks
 
+### **For Development Testing:**
+Since Stripe webhooks can't reach `localhost`, you have several options:
+
+#### **Option 1: Stripe CLI (Recommended for Development)**
+```bash
+# Install Stripe CLI
+# Download from: https://stripe.com/docs/stripe-cli
+
+# Login to your Stripe account
+stripe login
+
+# Forward webhooks to your local server
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+This will:
+- Create a temporary webhook endpoint
+- Forward events to your local server
+- Provide a webhook signing secret for testing
+
+#### **Option 2: ngrok (Alternative)**
+```bash
+# Install ngrok
+npm install -g ngrok
+
+# Expose your local server
+ngrok http 3000
+
+# Use the ngrok URL in Stripe Dashboard
+# Example: https://abc123.ngrok.io/api/stripe/webhook
+```
+
+#### **Option 3: LocalTunnel**
+```bash
+# Install localtunnel
+npm install -g localtunnel
+
+# Expose your local server
+lt --port 3000
+
+# Use the localtunnel URL in Stripe Dashboard
+```
+
+### **For Production:**
 1. In Stripe Dashboard, go to **Developers** → **Webhooks**
 2. Click **Add endpoint**
 3. Set the endpoint URL to: `https://yourdomain.com/api/stripe/webhook`
@@ -64,6 +108,46 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
    - `customer.subscription.updated`
    - `customer.subscription.deleted`
 5. Copy the **Webhook signing secret** to your `.env.local` as `STRIPE_WEBHOOK_SECRET`
+
+### **Testing Webhooks Locally:**
+
+1. **Start your development server:**
+   ```bash
+   npm run dev
+   ```
+
+2. **Use Stripe CLI to forward webhooks:**
+   ```bash
+   stripe listen --forward-to localhost:3000/api/stripe/webhook
+   ```
+
+3. **Copy the webhook signing secret** from the CLI output to your `.env.local`:
+   ```env
+   STRIPE_WEBHOOK_SECRET=whsec_...
+   ```
+
+4. **Test a payment flow:**
+   - Go to your app and try to purchase a plan
+   - Complete the checkout with a test card
+   - Check your server logs for webhook events
+   - Verify the user's subscription status updates
+
+### **Testing Without Webhooks:**
+If you want to test the checkout flow without setting up webhooks initially:
+
+1. **Complete a test purchase** using the test card `4242 4242 4242 4242`
+2. **Check Stripe Dashboard** → **Payments** to see the successful payment
+3. **Manually update the user's subscription** in your database for testing
+4. **Test the UI changes** (verified badges, credit increases, etc.)
+
+**Note:** Webhooks are crucial for production to automatically handle subscription updates, but you can test the basic checkout flow without them.
+
+### **Development vs Production Webhooks:**
+
+- **Development**: Use Stripe CLI or ngrok to forward webhooks to localhost
+- **Production**: Set up a real webhook endpoint on your production domain
+- **No Conflicts**: You can have multiple webhook endpoints in Stripe (one for dev, one for prod)
+- **Test Mode**: All webhook testing should be done in Stripe's test mode first
 
 ## 🍎 Step 6: Configure Apple Pay (Optional but Recommended)
 
