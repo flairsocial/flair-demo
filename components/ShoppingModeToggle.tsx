@@ -1,6 +1,8 @@
 'use client'
 
 import { useShoppingMode } from '@/lib/shopping-mode-context'
+import { useCredits } from '@/lib/credit-context'
+import { useUser } from '@clerk/nextjs'
 
 interface ShoppingModeToggleProps {
   onModeChange?: (mode: 'default' | 'marketplace') => void
@@ -9,8 +11,22 @@ interface ShoppingModeToggleProps {
 
 export default function ShoppingModeToggle({ onModeChange, className = '' }: ShoppingModeToggleProps) {
   const { mode, setMode } = useShoppingMode()
+  const { currentPlan } = useCredits()
+  const { isSignedIn } = useUser()
 
   const handleModeChange = (newMode: 'default' | 'marketplace') => {
+    // Check if user is trying to switch to marketplace mode
+    if (newMode === 'marketplace') {
+      // Block marketplace access for free users or non-signed-in users
+      if (!isSignedIn || currentPlan === 'free') {
+        // Trigger pricing modal
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('showPricingModal'))
+        }
+        return // Don't change mode
+      }
+    }
+
     setMode(newMode)
     onModeChange?.(newMode)
   }
