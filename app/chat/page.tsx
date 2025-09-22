@@ -727,19 +727,21 @@ export default function ChatPage() {
                         ? "Ask about styles..."
                         : "Ask about styles, outfits, trends..."
                     }
-                    className={`w-full ${isMobile ? 'py-3 px-3' : 'py-3.5 px-4'} pr-12 bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm ${
+                    className={`w-full ${isMobile ? 'py-3 px-3' : 'py-3.5 px-4'} ${credits <= 0 ? 'pr-4' : 'pr-12'} bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm ${
                       !isSignedIn || credits <= 0 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                     disabled={isLoading || !isSignedIn || credits <= 0}
                   />
-                  <button
-                    type="submit"
-                    disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || !isSignedIn || credits <= 0}
-                    className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
-                    aria-label="Send message"
-                  >
-                    <Send className="w-5 h-5" strokeWidth={2} />
-                  </button>
+                  {credits > 0 && (
+                    <button
+                      type="submit"
+                      disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || !isSignedIn || credits <= 0}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
+                      aria-label="Send message"
+                    >
+                      <Send className="w-5 h-5" strokeWidth={2} />
+                    </button>
+                  )}
                 </div>
               </div>
             </form>
