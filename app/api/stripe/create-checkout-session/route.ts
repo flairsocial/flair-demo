@@ -62,10 +62,9 @@ export async function POST(request: NextRequest) {
       )
 
       if (!customer) {
-        // Create new customer with a valid email format
+        // Create new customer - Stripe will collect email during checkout
         customer = await stripe.customers.create({
-          email: `user-${userId}@flairsocial.local`, // Use a valid email format ???????????????????
-          name: `FlairSocial User ${userId.slice(-8)}`, // Add a name for better UX
+          name: `FlairSocial User ${userId.slice(-8)}`,
           metadata: {
             clerkUserId: userId,
             source: 'flairsocial_checkout',
@@ -116,6 +115,10 @@ export async function POST(request: NextRequest) {
       subscriptionData.metadata.trial = 'true'
     }
 
+    // Determine the correct domain based on environment
+    const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production'
+    const baseUrl = isProduction ? 'https://app.flair.social' : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+
     // Create checkout session
     const sessionParams: any = {
       payment_method_types: paymentMethodTypes,
@@ -126,8 +129,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?success=true&session_id={CHECKOUT_SESSION_ID}&payment_type=${paymentType}`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/settings?canceled=true`,
+      success_url: `${baseUrl}/settings?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/settings?canceled=true`,
       allow_promotion_codes: true,
       customer: customer.id,
       metadata: {

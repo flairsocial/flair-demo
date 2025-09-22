@@ -61,6 +61,48 @@ export async function POST(request: NextRequest) {
         // Create profile for the new user
         const profileId = await getOrCreateProfile(clerkId)
         console.log(`[Clerk Webhook] Successfully created profile ${profileId} for user ${clerkId}`)
+
+        // Check if user has a pending invite code from localStorage (stored during invite link click)
+        // This is a fallback for when the invite processing didn't happen client-side
+        const pendingInviteCode = data.public_metadata?.pendingInviteCode
+        if (pendingInviteCode) {
+          console.log(`[Clerk Webhook] Processing pending invite code: ${pendingInviteCode}`)
+
+          try {
+            // Import supabase client
+            const { createClient } = await import('@supabase/supabase-js')
+            const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!
+            const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+            const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+              auth: { autoRefreshToken: false, persistSession: false }
+            })
+
+            // Find the invite link
+            const { data: inviteLink, error: inviteError } = await supabase
+              .from('invite_links')
+              .select('referrer_id')
+              .eq('invite_code', pendingInviteCode)
+              .gt('expires_at', new Date().toISOString())
+              .single()
+
+            if (!inviteError && inviteLink && inviteLink.referrer_id !== profileId) {
+              // Update user's profile with referrer
+              await supabase
+                .from('profiles')
+                .update({ referred_by: inviteLink.referrer_id })
+                .eq('id', profileId)
+
+              console.log(`[Clerk Webhook] Set referrer ${inviteLink.referrer_id} for new user ${profileId}`)
+
+              // Award 100 credits to both referrer and new user
+              // Note: Credits are handled client-side, but we log this for tracking
+              console.log(`[Clerk Webhook] Referral processed: ${inviteLink.referrer_id} referred ${profileId}`)
+            }
+          } catch (inviteError) {
+            console.error('[Clerk Webhook] Error processing pending invite:', inviteError)
+          }
+        }
       } catch (error) {
         console.error(`[Clerk Webhook] Failed to create profile for user ${clerkId}:`, error)
         return NextResponse.json({ error: 'Failed to create profile' }, { status: 500 })

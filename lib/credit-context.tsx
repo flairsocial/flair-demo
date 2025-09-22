@@ -131,6 +131,28 @@ export function CreditProvider({ children }: { children: ReactNode }) {
     setCredits(prev => Math.min(maxCredits, prev + amount))
   }
 
+  // Function to award referral credits
+  const awardReferralCredits = async (referrerClerkId: string, newUserClerkId: string) => {
+    try {
+      // Award 100 credits to referrer
+      const referrerCredits = parseInt(localStorage.getItem(`flair-credits-${referrerClerkId}`) || '0')
+      const referrerPlan = localStorage.getItem(`flair-plan-${referrerClerkId}`) || 'free'
+      const referrerMax = PLAN_LIMITS[referrerPlan as keyof typeof PLAN_LIMITS] || PLAN_LIMITS.free
+      const newReferrerCredits = Math.min(referrerMax, referrerCredits + 100)
+      localStorage.setItem(`flair-credits-${referrerClerkId}`, newReferrerCredits.toString())
+
+      // Award 100 credits to new user
+      const newUserCredits = 100 // New users start with 100 bonus credits
+      localStorage.setItem(`flair-credits-${newUserClerkId}`, newUserCredits.toString())
+      localStorage.setItem(`flair-plan-${newUserClerkId}`, 'free')
+      localStorage.setItem(`flair-last-reset-${newUserClerkId}`, new Date().toDateString())
+
+      console.log(`[Credits] Awarded 100 referral credits to referrer ${referrerClerkId} and new user ${newUserClerkId}`)
+    } catch (error) {
+      console.error('[Credits] Error awarding referral credits:', error)
+    }
+  }
+
   const setPlan = async (plan: 'free' | 'plus' | 'pro') => {
     const newMaxCredits = PLAN_LIMITS[plan]
     setCurrentPlan(plan)

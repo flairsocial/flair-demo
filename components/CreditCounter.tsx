@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { createPortal } from "react-dom"
-import { Gift, X, Copy, Check } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Gift, X, ExternalLink } from "lucide-react"
 import { useCredits } from "@/lib/credit-context"
 import { motion, AnimatePresence } from "framer-motion"
 
 export default function CreditCounter() {
   const [showModal, setShowModal] = useState(false)
-  const [linkCopied, setLinkCopied] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const router = useRouter()
   const { credits, currentPlan, maxCredits } = useCredits()
 
   // Ensure component is mounted before using portals
@@ -23,21 +24,9 @@ export default function CreditCounter() {
     pro: "Pro"
   }
 
-  const generateInviteLink = () => {
-    // Generate a unique invite link (in real app, this would be generated server-side)
-    const inviteCode = Math.random().toString(36).substring(2, 15)
-    return `https://flair.social/invite/${inviteCode}`
-  }
-
-  const handleCopyLink = async () => {
-    const inviteLink = generateInviteLink()
-    try {
-      await navigator.clipboard.writeText(inviteLink)
-      setLinkCopied(true)
-      setTimeout(() => setLinkCopied(false), 2000)
-    } catch (err) {
-      console.error('Failed to copy link:', err)
-    }
+  const handleGoToInvitePage = () => {
+    setShowModal(false) // Close the modal
+    router.push('/invite') // Navigate to invite page
   }
 
   const modalContent = (
@@ -97,20 +86,11 @@ export default function CreditCounter() {
               </p>
               
               <button
-                onClick={handleCopyLink}
+                onClick={handleGoToInvitePage}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-lg transition-all duration-200 text-white text-sm font-medium"
               >
-                {linkCopied ? (
-                  <>
-                    <Check className="w-4 h-4" />
-                    Link Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4" />
-                    Generate Invite Link
-                  </>
-                )}
+                <ExternalLink className="w-4 h-4" />
+                Go to Invite Section
               </button>
             </div>
 

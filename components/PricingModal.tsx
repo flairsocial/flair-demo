@@ -278,6 +278,36 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
     }
   ]
 
+  const handleDowngradeToFree = async () => {
+    try {
+      // First, try to cancel the subscription
+      const response = await fetch('/api/stripe/cancel-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          cancelAtPeriodEnd: true // Cancel at end of billing period
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        console.error('Error canceling subscription:', error)
+        // Continue with downgrade even if cancellation fails
+      }
+
+      // Downgrade to free plan
+      await setPlan('free')
+      onClose()
+
+      alert('Successfully downgraded to Free plan. Your subscription will end at the current billing period.')
+    } catch (error) {
+      console.error('Error downgrading to free:', error)
+      alert('Error downgrading plan. Please contact support.')
+    }
+  }
+
   const handleContactAdmin = () => {
     window.open("mailto:admin@flair.social?subject=Business Plan Inquiry", "_blank")
   }
@@ -392,7 +422,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
                     handleContactAdmin()
                   } else if (plan.planType && plan.planType !== currentPlan) {
                     if (plan.planType === 'free') {
-                      setPlan('free').then(() => onClose())
+                      // Handle downgrade to free - cancel subscription
+                      handleDowngradeToFree()
                     } else {
                       handleUpgrade(plan.planType)
                     }

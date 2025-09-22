@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { ArrowLeft, Save, User, Ruler, Package, ShoppingBag } from "lucide-react"
 import { useUser } from "@clerk/nextjs"
 import { RedirectToSignIn } from "@clerk/nextjs"
@@ -12,14 +13,59 @@ import { useCredits } from "@/lib/credit-context"
 
 export default function SettingsPage() {
   const { isLoaded, isSignedIn, user } = useUser()
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   // Use global profile context instead of local state
   const { profile, updateProfile, saveProfile, isLoading: profileLoading, isLoaded: profileLoaded } = useProfile()
   const { mode: shoppingMode, setMode: setShoppingMode } = useShoppingMode()
-  const { currentPlan } = useCredits()
+  const { currentPlan, setPlan } = useCredits()
 
   const [isLoading, setSaving] = useState(false)
   const [saveMessage, setSaveMessage] = useState("")
+  const [paymentMessage, setPaymentMessage] = useState("")
+
+  // Handle Stripe redirect parameters
+  useEffect(() => {
+    const success = searchParams.get('success')
+    const canceled = searchParams.get('canceled')
+    const sessionId = searchParams.get('session_id')
+
+    if (success === 'true' && sessionId && user?.id) {
+      // Payment was successful, fetch session details to determine the plan
+      console.log('Payment successful, fetching session details for:', sessionId)
+
+      // Fetch session details from our API
+      fetch(`/api/stripe/session/${sessionId}`)
+        .then(response => response.json())
+        .then(sessionData => {
+          const purchasedPlan = sessionData.plan || 'plus' // fallback to plus if not found
+          const planCredits = purchasedPlan === 'pro' ? 5000 : 500
+          const planName = purchasedPlan === 'pro' ? 'Pro' : 'Plus'
+
+          return setPlan(purchasedPlan).then(() => {
+            setPaymentMessage(`🎉 Payment successful! You are now on the ${planName} plan with ${planCredits.toLocaleString()} daily credits.`)
+            // Clean up URL
+            router.replace('/settings', { scroll: false })
+          })
+        })
+        .catch(error => {
+          console.error('Error fetching session details or updating plan:', error)
+          // Fallback: try to upgrade to plus anyway
+          setPlan('plus').then(() => {
+            setPaymentMessage('🎉 Payment successful! You are now on the Plus plan with 500 daily credits.')
+            router.replace('/settings', { scroll: false })
+          }).catch(fallbackError => {
+            console.error('Fallback plan update failed:', fallbackError)
+            setPaymentMessage('Payment was successful, but there was an error updating your plan. Please contact support.')
+          })
+        })
+    } else if (canceled === 'true') {
+      setPaymentMessage('Payment was canceled.')
+      // Clean up URL
+      router.replace('/settings', { scroll: false })
+    }
+  }, [searchParams, user?.id, setPlan, router])
 
   // Debug logging to track profile state
   useEffect(() => {
@@ -106,14 +152,31 @@ export default function SettingsPage() {
       </div>
 
       <div className="max-w-2xl mx-auto p-4 space-y-8">
+        {/* Payment Message */}
+        {paymentMessage && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`p-3 rounded-lg text-center ${
+              paymentMessage.includes("successful") || paymentMessage.includes("🎉")
+                ? "bg-green-900/20 border border-green-900/30 text-green-300"
+                : paymentMessage.includes("canceled") || paymentMessage.includes("error")
+                ? "bg-yellow-900/20 border border-yellow-900/30 text-yellow-300"
+                : "bg-blue-900/20 border border-blue-900/30 text-blue-300"
+            }`}
+          >
+            {paymentMessage}
+          </motion.div>
+        )}
+
         {/* Save Message */}
         {saveMessage && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`p-3 rounded-lg text-center ${
-              saveMessage.includes("Error") 
-                ? "bg-red-900/20 border border-red-900/30 text-red-300" 
+              saveMessage.includes("Error")
+                ? "bg-red-900/20 border border-red-900/30 text-red-300"
                 : "bg-green-900/20 border border-green-900/30 text-green-300"
             }`}
           >
