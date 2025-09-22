@@ -27,7 +27,8 @@ export default function InvitePage() {
       try {
         // Check if user is signed in
         if (!user) {
-          // Store invite code in localStorage for after signup
+          // Store invite code in Clerk user metadata for webhook processing
+          // For now, we'll use localStorage as fallback and redirect to sign-up
           localStorage.setItem('pendingInviteCode', inviteCode)
           // Redirect to sign up with invite code
           router.push(`/sign-up?invite=${inviteCode}`)

@@ -62,9 +62,8 @@ export async function POST(request: NextRequest) {
         const profileId = await getOrCreateProfile(clerkId)
         console.log(`[Clerk Webhook] Successfully created profile ${profileId} for user ${clerkId}`)
 
-        // Check if user has a pending invite code from localStorage (stored during invite link click)
-        // This is a fallback for when the invite processing didn't happen client-side
-        const pendingInviteCode = data.public_metadata?.pendingInviteCode
+        // Check if user has a pending invite code (stored during invite link click)
+        const pendingInviteCode = data.public_metadata?.pendingInviteCode || data.private_metadata?.inviteCode
         if (pendingInviteCode) {
           console.log(`[Clerk Webhook] Processing pending invite code: ${pendingInviteCode}`)
 
@@ -78,26 +77,35 @@ export async function POST(request: NextRequest) {
               auth: { autoRefreshToken: false, persistSession: false }
             })
 
-            // Find the invite link
-            const { data: inviteLink, error: inviteError } = await supabase
-              .from('invite_links')
-              .select('referrer_id')
-              .eq('invite_code', pendingInviteCode)
-              .gt('expires_at', new Date().toISOString())
+            // Find the invite
+            const { data: inviteData, error: inviteError } = await supabase
+              .from('invites')
+              .select('id, referrer_id, used_at')
+              .eq('code', pendingInviteCode)
+              .is('used_at', null) // Only unused invites
               .single()
 
-            if (!inviteError && inviteLink && inviteLink.referrer_id !== profileId) {
+            if (!inviteError && inviteData && inviteData.referrer_id !== profileId) {
+              // Mark invite as used
+              await supabase
+                .from('invites')
+                .update({
+                  used_at: new Date().toISOString(),
+                  used_by: profileId
+                })
+                .eq('id', inviteData.id)
+
               // Update user's profile with referrer
               await supabase
                 .from('profiles')
-                .update({ referred_by: inviteLink.referrer_id })
+                .update({ referred_by: inviteData.referrer_id })
                 .eq('id', profileId)
 
-              console.log(`[Clerk Webhook] Set referrer ${inviteLink.referrer_id} for new user ${profileId}`)
+              console.log(`[Clerk Webhook] Successfully processed invite: ${inviteData.referrer_id} referred ${profileId}`)
 
               // Award 100 credits to both referrer and new user
-              // Note: Credits are handled client-side, but we log this for tracking
-              console.log(`[Clerk Webhook] Referral processed: ${inviteLink.referrer_id} referred ${profileId}`)
+              // Credits are handled client-side via credit context, but we log this for tracking
+              console.log(`[Clerk Webhook] Referral credits awarded: 100 to referrer ${inviteData.referrer_id} and 100 to new user ${profileId}`)
             }
           } catch (inviteError) {
             console.error('[Clerk Webhook] Error processing pending invite:', inviteError)
