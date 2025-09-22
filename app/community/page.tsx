@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Plus, Search, Grid, List, MessageCircle, Heart, Bookmark, Eye, Inbox, Sparkles, Upload, X, Trash2, MoreHorizontal } from "lucide-react"
 
 import Image from "next/image"
@@ -9,6 +9,7 @@ import { useMobile } from "@/hooks/use-mobile"
 import { useCommunity } from "@/hooks/use-community"
 import { useUser } from "@clerk/nextjs"
 import CollectionDetailModal from "@/components/CollectionDetailModal"
+import CommentModal from "@/components/CommentModal"
 import MessageUserButton from "@/components/MessageUserButton"
 import { useUnreadMessages } from "@/hooks/use-unread-messages"
 import { useCommunityPosts } from "@/lib/react-query-hooks"
@@ -384,14 +385,14 @@ function CommunityFeed({
   )
 }
 
-function PostCard({ 
-  post, 
-  layout, 
-  currentUser, 
+function PostCard({
+  post,
+  layout,
+  currentUser,
   onDelete,
-  onViewCollection 
-}: { 
-  post: any, 
+  onViewCollection
+}: {
+  post: any,
   layout: 'vertical' | 'collage',
   currentUser: any,
   onDelete: (postId: string) => Promise<boolean>,
@@ -401,6 +402,32 @@ function PostCard({
   const [isSaved, setIsSaved] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [showCommentModal, setShowCommentModal] = useState(false)
+  const [likeCount, setLikeCount] = useState(post.like_count || 0)
+  const [commentCount, setCommentCount] = useState(post.comment_count || 0)
+  const [loadingLikeStatus, setLoadingLikeStatus] = useState(true)
+
+  // Load like status when component mounts
+  useEffect(() => {
+    const loadLikeStatus = async () => {
+      if (!currentUser || !post.id) return
+
+      try {
+        const response = await fetch(`/api/community/likes?postId=${post.id}`)
+        if (response.ok) {
+          const data = await response.json()
+          setIsLiked(data.liked)
+          setLikeCount(data.likeCount)
+        }
+      } catch (error) {
+        console.error('Error loading like status:', error)
+      } finally {
+        setLoadingLikeStatus(false)
+      }
+    }
+
+    loadLikeStatus()
+  }, [currentUser, post.id])
 
   // Check if current user is the author of this post
   const isAuthor = currentUser && post.author && 
@@ -413,6 +440,40 @@ function PostCard({
       setShowDeleteConfirm(false)
     }
     setIsDeleting(false)
+  }
+
+  const handleLike = async () => {
+    if (!currentUser) return
+
+    try {
+      const action = isLiked ? 'unlike' : 'like'
+      const response = await fetch('/api/community/likes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ postId: post.id, action })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setIsLiked(data.liked)
+        setLikeCount(data.likeCount)
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error)
+    }
+  }
+
+  const handleCommentClick = () => {
+    setShowCommentModal(true)
+  }
+
+  const handleLikeUpdate = (liked: boolean, likeCount: number) => {
+    setIsLiked(liked)
+    setLikeCount(likeCount)
+  }
+
+  const handleCommentUpdate = (commentCount: number) => {
+    setCommentCount(commentCount)
   }
 
   // Format created_at properly
@@ -434,9 +495,7 @@ function PostCard({
   const profilePicture = author.profile_picture_url || "/placeholder-user.svg"
   const displayName = author.display_name || author.username || "Anonymous"
   const username = author.username || "anonymous"
-  
-  const likeCount = post.like_count || 0
-  const commentCount = post.comment_count || 0
+
   const saveCount = post.save_count || 0
   const viewCount = post.view_count || 0
 
@@ -466,15 +525,20 @@ function PostCard({
               height={32}
               className="rounded-full"
             />
-            <ProfileNameWithBadge
-              displayName={displayName}
-              username={username}
-              isPro={author.is_pro}
-              className="flex-1"
-              nameClassName="text-sm font-medium text-white"
-              usernameClassName="text-xs text-zinc-400"
-              badgeSize="sm"
-            />
+            <Link
+              href={`/profile/${username}`}
+              className="flex-1 hover:opacity-80 transition-opacity"
+            >
+              <ProfileNameWithBadge
+                displayName={displayName}
+                username={username}
+                isPro={author.is_pro}
+                className="flex-1"
+                nameClassName="text-sm font-medium text-white"
+                usernameClassName="text-xs text-zinc-400"
+                badgeSize="sm"
+              />
+            </Link>
 
             {/* Message button for collage layout */}
             <MessageUserButton
@@ -556,7 +620,10 @@ function PostCard({
           height={48}
           className="rounded-full"
         />
-        <div className="flex-1">
+        <Link
+          href={`/profile/${username}`}
+          className="flex-1 hover:opacity-80 transition-opacity"
+        >
           <ProfileNameWithBadge
             displayName={displayName}
             username={username}
@@ -566,7 +633,7 @@ function PostCard({
             usernameClassName="text-sm text-zinc-400"
             badgeSize="md"
           />
-        </div>
+        </Link>
 
         <div className="flex items-center gap-2">
           <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">{formatTimeAgo(post.created_at)}</span>
@@ -728,7 +795,7 @@ function PostCard({
       <div className="flex items-center justify-between pt-4 border-t border-zinc-800/50">
         <div className="flex items-center gap-6">
           <button
-            onClick={() => setIsLiked(!isLiked)}
+            onClick={handleLike}
             className={`flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm p-1 sm:p-1.5 transition-all duration-200 hover:scale-105 ${
               isLiked ? 'text-red-500' : 'text-zinc-400 hover:text-red-400'
             }`}
@@ -736,8 +803,11 @@ function PostCard({
             <Heart className={`w-3 h-3 sm:w-5 sm:h-5 ${isLiked ? 'fill-current' : ''}`} />
             <span className="font-medium">{likeCount}</span>
           </button>
-          
-          <button className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm p-1 sm:p-1.5 text-zinc-400 hover:text-blue-400 transition-all duration-200 hover:scale-105">
+
+          <button
+            onClick={handleCommentClick}
+            className="flex items-center justify-center gap-1 sm:gap-2 text-xs sm:text-sm p-1 sm:p-1.5 text-zinc-400 hover:text-blue-400 transition-all duration-200 hover:scale-105"
+          >
             <MessageCircle className="w-3 h-3 sm:w-5 sm:h-5" />
             <span className="font-medium">{commentCount}</span>
           </button>
@@ -758,6 +828,24 @@ function PostCard({
           <span className="font-medium">{viewCount.toLocaleString()}</span>
         </div>
       </div>
+
+      {/* Comment Modal */}
+      <CommentModal
+        isOpen={showCommentModal}
+        onClose={() => setShowCommentModal(false)}
+        post={{
+          id: post.id,
+          title: post.title,
+          description: post.description,
+          image_url: post.image_url,
+          author: post.author,
+          created_at: post.created_at,
+          like_count: likeCount,
+          comment_count: commentCount
+        }}
+        onLikeUpdate={handleLikeUpdate}
+        onCommentUpdate={handleCommentUpdate}
+      />
     </div>
   )
 }

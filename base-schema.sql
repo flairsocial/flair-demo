@@ -339,6 +339,40 @@ CREATE INDEX IF NOT EXISTS idx_post_comments_post ON post_comments(post_id, crea
 CREATE INDEX IF NOT EXISTS idx_post_comments_profile ON post_comments(profile_id);
 
 -- ============================================================================
+-- RPC FUNCTIONS
+-- ============================================================================
+
+-- Function to increment like count
+CREATE OR REPLACE FUNCTION increment_like_count(post_id TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE community_posts
+  SET like_count = like_count + 1, updated_at = NOW()
+  WHERE id = post_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to decrement like count
+CREATE OR REPLACE FUNCTION decrement_like_count(post_id TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE community_posts
+  SET like_count = GREATEST(like_count - 1, 0), updated_at = NOW()
+  WHERE id = post_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to increment comment count
+CREATE OR REPLACE FUNCTION increment_comment_count(post_id TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE community_posts
+  SET comment_count = comment_count + 1, updated_at = NOW()
+  WHERE id = post_id;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ============================================================================
 -- TRIGGERS & FUNCTIONS
 -- ============================================================================
 

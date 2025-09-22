@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getConversations, getMessages, sendMessage, createConversation } from '@/lib/database-service-v2'
+import { getConversations, getMessages, sendMessage, createConversation, getOrCreateProfile } from '@/lib/database-service-v2'
 
 // GET /api/direct-messages - Get user's conversations
 export async function GET() {
@@ -9,6 +9,9 @@ export async function GET() {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Ensure user has a profile before proceeding
+    await getOrCreateProfile(userId)
 
     const conversations = await getConversations(userId)
     return NextResponse.json({ conversations })
@@ -26,6 +29,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    // Ensure user has a profile before proceeding
+    await getOrCreateProfile(userId)
+
     const body = await request.json()
     const { action, conversationId, content, otherUserId } = body
 
@@ -42,6 +48,9 @@ export async function POST(request: NextRequest) {
       if (!otherUserId) {
         return NextResponse.json({ error: 'Missing otherUserId' }, { status: 400 })
       }
+
+      // Ensure the other user also has a profile
+      await getOrCreateProfile(otherUserId)
 
       const conversationId = await createConversation(userId, otherUserId)
       return NextResponse.json({ conversationId })

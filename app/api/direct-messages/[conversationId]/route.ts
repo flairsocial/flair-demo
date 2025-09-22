@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getMessages, markMessagesAsRead } from '@/lib/database-service-v2'
+import { getMessages, markMessagesAsRead, getOrCreateProfile } from '@/lib/database-service-v2'
 
 // GET /api/direct-messages/[conversationId] - Get messages for a conversation
 export async function GET(
@@ -12,6 +12,9 @@ export async function GET(
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Ensure user has a profile before proceeding
+    await getOrCreateProfile(userId)
 
     const { conversationId } = await params
     if (!conversationId) {
@@ -36,6 +39,9 @@ export async function PATCH(
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Ensure user has a profile before proceeding
+    await getOrCreateProfile(userId)
 
     const { conversationId } = await params
     if (!conversationId) {

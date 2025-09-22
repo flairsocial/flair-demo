@@ -70,6 +70,7 @@
     "recharts": "2.15.0",
     "sonner": "^1.7.1",
     "stripe": "^18.5.0",
+    "svix": "^1.76.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^13.0.0",

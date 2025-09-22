@@ -415,10 +415,23 @@ function PostCard({ post, isMobile }: { post: any, isMobile?: boolean }) {
 
 function CollectionCard({ collection, onClick, isMobile }: { collection: any, onClick?: () => void, isMobile?: boolean }) {
   return (
-    <div 
+    <div
       className={`bg-zinc-900/50 backdrop-blur-sm rounded-2xl border border-zinc-800/50 hover:border-zinc-700/50 transition-all duration-300 group cursor-pointer touch-manipulation ${isMobile ? 'p-4' : 'p-6'}`}
       onClick={onClick}
     >
+      {/* Collection Banner - Display custom banner if available */}
+      {collection.custom_banner_url && (
+        <div className={`mb-3 sm:mb-4 rounded-xl overflow-hidden ${isMobile ? 'h-24' : 'h-32'}`}>
+          <Image
+            src={collection.custom_banner_url}
+            alt={collection.name}
+            width={400}
+            height={200}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+
       {/* Collection Header */}
       <div className="flex items-start justify-between mb-3 sm:mb-4">
         <div className="flex-1 min-w-0">
@@ -431,7 +444,7 @@ function CollectionCard({ collection, onClick, isMobile }: { collection: any, on
             </p>
           )}
         </div>
-        <div 
+        <div
           className={`rounded-full ${collection.color || 'bg-blue-500'} flex-shrink-0 ml-2 sm:ml-3 mt-1 ${isMobile ? 'w-2.5 h-2.5' : 'w-3 h-3'}`}
         />
       </div>
@@ -456,14 +469,14 @@ function CollectionCard({ collection, onClick, isMobile }: { collection: any, on
             </span>
           )}
         </div>
-        
+
         <div className={`text-zinc-500 bg-zinc-800/50 px-2 py-1 rounded-full ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
           {new Date(collection.created_at).toLocaleDateString()}
         </div>
       </div>
 
-      {/* Collection Preview (if items exist) */}
-      {collection.item_count > 0 && (
+      {/* Collection Preview (if items exist and no custom banner) */}
+      {collection.item_count > 0 && !collection.custom_banner_url && (
         <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-zinc-800/50">
           <div className={`text-zinc-500 text-center ${isMobile ? 'text-[10px]' : 'text-xs'}`}>
             {collection.item_count} curated items

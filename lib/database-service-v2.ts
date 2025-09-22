@@ -80,7 +80,7 @@ function getSupabaseClient() {
 }
 
 // Helper function to get or create profile by clerk_id
-async function getOrCreateProfile(clerkId: string): Promise<string> {
+export async function getOrCreateProfile(clerkId: string): Promise<string> {
   if (!clerkId) {
     throw new Error('ClerkId is required')
   }
@@ -165,7 +165,7 @@ async function getOrCreateProfile(clerkId: string): Promise<string> {
 
 export async function getProfile(clerkId: string) {
   if (!clerkId) return null
-  
+
   try {
     const supabase = getSupabaseClient()
     const { data, error } = await supabase
@@ -173,12 +173,12 @@ export async function getProfile(clerkId: string) {
       .select('data')
       .eq('clerk_id', clerkId)
       .single()
-    
+
     if (error && error.code !== 'PGRST116') {
       console.error('[Database] Error getting profile:', error)
       return null
     }
-    
+
     return data?.data || null
   } catch (error) {
     console.error('[Database] Error getting profile:', error)
@@ -1147,385 +1147,7 @@ export async function removePostForCollection(clerkId: string, collectionId: str
   }
 }
 
-// ============================================================================
-// DIRECT MESSAGING FUNCTIONS
-// ============================================================================
 
-export interface DirectConversation {
-  id: string
-  participant_1_id: string
-  participant_2_id: string
-  is_active: boolean
-  is_archived_by_1: boolean
-  is_archived_by_2: boolean
-  message_count: number
-  created_at: string
-  updated_at: string
-  last_message_at: string
-}
-
-export interface DirectMessage {
-  id: string
-  conversation_id: string
-  sender_id: string
-  content: string
-  message_type: string
-  created_at: string
-  is_read: boolean
-}
-
-export async function getConversations(clerkId: string): Promise<any[]> {
-  if (!clerkId) return []
-  
-  try {
-    const supabase = getSupabaseClient()
-    const profileId = await getOrCreateProfile(clerkId)
-
-    const { data, error } = await supabase
-      .from('direct_conversations')
-      .select(`
-        id,
-        last_message_at,
-        created_at,
-        message_count,
-        participant_1:profiles!direct_conversations_participant_1_id_fkey(id, username, display_name, profile_picture_url, is_pro),
-        participant_2:profiles!direct_conversations_participant_2_id_fkey(id, username, display_name, profile_picture_url, is_pro)
-      `)
-      .or(`participant_1_id.eq.${profileId},participant_2_id.eq.${profileId}`)
-      .eq('is_active', true)
-      .order('last_message_at', { ascending: false })
-
-    if (error) {
-      console.error('[Database] Error getting conversations:', error)
-      return []
-    }
-
-    // Process conversations to add other_participant and last_message
-    const conversationsWithDetails = await Promise.all(
-      (data || []).map(async (conv: any) => {
-        // Determine other participant
-        const otherParticipant = conv.participant_1.id === profileId ? conv.participant_2 : conv.participant_1
-
-        // Get last message
-        const { data: lastMessage } = await supabase
-          .from('direct_messages')
-          .select('content, message_type, created_at, sender_id')
-          .eq('conversation_id', conv.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
-
-        return {
-          id: conv.id,
-          other_participant: otherParticipant,
-          last_message_at: conv.last_message_at,
-          created_at: conv.created_at,
-          message_count: conv.message_count,
-          last_message: lastMessage || null
-        }
-      })
-    )
-
-    return conversationsWithDetails
-  } catch (error) {
-    console.error('[Database] Error getting conversations:', error)
-    return []
-  }
-}
-
-export async function getMessages(conversationId: string, clerkId: string): Promise<any[]> {
-  if (!conversationId || !clerkId) return []
-  
-  try {
-    const supabase = getSupabaseClient()
-    const profileId = await getOrCreateProfile(clerkId)
-
-    // Verify user is participant in this conversation
-    const { data: conversation } = await supabase
-      .from('direct_conversations')
-      .select('participant_1_id, participant_2_id')
-      .eq('id', conversationId)
-      .single()
-
-    if (!conversation || (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId)) {
-      console.error('[Database] User not authorized for this conversation')
-      return []
-    }
-
-    const { data, error } = await supabase
-      .from('direct_messages')
-      .select(`
-        id,
-        content,
-        message_type,
-        created_at,
-        is_read,
-        sender_id,
-        sender:profiles!direct_messages_sender_id_fkey(id, clerk_id, username, display_name, profile_picture_url, is_pro)
-      `)
-      .eq('conversation_id', conversationId)
-      .order('created_at', { ascending: true })
-
-    if (error) {
-      console.error('[Database] Error getting messages:', error)
-      return []
-    }
-
-    return data || []
-  } catch (error) {
-    console.error('[Database] Error getting messages:', error)
-    return []
-  }
-}
-
-export async function sendMessage(conversationId: string, clerkId: string, content: string, messageType: string = 'text'): Promise<boolean> {
-  if (!conversationId || !clerkId || !content?.trim()) return false
-  
-  try {
-    const supabase = getSupabaseClient()
-    const profileId = await getOrCreateProfile(clerkId)
-
-    // Verify user is participant in this conversation
-    const { data: conversation } = await supabase
-      .from('direct_conversations')
-      .select('participant_1_id, participant_2_id, message_count')
-      .eq('id', conversationId)
-      .single()
-
-    if (!conversation || (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId)) {
-      console.error('[Database] User not authorized for this conversation')
-      return false
-    }
-
-    // Insert the message
-    const messageId = crypto.randomUUID()
-    const { error: messageError } = await supabase
-      .from('direct_messages')
-      .insert({
-        id: messageId,
-        conversation_id: conversationId,
-        sender_id: profileId,
-        content: content.trim(),
-        message_type: messageType,
-        created_at: new Date().toISOString(),
-        is_read: false
-      })
-
-    if (messageError) {
-      console.error('[Database] Error sending message:', messageError)
-      return false
-    }
-
-    // Update conversation metadata
-    const { error: updateError } = await supabase
-      .from('direct_conversations')
-      .update({
-        message_count: conversation.message_count + 1,
-        updated_at: new Date().toISOString(),
-        last_message_at: new Date().toISOString()
-      })
-      .eq('id', conversationId)
-
-    if (updateError) {
-      console.error('[Database] Error updating conversation:', updateError)
-    }
-
-    // Send SMS notification to the recipient
-    try {
-      const recipientId = conversation.participant_1_id === profileId ? conversation.participant_2_id : conversation.participant_1_id
-      
-      // Get recipient's clerk_id to fetch phone number
-      const { data: recipientProfile } = await supabase
-        .from('profiles')
-        .select('clerk_id, display_name, username')
-        .eq('id', recipientId)
-        .single()
-
-      // Get sender's display name
-      const { data: senderProfile } = await supabase
-        .from('profiles')
-        .select('display_name, username')
-        .eq('id', profileId)
-        .single()
-
-      if (recipientProfile && senderProfile) {
-        const recipientClerkId = recipientProfile.clerk_id
-        const senderName = senderProfile.display_name || senderProfile.username || 'Someone'
-        
-        // Check if recipient wants SMS notifications
-        const shouldSend = await shouldSendSMSNotification(recipientClerkId)
-        if (shouldSend) {
-          const recipientPhone = await getUserPhoneNumber(recipientClerkId)
-          if (recipientPhone && checkSMSRateLimit(recipientPhone)) {
-            // Determine if this is the first message in the conversation
-            const isFirstMessage = conversation.message_count === 0
-
-            // Send SMS notification asynchronously (don't block the response)
-            sendSMSNotification({
-              recipientPhone,
-              senderName,
-              messageType: isFirstMessage ? 'new_message' : 'reply',
-              isFirstMessage
-            }).catch(error => {
-              console.error('[Database] Failed to send SMS notification:', error)
-            })
-          }
-        }
-      }
-    } catch (smsError) {
-      // Don't fail the message sending if SMS fails
-      console.error('[Database] Error processing SMS notification:', smsError)
-    }
-
-    return true
-  } catch (error) {
-    console.error('[Database] Error sending message:', error)
-    return false
-  }
-}
-
-export async function createConversation(clerkId: string, otherUserId: string): Promise<string | null> {
-  if (!clerkId || !otherUserId) return null
-  
-  try {
-    const supabase = getSupabaseClient()
-    const profileId = await getOrCreateProfile(clerkId)
-    const otherProfileId = await getOrCreateProfile(otherUserId)
-
-    // Check if conversation already exists
-    const { data: existing } = await supabase
-      .from('direct_conversations')
-      .select('id')
-      .or(`and(participant_1_id.eq.${profileId},participant_2_id.eq.${otherProfileId}),and(participant_1_id.eq.${otherProfileId},participant_2_id.eq.${profileId})`)
-      .eq('is_active', true)
-      .single()
-
-    if (existing) {
-      return existing.id
-    }
-
-    // Create new conversation
-    const conversationId = crypto.randomUUID()
-    const { error } = await supabase
-      .from('direct_conversations')
-      .insert({
-        id: conversationId,
-        participant_1_id: profileId,
-        participant_2_id: otherProfileId,
-        is_active: true,
-        is_archived_by_1: false,
-        is_archived_by_2: false,
-        message_count: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        last_message_at: new Date().toISOString()
-      })
-
-    if (error) {
-      // If it's a duplicate conversation error, try to find the existing one
-      if (error.code === '23505') {
-        console.log('[Database] Conversation already exists, fetching existing...')
-        const { data: existing } = await supabase
-          .from('direct_conversations')
-          .select('id')
-          .or(`and(participant_1_id.eq.${profileId},participant_2_id.eq.${otherProfileId}),and(participant_1_id.eq.${otherProfileId},participant_2_id.eq.${profileId})`)
-          .eq('is_active', true)
-          .single()
-        
-        if (existing) {
-          return existing.id
-        }
-      }
-      
-      console.error('[Database] Error creating conversation:', error)
-      return null
-    }
-
-    return conversationId
-  } catch (error) {
-    console.error('[Database] Error creating conversation:', error)
-    return null
-  }
-}
-
-// Get unread message count for a user across all conversations
-export async function getUnreadMessageCount(clerkId: string): Promise<number> {
-  if (!clerkId) return 0
-  
-  try {
-    const supabase = getSupabaseClient()
-    const profileId = await getOrCreateProfile(clerkId)
-
-    // Get all conversations for this user
-    const { data: conversations } = await supabase
-      .from('direct_conversations')
-      .select('id')
-      .or(`participant_1_id.eq.${profileId},participant_2_id.eq.${profileId}`)
-      .eq('is_active', true)
-
-    if (!conversations || conversations.length === 0) return 0
-
-    const conversationIds = conversations.map(c => c.id)
-
-    // Count unread messages in these conversations where user is NOT the sender
-    const { count, error } = await supabase
-      .from('direct_messages')
-      .select('*', { count: 'exact', head: true })
-      .in('conversation_id', conversationIds)
-      .neq('sender_id', profileId)
-      .eq('is_read', false)
-
-    if (error) {
-      console.error('[Database] Error getting unread count:', error)
-      return 0
-    }
-
-    return count || 0
-  } catch (error) {
-    console.error('[Database] Error getting unread count:', error)
-    return 0
-  }
-}
-
-// Mark all messages in a conversation as read for a user
-export async function markMessagesAsRead(conversationId: string, clerkId: string): Promise<boolean> {
-  if (!conversationId || !clerkId) return false
-  
-  try {
-    const supabase = getSupabaseClient()
-    const profileId = await getOrCreateProfile(clerkId)
-
-    // Verify user is participant in this conversation
-    const { data: conversation } = await supabase
-      .from('direct_conversations')
-      .select('participant_1_id, participant_2_id')
-      .eq('id', conversationId)
-      .single()
-
-    if (!conversation || (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId)) {
-      console.error('[Database] User not authorized for this conversation')
-      return false
-    }
-
-    // Mark messages as read where user is NOT the sender
-    const { error } = await supabase
-      .from('direct_messages')
-      .update({ is_read: true })
-      .eq('conversation_id', conversationId)
-      .neq('sender_id', profileId)
-      .eq('is_read', false)
-
-    if (error) {
-      console.error('[Database] Error marking messages as read:', error)
-      return false
-    }
-
-    return true
-  } catch (error) {
-    console.error('[Database] Error marking messages as read:', error)
-    return false
-  }
-}
 
 // ============================================================================
 // FOLLOW/UNFOLLOW FUNCTIONS
@@ -1799,14 +1421,14 @@ export async function getUserProfileCounts(userClerkId: string): Promise<{
 }> {
   try {
     const supabase = getSupabaseClient()
-    
+
     // Get user's profile ID
     const { data: profile } = await supabase
       .from('profiles')
       .select('id')
       .eq('clerk_id', userClerkId)
       .single()
-    
+
     if (!profile) {
       return {
         savedItemsCount: 0,
@@ -1815,29 +1437,29 @@ export async function getUserProfileCounts(userClerkId: string): Promise<{
         postsCount: 0
       }
     }
-    
+
     // Get saved items count
     const { count: savedItemsCount } = await supabase
       .from('saved_items')
       .select('*', { count: 'exact', head: true })
       .eq('profile_id', profile.id)
-    
+
     // Get collections count
     const { count: collectionsCount } = await supabase
       .from('collections')
       .select('*', { count: 'exact', head: true })
       .eq('profile_id', profile.id)
-    
+
     // Get orders count (this would need to be implemented based on your orders schema)
     // For now, using a placeholder count
     const ordersCount = 0
-    
+
     // Get posts count
     const { count: postsCount } = await supabase
       .from('community_posts')
       .select('*', { count: 'exact', head: true })
       .eq('profile_id', profile.id)
-    
+
     return {
       savedItemsCount: savedItemsCount || 0,
       collectionsCount: collectionsCount || 0,
@@ -1852,5 +1474,444 @@ export async function getUserProfileCounts(userClerkId: string): Promise<{
       ordersCount: 0,
       postsCount: 0
     }
+  }
+}
+
+// ============================================================================
+// DIRECT MESSAGING FUNCTIONS
+// ============================================================================
+
+export interface DirectConversation {
+  id: string
+  participant_1_id: string
+  participant_2_id: string
+  is_active: boolean
+  is_archived_by_1: boolean
+  is_archived_by_2: boolean
+  message_count: number
+  created_at: string
+  updated_at: string
+  last_message_at: string
+}
+
+export interface DirectMessage {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content: string
+  message_type: string
+  created_at: string
+  is_read: boolean
+}
+
+export async function getConversations(clerkId: string): Promise<any[]> {
+  if (!clerkId) return []
+
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+
+    const { data, error } = await supabase
+      .from('direct_conversations')
+      .select(`
+        id,
+        last_message_at,
+        created_at,
+        message_count,
+        participant_1:profiles!direct_conversations_participant_1_id_fkey(id, username, display_name, profile_picture_url, is_pro),
+        participant_2:profiles!direct_conversations_participant_2_id_fkey(id, username, display_name, profile_picture_url, is_pro)
+      `)
+      .or(`participant_1_id.eq.${profileId},participant_2_id.eq.${profileId}`)
+      .eq('is_active', true)
+      .order('last_message_at', { ascending: false })
+
+    if (error) {
+      console.error('[Database] Error getting conversations:', error)
+      return []
+    }
+
+    // Process conversations to add other_participant and last_message
+    const conversationsWithDetails = await Promise.all(
+      (data || []).map(async (conv: any) => {
+        // Determine other participant
+        const otherParticipant = conv.participant_1.id === profileId ? conv.participant_2 : conv.participant_1
+
+        // Get last message
+        const { data: lastMessage } = await supabase
+          .from('direct_messages')
+          .select('content, message_type, created_at, sender_id')
+          .eq('conversation_id', conv.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        return {
+          id: conv.id,
+          other_participant: otherParticipant,
+          last_message_at: conv.last_message_at,
+          created_at: conv.created_at,
+          message_count: conv.message_count,
+          last_message: lastMessage || null
+        }
+      })
+    )
+
+    return conversationsWithDetails
+  } catch (error) {
+    console.error('[Database] Error getting conversations:', error)
+    return []
+  }
+}
+
+export async function getMessages(conversationId: string, clerkId: string): Promise<any[]> {
+  if (!conversationId || !clerkId) return []
+
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+
+    // Verify user is participant in this conversation
+    const { data: conversation } = await supabase
+      .from('direct_conversations')
+      .select('participant_1_id, participant_2_id')
+      .eq('id', conversationId)
+      .single()
+
+    if (!conversation || (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId)) {
+      console.error('[Database] User not authorized for this conversation')
+      return []
+    }
+
+    const { data, error } = await supabase
+      .from('direct_messages')
+      .select(`
+        id,
+        content,
+        message_type,
+        created_at,
+        is_read,
+        sender_id,
+        sender:profiles!direct_messages_sender_id_fkey(id, clerk_id, username, display_name, profile_picture_url, is_pro)
+      `)
+      .eq('conversation_id', conversationId)
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      console.error('[Database] Error getting messages:', error)
+      return []
+    }
+
+    return data || []
+  } catch (error) {
+    console.error('[Database] Error getting messages:', error)
+    return []
+  }
+}
+
+export async function sendMessage(conversationId: string, clerkId: string, content: string, messageType: string = 'text'): Promise<boolean> {
+  if (!conversationId || !clerkId || !content?.trim()) return false
+
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+
+    console.log('[Database] sendMessage called with:', {
+      conversationId: typeof conversationId,
+      conversationIdValue: conversationId,
+      clerkId,
+      profileId
+    })
+
+    // Verify user is participant in this conversation
+    console.log('[Database] Fetching conversation with query:', {
+      table: 'direct_conversations',
+      select: 'participant_1_id, participant_2_id, message_count',
+      where: `id = '${conversationId}'`
+    })
+
+    const { data: conversation, error: convError } = await supabase
+      .from('direct_conversations')
+      .select('participant_1_id, participant_2_id, message_count')
+      .eq('id', conversationId)
+      .single()
+
+    if (convError) {
+      console.error('[Database] Error fetching conversation:', {
+        error: convError,
+        conversationId,
+        conversationIdType: typeof conversationId
+      })
+      return false
+    }
+
+    console.log('[Database] Conversation fetched successfully:', {
+      conversation,
+      participant1Type: typeof conversation.participant_1_id,
+      participant2Type: typeof conversation.participant_2_id,
+      profileIdType: typeof profileId
+    })
+
+    if (!conversation || (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId)) {
+      console.error('[Database] User not authorized for this conversation')
+      console.error('[Database] Conversation participants:', conversation?.participant_1_id, conversation?.participant_2_id)
+      console.error('[Database] User profile ID:', profileId)
+      return false
+    }
+
+    // Insert the message
+    const messageId = crypto.randomUUID()
+    console.log('[Database] Inserting message with data:', {
+      id: messageId,
+      conversation_id: conversationId,
+      sender_id: profileId,
+      content: content.trim(),
+      message_type: messageType,
+      created_at: new Date().toISOString(),
+      is_read: false
+    })
+
+    const { error: messageError } = await supabase
+      .from('direct_messages')
+      .insert({
+        id: messageId,
+        conversation_id: conversationId,
+        sender_id: profileId,
+        content: content.trim(),
+        message_type: messageType,
+        created_at: new Date().toISOString(),
+        is_read: false
+      })
+
+    if (messageError) {
+      console.error('[Database] Error sending message:', {
+        error: messageError,
+        messageId,
+        conversationId,
+        profileId,
+        content: content.trim()
+      })
+      return false
+    }
+
+    console.log('[Database] Message inserted successfully')
+
+    // Update conversation metadata manually (instead of relying on trigger)
+    console.log('[Database] Updating conversation metadata...')
+    const { error: updateError } = await supabase
+      .from('direct_conversations')
+      .update({
+        message_count: conversation.message_count + 1,
+        updated_at: new Date().toISOString(),
+        last_message_at: new Date().toISOString()
+      })
+      .eq('id', conversationId)
+
+    if (updateError) {
+      console.error('[Database] Error updating conversation:', updateError)
+      // Don't fail the message sending if conversation update fails
+    } else {
+      console.log('[Database] Conversation updated successfully')
+    }
+
+    if (updateError) {
+      console.error('[Database] Error updating conversation:', updateError)
+    }
+
+    // Send SMS notification to the recipient (disabled for now to isolate the issue)
+    /*
+    try {
+      const recipientId = conversation.participant_1_id === profileId ? conversation.participant_2_id : conversation.participant_1_id
+
+      // Get recipient's clerk_id to fetch phone number
+      const { data: recipientProfile } = await supabase
+        .from('profiles')
+        .select('clerk_id, display_name, username')
+        .eq('id', recipientId)
+        .single()
+
+      // Get sender's display name
+      const { data: senderProfile } = await supabase
+        .from('profiles')
+        .select('display_name, username')
+        .eq('id', profileId)
+        .single()
+
+      if (recipientProfile && senderProfile) {
+        const recipientClerkId = recipientProfile.clerk_id
+        const senderName = senderProfile.display_name || senderProfile.username || 'Someone'
+
+        // Check if recipient wants SMS notifications
+        const shouldSend = await shouldSendSMSNotification(recipientClerkId)
+        if (shouldSend) {
+          const recipientPhone = await getUserPhoneNumber(recipientClerkId)
+          if (recipientPhone && checkSMSRateLimit(recipientPhone)) {
+            // Determine if this is the first message in the conversation
+            const isFirstMessage = conversation.message_count === 0
+
+            // Send SMS notification asynchronously (don't block the response)
+            sendSMSNotification({
+              recipientPhone,
+              senderName,
+              messageType: isFirstMessage ? 'new_message' : 'reply',
+              isFirstMessage
+            }).catch(error => {
+              console.error('[Database] Failed to send SMS notification:', error)
+            })
+          }
+        }
+      }
+    } catch (smsError) {
+      // Don't fail the message sending if SMS fails
+      console.error('[Database] Error processing SMS notification:', smsError)
+    }
+    */
+
+    return true
+  } catch (error) {
+    console.error('[Database] Error sending message:', error)
+    return false
+  }
+}
+
+export async function createConversation(clerkId: string, otherUserId: string): Promise<string | null> {
+  if (!clerkId || !otherUserId) return null
+
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+    const otherProfileId = await getOrCreateProfile(otherUserId)
+
+    // Check if conversation already exists
+    const { data: existing } = await supabase
+      .from('direct_conversations')
+      .select('id')
+      .or(`and(participant_1_id.eq.${profileId},participant_2_id.eq.${otherProfileId}),and(participant_1_id.eq.${otherProfileId},participant_2_id.eq.${profileId})`)
+      .eq('is_active', true)
+      .single()
+
+    if (existing) {
+      return existing.id
+    }
+
+    // Create new conversation
+    const conversationId = crypto.randomUUID()
+    const { error } = await supabase
+      .from('direct_conversations')
+      .insert({
+        id: conversationId,
+        participant_1_id: profileId,
+        participant_2_id: otherProfileId,
+        is_active: true,
+        is_archived_by_1: false,
+        is_archived_by_2: false,
+        message_count: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_message_at: new Date().toISOString()
+      })
+
+    if (error) {
+      // If it's a duplicate conversation error, try to find the existing one
+      if (error.code === '23505') {
+        console.log('[Database] Conversation already exists, fetching existing...')
+        const { data: existing } = await supabase
+          .from('direct_conversations')
+          .select('id')
+          .or(`and(participant_1_id.eq.${profileId},participant_2_id.eq.${otherProfileId}),and(participant_1_id.eq.${otherProfileId},participant_2_id.eq.${profileId})`)
+          .eq('is_active', true)
+          .single()
+
+        if (existing) {
+          return existing.id
+        }
+      }
+
+      console.error('[Database] Error creating conversation:', error)
+      return null
+    }
+
+    return conversationId
+  } catch (error) {
+    console.error('[Database] Error creating conversation:', error)
+    return null
+  }
+}
+
+// Get unread message count for a user across all conversations
+export async function getUnreadMessageCount(clerkId: string): Promise<number> {
+  if (!clerkId) return 0
+
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+
+    // Get all conversations for this user
+    const { data: conversations } = await supabase
+      .from('direct_conversations')
+      .select('id')
+      .or(`participant_1_id.eq.${profileId},participant_2_id.eq.${profileId}`)
+      .eq('is_active', true)
+
+    if (!conversations || conversations.length === 0) return 0
+
+    const conversationIds = conversations.map(c => c.id)
+
+    // Count unread messages in these conversations where user is NOT the sender
+    const { count, error } = await supabase
+      .from('direct_messages')
+      .select('*', { count: 'exact', head: true })
+      .in('conversation_id', conversationIds)
+      .neq('sender_id', profileId)
+      .eq('is_read', false)
+
+    if (error) {
+      console.error('[Database] Error getting unread count:', error)
+      return 0
+    }
+
+    return count || 0
+  } catch (error) {
+    console.error('[Database] Error getting unread count:', error)
+    return 0
+  }
+}
+
+// Mark all messages in a conversation as read for a user
+export async function markMessagesAsRead(conversationId: string, clerkId: string): Promise<boolean> {
+  if (!conversationId || !clerkId) return false
+
+  try {
+    const supabase = getSupabaseClient()
+    const profileId = await getOrCreateProfile(clerkId)
+
+    // Verify user is participant in this conversation
+    const { data: conversation } = await supabase
+      .from('direct_conversations')
+      .select('participant_1_id, participant_2_id')
+      .eq('id', conversationId)
+      .single()
+
+    if (!conversation || (conversation.participant_1_id !== profileId && conversation.participant_2_id !== profileId)) {
+      console.error('[Database] User not authorized for this conversation')
+      return false
+    }
+
+    // Mark messages as read where user is NOT the sender
+    const { error } = await supabase
+      .from('direct_messages')
+      .update({ is_read: true })
+      .eq('conversation_id', conversationId)
+      .neq('sender_id', profileId)
+      .eq('is_read', false)
+
+    if (error) {
+      console.error('[Database] Error marking messages as read:', error)
+      return false
+    }
+
+    return true
+  } catch (error) {
+    console.error('[Database] Error marking messages as read:', error)
+    return false
   }
 }

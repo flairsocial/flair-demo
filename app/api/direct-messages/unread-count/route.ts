@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
-import { getUnreadMessageCount } from '@/lib/database-service-v2'
+import { getUnreadMessageCount, getOrCreateProfile } from '@/lib/database-service-v2'
 
 // GET /api/direct-messages/unread-count - Get unread message count
 export async function GET() {
@@ -9,6 +9,9 @@ export async function GET() {
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    // Ensure user has a profile before proceeding
+    await getOrCreateProfile(userId)
 
     const unreadCount = await getUnreadMessageCount(userId)
     return NextResponse.json({ unreadCount })

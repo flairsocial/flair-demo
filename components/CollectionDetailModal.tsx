@@ -150,10 +150,10 @@ export default function CollectionDetailModal({
 
     setUploadingBanner(true)
     const reader = new FileReader()
-    
+
     reader.onload = async (e) => {
       const base64String = e.target?.result as string
-      
+
       try {
         // Update collection with new banner
         const response = await fetch('/api/collections', {
@@ -167,7 +167,11 @@ export default function CollectionDetailModal({
 
         if (response.ok) {
           const updatedCollection = await response.json()
+          // Immediately update the collection state for real-time visual feedback
           onUpdate(updatedCollection)
+          console.log('✅ Collection banner updated successfully!')
+        } else {
+          console.error('Failed to update collection banner')
         }
       } catch (error) {
         console.error('Error uploading banner:', error)
@@ -175,7 +179,7 @@ export default function CollectionDetailModal({
         setUploadingBanner(false)
       }
     }
-    
+
     reader.readAsDataURL(file)
   }
 
