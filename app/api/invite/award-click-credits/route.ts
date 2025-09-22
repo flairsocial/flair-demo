@@ -67,40 +67,47 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Award 100 credits to the referrer
-    // Since we can't directly modify another user's credits from server-side,
-    // we'll use a simple approach: store this in a temporary table or use localStorage simulation
+    // Award 100 credits to the referrer by creating a credit award
     console.log(`[Invite Click Credits] Awarding 100 credits to referrer ${referrerData.id} for click by user ${userId}`)
 
-    // For testing, we'll simulate awarding credits by storing in a temporary table
-    // In production, you'd want to update the referrer's credits directly or use a queue system
+    try {
+      // Create credit award in database
+      const { error: insertError } = await supabase
+        .from('credit_awards')
+        .insert({
+          recipient_clerk_id: inviteCode,
+          amount: 100,
+          reason: 'invite_click',
+          awarded_by: userId
+        })
 
-    // Store the credit award in a temporary table for processing
-    const { error: insertError } = await supabase
-      .from('credit_awards')
-      .insert({
-        recipient_clerk_id: inviteCode,
-        amount: 100,
-        reason: 'invite_click',
-        awarded_by: userId,
-        created_at: new Date().toISOString()
+      if (insertError) {
+        console.error('[Invite Click Credits] Failed to create credit award:', insertError)
+        return NextResponse.json(
+          { error: 'Failed to award credits' },
+          { status: 500 }
+        )
+      }
+
+      console.log(`[Invite Click Credits] Successfully created credit award for referrer ${inviteCode}`)
+
+      // Mark as awarded to prevent spam (client-side tracking)
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(clickKey, 'true')
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: 'Referrer awarded 100 credits for your visit!'
       })
 
-    if (insertError) {
-      // If table doesn't exist, just log it
-      console.log(`[Invite Click Credits] Would award 100 credits to referrer ${inviteCode}`)
+    } catch (dbError) {
+      console.error('[Invite Click Credits] Database error:', dbError)
+      return NextResponse.json(
+        { error: 'Database error' },
+        { status: 500 }
+      )
     }
-
-    // Mark as awarded to prevent spam
-    // Note: This is client-side, in production you'd use server-side tracking
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem(clickKey, 'true')
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: 'Referrer awarded 100 credits for your visit!'
-    })
 
   } catch (error) {
     console.error('Error awarding click credits:', error)

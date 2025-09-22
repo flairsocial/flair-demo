@@ -66,97 +66,99 @@ export default function SignUpPage() {
         <h1 className="text-xl font-light tracking-wide">Join Flair</h1>
       </div>
 
-      <div className="relative z-10 max-w-md mx-auto px-6 py-12">
-        {/* Invite Banner */}
-        {inviteCode && inviteValid === true && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 backdrop-blur-sm"
-          >
-            <div className="text-center">
-              <div className="text-emerald-400 text-2xl mb-3">🎉</div>
-              <div className="text-emerald-300 text-sm font-medium mb-2">You've been invited!</div>
-              <div className="text-white/80 text-sm leading-relaxed">
-                {inviterName} invited you to join FlairSocial. Both of you will get 100 bonus credits!
+      <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-200px)] px-6 py-12">
+        <div className="w-full max-w-md">
+          {/* Invite Banner */}
+          {inviteCode && inviteValid === true && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-500/20 backdrop-blur-sm"
+            >
+              <div className="text-center">
+                <div className="text-emerald-400 text-2xl mb-3">🎉</div>
+                <div className="text-emerald-300 text-sm font-medium mb-2">You've been invited!</div>
+                <div className="text-white/80 text-sm leading-relaxed">
+                  {inviterName} invited you to join FlairSocial. Both of you will get 100 bonus credits!
+                </div>
               </div>
-            </div>
-          </motion.div>
-        )}
+            </motion.div>
+          )}
 
-        {inviteCode && inviteValid === false && (
-          <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/20 backdrop-blur-sm"
-          >
-            <div className="text-center">
-              <div className="text-red-400 text-2xl mb-3">⚠️</div>
-              <div className="text-red-300 text-sm font-medium mb-2">Invalid invite link</div>
-              <div className="text-white/60 text-sm">
-                This invite link is not valid. You can still sign up normally.
+          {inviteCode && inviteValid === false && (
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
+              className="mb-8 p-6 rounded-2xl bg-gradient-to-r from-red-500/10 to-pink-500/10 border border-red-500/20 backdrop-blur-sm"
+            >
+              <div className="text-center">
+                <div className="text-red-400 text-2xl mb-3">⚠️</div>
+                <div className="text-red-300 text-sm font-medium mb-2">Invalid invite link</div>
+                <div className="text-white/60 text-sm">
+                  This invite link is not valid. You can still sign up normally.
+                </div>
               </div>
-            </div>
+            </motion.div>
+          )}
+
+          {/* Clerk Sign Up Component */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl"
+          >
+            <SignUp
+              path="/sign-up"
+              routing="path"
+              signInUrl="/sign-in"
+              redirectUrl={inviteCode ? `/invite/success?ref=${inviteCode}` : "/"}
+              unsafeMetadata={inviteCode ? { pendingInviteCode: inviteCode } : undefined}
+              appearance={{
+                baseTheme: undefined,
+                variables: {
+                  colorPrimary: "#ffffff",
+                  colorBackground: "transparent",
+                  colorInputBackground: "rgba(255,255,255,0.05)",
+                  colorInputText: "#ffffff",
+                  colorText: "#ffffff",
+                  borderRadius: "0.75rem",
+                  fontFamily: "system-ui, -apple-system, sans-serif"
+                },
+                elements: {
+                  formButtonPrimary: "bg-white text-black hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-200 font-medium",
+                  card: "bg-transparent shadow-none",
+                  headerTitle: "text-white text-2xl font-light tracking-wide",
+                  headerSubtitle: "text-white/60 text-sm",
+                  formFieldLabel: "text-white/80 text-sm font-medium",
+                  formFieldInput: "bg-white/5 border-white/20 text-white placeholder-white/40 focus:bg-white/10 focus:border-white/30 transition-all duration-200",
+                  formFieldInputShowPasswordButton: "text-white/60 hover:text-white",
+                  footerActionLink: "text-white/80 hover:text-white font-medium transition-colors",
+                  dividerLine: "bg-white/20",
+                  dividerText: "text-white/60 text-sm",
+                  socialButtonsBlockButton: "bg-white/10 hover:bg-white/20 border-white/20 text-white transition-all duration-200",
+                  socialButtonsBlockButtonText: "text-white font-medium",
+                  formFieldErrorText: "text-red-300 text-sm",
+                  alert: "bg-red-500/10 border-red-500/20 text-red-300",
+                },
+              }}
+            />
           </motion.div>
-        )}
 
-        {/* Clerk Sign Up Component */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="bg-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-2xl"
-        >
-          <SignUp
-            path="/sign-up"
-            routing="path"
-            signInUrl="/sign-in"
-            redirectUrl={inviteCode ? `/invite/success?ref=${inviteCode}` : "/"}
-            unsafeMetadata={inviteCode ? { pendingInviteCode: inviteCode } : undefined}
-            appearance={{
-              baseTheme: undefined,
-              variables: {
-                colorPrimary: "#ffffff",
-                colorBackground: "transparent",
-                colorInputBackground: "rgba(255,255,255,0.05)",
-                colorInputText: "#ffffff",
-                colorText: "#ffffff",
-                borderRadius: "0.75rem",
-                fontFamily: "system-ui, -apple-system, sans-serif"
-              },
-              elements: {
-                formButtonPrimary: "bg-white text-black hover:bg-white/90 shadow-lg hover:shadow-xl transition-all duration-200 font-medium",
-                card: "bg-transparent shadow-none",
-                headerTitle: "text-white text-2xl font-light tracking-wide",
-                headerSubtitle: "text-white/60 text-sm",
-                formFieldLabel: "text-white/80 text-sm font-medium",
-                formFieldInput: "bg-white/5 border-white/20 text-white placeholder-white/40 focus:bg-white/10 focus:border-white/30 transition-all duration-200",
-                formFieldInputShowPasswordButton: "text-white/60 hover:text-white",
-                footerActionLink: "text-white/80 hover:text-white font-medium transition-colors",
-                dividerLine: "bg-white/20",
-                dividerText: "text-white/60 text-sm",
-                socialButtonsBlockButton: "bg-white/10 hover:bg-white/20 border-white/20 text-white transition-all duration-200",
-                socialButtonsBlockButtonText: "text-white font-medium",
-                formFieldErrorText: "text-red-300 text-sm",
-                alert: "bg-red-500/10 border-red-500/20 text-red-300",
-              },
-            }}
-          />
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="mt-8 text-center"
-        >
-          <p className="text-white/40 text-xs">
-            By signing up, you agree to our Terms of Service and Privacy Policy
-          </p>
-        </motion.div>
+          {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="mt-8 text-center"
+          >
+            <p className="text-white/40 text-xs">
+              By signing up, you agree to our Terms of Service and Privacy Policy
+            </p>
+          </motion.div>
+        </div>
       </div>
     </div>
   )

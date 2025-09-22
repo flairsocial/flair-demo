@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         console.log(`[Clerk Webhook] Successfully created profile ${profileId} for user ${clerkId}`)
 
         // Check if user has a pending invite code (stored during invite link click)
-        const pendingInviteCode = data.public_metadata?.pendingInviteCode || data.private_metadata?.inviteCode || data.unsafe_metadata?.inviteCode
+        const pendingInviteCode = data.public_metadata?.pendingInviteCode || data.private_metadata?.inviteCode || data.unsafe_metadata?.pendingInviteCode
         if (pendingInviteCode) {
           console.log(`[Clerk Webhook] Processing pending invite code: ${pendingInviteCode}`)
           console.log(`[Clerk Webhook] Available metadata:`, {
@@ -101,13 +101,35 @@ export async function POST(request: NextRequest) {
 
                 console.log(`[Clerk Webhook] Successfully processed invite: ${referrerData.id} referred ${profileId}`)
 
-                // Award 100 credits to both referrer and new user
-                // Since this is server-side, we need to handle credits differently
-                // For now, we'll log this and the credits will be awarded client-side when users log in
-                console.log(`[Clerk Webhook] Referral relationship established: referrer ${referrerData.id} -> new user ${profileId}`)
+                // Award 100 credits to both referrer and new user by creating credit awards
+                try {
+                  // Award 100 credits to the new user
+                  await supabase
+                    .from('credit_awards')
+                    .insert({
+                      recipient_clerk_id: clerkId,
+                      amount: 100,
+                      reason: 'invite_signup',
+                      awarded_by: pendingInviteCode
+                    })
 
-                // Note: Credits are awarded client-side via credit context when users access the app
-                // This ensures proper credit limits and plan-based maximums are respected
+                  // Award 100 credits to the referrer
+                  await supabase
+                    .from('credit_awards')
+                    .insert({
+                      recipient_clerk_id: pendingInviteCode,
+                      amount: 100,
+                      reason: 'referral_bonus',
+                      awarded_by: clerkId
+                    })
+
+                  console.log(`[Clerk Webhook] Created credit awards: 100 credits to new user ${clerkId} and referrer ${pendingInviteCode}`)
+                } catch (creditError) {
+                  console.error('[Clerk Webhook] Failed to create credit awards:', creditError)
+                  // Don't fail the webhook if credit awards fail
+                }
+
+                console.log(`[Clerk Webhook] Referral relationship established: referrer ${referrerData.id} -> new user ${profileId}`)
               } else {
                 console.log(`[Clerk Webhook] Invalid referrer or self-referral: ${pendingInviteCode}`, {
                   referrerError,
