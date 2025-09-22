@@ -63,10 +63,10 @@ export default function SignUpPage() {
         <Link href="/" className="mr-4 p-2 rounded-full hover:bg-white/10 transition-colors">
           <ArrowLeft className="w-5 h-5 text-white" strokeWidth={2} />
         </Link>
-        <h1 className="text-xl font-light tracking-wide">Join FlairSocial</h1>
+        <h1 className="text-xl font-light tracking-wide">Join Flair</h1>
       </div>
 
-      <div className="relative z-10 max-w-sm mx-auto px-6 py-12">
+      <div className="relative z-10 max-w-md mx-auto px-6 py-12">
         {/* Invite Banner */}
         {inviteCode && inviteValid === true && (
           <motion.div
@@ -114,7 +114,7 @@ export default function SignUpPage() {
             routing="path"
             signInUrl="/sign-in"
             redirectUrl={inviteCode ? `/invite/success?ref=${inviteCode}` : "/"}
-            unsafeMetadata={inviteCode ? { inviteCode, pendingInviteCode: inviteCode } : undefined}
+            unsafeMetadata={inviteCode ? { pendingInviteCode: inviteCode } : undefined}
             appearance={{
               baseTheme: undefined,
               variables: {

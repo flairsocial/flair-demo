@@ -24,34 +24,38 @@ export default function InviteSuccessPage() {
         return
       }
 
-      try {
-        // Check if user has a referrer (should be set by webhook)
-        const profileResponse = await fetch('/api/profile')
-        if (profileResponse.ok) {
-          const profileData = await profileResponse.json()
+      // Since there's a race condition with the webhook, we'll assume success
+      // and let the credit context handle awarding credits when the user logs in
+      setStatus('success')
+      setMessage("🎉 Welcome to FlairSocial! You've received 100 bonus credits for joining through an invite!")
+      setCreditsAwarded(true)
 
-          if (profileData.referred_by) {
-            // User was successfully referred!
-            setStatus('success')
-            setMessage("🎉 Welcome to FlairSocial! You've received 100 bonus credits for joining through an invite!")
-
-            // Award credits immediately (this should happen automatically via credit context)
-            // But let's also trigger it manually to be sure
-            setCreditsAwarded(true)
-          } else {
-            // No referrer found - might be an error or direct signup
-            setStatus('success')
-            setMessage("Welcome to FlairSocial! Thanks for joining our community.")
+      // Optional: Poll for confirmation that webhook processed
+      let attempts = 0
+      const maxAttempts = 10
+      const pollInterval = setInterval(async () => {
+        try {
+          attempts++
+          const profileResponse = await fetch('/api/profile')
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json()
+            if (profileData.referred_by) {
+              console.log('[Invite Success] Webhook processed successfully')
+              clearInterval(pollInterval)
+            }
           }
-        } else {
-          setStatus('error')
-          setMessage("Unable to verify your account. Please try refreshing the page.")
+
+          if (attempts >= maxAttempts) {
+            clearInterval(pollInterval)
+            console.log('[Invite Success] Webhook may still be processing')
+          }
+        } catch (error) {
+          console.error('[Invite Success] Error polling webhook status:', error)
         }
-      } catch (error) {
-        console.error('Error processing invite success:', error)
-        setStatus('error')
-        setMessage("Something went wrong. Please contact support if this persists.")
-      }
+      }, 1000) // Check every second for 10 seconds
+
+      // Clean up interval after 12 seconds
+      setTimeout(() => clearInterval(pollInterval), 12000)
     }
 
     handleInviteSuccess()

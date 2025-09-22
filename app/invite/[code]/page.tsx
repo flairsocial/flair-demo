@@ -42,24 +42,24 @@ export default function InvitePage() {
           return
         }
 
-        // User is signed in - process the invite for the referrer
-        // Award credits to the referrer for this invite interaction
+        // User is signed in - award credits to referrer for invite click
         try {
-          const response = await fetch('/api/invite/process-existing-user', {
+          const response = await fetch('/api/invite/award-click-credits', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ inviteCode })
           })
 
           if (response.ok) {
+            const data = await response.json()
             setStatus('success')
-            setMessage("Thanks for checking out the invite system! The referrer has been credited.")
+            setMessage(`Thanks for checking out the invite system! ${data.message}`)
           } else {
             setStatus('success')
             setMessage("Welcome back! You're already a member of FlairSocial.")
           }
         } catch (error) {
-          console.error('Error processing invite for existing user:', error)
+          console.error('Error awarding click credits:', error)
           setStatus('success')
           setMessage("Welcome back! You're already a member of FlairSocial.")
         }

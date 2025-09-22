@@ -61,6 +61,7 @@ export function CreditProvider({ children }: { children: ReactNode }) {
     if (user?.id) {
       checkAndAwardReferralCredits(user.id)
       checkAndAwardReferrerCredits(user.id)
+      checkAndApplyCreditAwards(user.id)
     }
   }, [user?.id])
 
@@ -95,26 +96,49 @@ export function CreditProvider({ children }: { children: ReactNode }) {
 
   const checkAndAwardReferrerCredits = async (userId: string) => {
     try {
-      // Check if we've already processed referrer credits for this user
-      const referrerProcessed = localStorage.getItem(`flair-referrer-processed-${userId}`)
-      if (referrerProcessed === 'true') {
-        return // Already processed
-      }
-
-      // Check if user has any referrals
+      // Check if user has any referrals and award credits accordingly
       const referralsResponse = await fetch('/api/profile/referrals')
       if (referralsResponse.ok) {
         const referralsData = await referralsResponse.json()
-        if (referralsData.referralCount > 0) {
-          // User has referrals! Award 100 credits per referral
-          const creditsToAward = referralsData.referralCount * 100
-          console.log(`[Credits] Awarding ${creditsToAward} referral credits to referrer ${userId} for ${referralsData.referralCount} referrals`)
+        const currentReferralCount = referralsData.referralCount || 0
+
+        // Check how many referrals we've already awarded credits for
+        const awardedCount = parseInt(localStorage.getItem(`flair-referrer-awarded-count-${userId}`) || '0')
+
+        if (currentReferralCount > awardedCount) {
+          // User has new referrals! Award 100 credits per new referral
+          const newReferrals = currentReferralCount - awardedCount
+          const creditsToAward = newReferrals * 100
+          console.log(`[Credits] Awarding ${creditsToAward} referral credits to referrer ${userId} for ${newReferrals} new referrals`)
           addCredits(creditsToAward)
-          localStorage.setItem(`flair-referrer-processed-${userId}`, 'true')
+          localStorage.setItem(`flair-referrer-awarded-count-${userId}`, currentReferralCount.toString())
         }
       }
     } catch (error) {
       console.error('[Credits] Error checking referrer credits:', error)
+    }
+  }
+
+  const checkAndApplyCreditAwards = async (userId: string) => {
+    try {
+      // Check for pending credit awards for this user
+      const awardsResponse = await fetch('/api/credits/check-awards')
+      if (awardsResponse.ok) {
+        const awardsData = await awardsResponse.json()
+        if (awardsData.totalCredits > 0) {
+          console.log(`[Credits] Applying ${awardsData.totalCredits} pending credit awards to user ${userId}`)
+          addCredits(awardsData.totalCredits)
+
+          // Mark awards as applied
+          await fetch('/api/credits/mark-awards-applied', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ awardIds: awardsData.awardIds })
+          })
+        }
+      }
+    } catch (error) {
+      console.error('[Credits] Error checking credit awards:', error)
     }
   }
 
