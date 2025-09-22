@@ -24,8 +24,8 @@ const fontSans = FontSans({
 })
 
 export const metadata: Metadata = {
-  title: "Flair Dev | AI-Powered Style Assistant",
-  description: "Discover clothing tailored to your style with AI insights",
+  title: "Flair.Social | Personalized AI Shopping Assistant",
+  description: "Discover and Online Shop with AI and Friends",
     generator: 'v0.app'
 }
 

@@ -29,22 +29,23 @@ export async function GET(
       })
     }
 
-    // Check if the user (referrer) exists in the profiles table
-    const { data: referrerData, error: referrerError } = await supabase
-      .from('profiles')
-      .select('username, display_name, clerk_id')
-      .eq('clerk_id', code)
-      .single()
+    // Try to get referrer information from profiles table
+    let inviterName = 'a friend'
+    try {
+      const { data: referrerData, error: referrerError } = await supabase
+        .from('profiles')
+        .select('username, display_name, clerk_id')
+        .eq('clerk_id', code)
+        .single()
 
-    if (referrerError || !referrerData) {
-      return NextResponse.json({
-        valid: false,
-        error: 'Invalid invite code - user not found'
-      })
+      if (!referrerError && referrerData) {
+        inviterName = referrerData.display_name || referrerData.username || 'a friend'
+      }
+      // If referrer doesn't exist in profiles yet, that's okay - they're still a valid referrer
+    } catch (error) {
+      // Ignore errors - referrer info is optional
+      console.log('Could not fetch referrer info, using default:', error)
     }
-
-    // Invite is valid - return referrer information
-    const inviterName = referrerData.display_name || referrerData.username || 'a friend'
 
     return NextResponse.json({
       valid: true,

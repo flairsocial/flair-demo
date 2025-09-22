@@ -138,12 +138,7 @@ export default function InvitePage() {
             <p className="text-sm text-zinc-400">
               Share this link with friends. When they sign up, you'll both get 100 credits!
             </p>
-            <button
-              onClick={generateNewLink}
-              className="text-sm text-blue-400 hover:text-blue-300 underline"
-            >
-              Generate New Link
-            </button>
+        
           </div>
         </div>
 
