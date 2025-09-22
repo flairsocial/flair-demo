@@ -67,7 +67,7 @@ export default function SignUpPage() {
       </div>
 
       <div className="relative z-10 flex items-center justify-center min-h-[calc(100vh-200px)] px-6 py-12">
-        <div className="w-full max-w-md">
+        <div className="w-full max-w-md mx-auto">
           {/* Invite Banner */}
           {inviteCode && inviteValid === true && (
             <motion.div
