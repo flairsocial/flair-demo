@@ -4,8 +4,11 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { X, Plus, Check, Globe, Lock } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 import type { Product } from "@/lib/types"
 import type { Collection } from "@/lib/database-service-v2"
+import { useSavedItems } from "@/lib/saved-items-context"
+import { useCollections } from "@/lib/react-query-hooks"
 
 interface CollectionModalProps {
   isOpen: boolean
@@ -25,42 +28,24 @@ const colorOptions = [
 ]
 
 export default function CollectionModal({ isOpen, onClose, product }: CollectionModalProps) {
-  const [collections, setCollections] = useState<Collection[]>([])
+  const queryClient = useQueryClient()
+  const { addSavedItem } = useSavedItems()
+  
+  // Use React Query instead of local state
+  const { data: collections = [], isLoading: collectionsLoading, refetch: refetchCollections } = useCollections()
+  
   const [loading, setLoading] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newCollectionName, setNewCollectionName] = useState("")
   const [selectedColor, setSelectedColor] = useState(colorOptions[0])
   const [isPublic, setIsPublic] = useState(false)
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchCollections()
-    }
-  }, [isOpen])
-
-  const fetchCollections = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/collections')
-      if (response.ok) {
-        const data = await response.json()
-        setCollections(data)
-      }
-    } catch (error) {
-      console.error('Error fetching collections:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleAddToCollection = async (collectionId: string) => {
     try {
-      // First, save the product if it's not already saved
-      const saveResponse = await fetch('/api/saved', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'add', item: product })
-      })
+      setLoading(true)
+      
+      // First, save the product if it's not already saved (this updates the context)
+      await addSavedItem(product)
 
       // Then add it to the collection
       const response = await fetch('/api/collections', {
@@ -75,10 +60,23 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
 
       if (response.ok) {
         console.log('Product added to collection successfully')
+        
+        // Invalidate and refetch collections to get updated counts
+        await queryClient.invalidateQueries({ queryKey: ['collections'] })
+        await refetchCollections()
+        
+        // Show success feedback
+        const collectionName = collections.find((c: Collection) => c.id === collectionId)?.name || 'collection'
+        console.log(`✅ Added "${product.title}" to "${collectionName}"`)
+        
         onClose()
+      } else {
+        console.error('Failed to add item to collection')
       }
     } catch (error) {
       console.error('Error adding to collection:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -102,15 +100,20 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
       if (response.ok) {
         const result = await response.json()
         if (result.collection) {
-          // Add the new collection to the list
-          setCollections([result.collection, ...collections])
+          // Invalidate and refetch collections to get the new collection
+          await queryClient.invalidateQueries({ queryKey: ['collections'] })
+          await refetchCollections()
+          
           // Add the product to the new collection
           await handleAddToCollection(result.collection.id)
+          
           // Reset form
           setNewCollectionName("")
           setSelectedColor(colorOptions[0])
           setIsPublic(false)
           setShowCreateForm(false)
+          
+          console.log(`✅ Created collection "${newCollectionName}"`)
         }
       }
     } catch (error) {
@@ -258,7 +261,7 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
                   <div className="w-6 h-6 border-2 border-zinc-700 border-t-white rounded-full animate-spin mx-auto"></div>
                 </div>
               ) : (
-                collections.map((collection) => (
+                collections.map((collection: Collection) => (
                   <button
                     key={collection.id}
                     onClick={() => handleAddToCollection(collection.id)}

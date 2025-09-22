@@ -206,12 +206,33 @@ export default function CollectionDetailModal({
     }
   }
 
-  const handleShare = () => {
-    // Copy collection link to clipboard
-    const collectionUrl = `${window.location.origin}/collection/${collection.id}`
-    navigator.clipboard.writeText(collectionUrl)
-    setShowShareMenu(true)
-    setTimeout(() => setShowShareMenu(false), 2000)
+  const handleShare = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'shareToCommunity',
+          collectionId: collection.id
+        })
+      })
+
+      if (response.ok) {
+        // Update the collection to be public
+        const updatedCollection = { ...collection, isPublic: true }
+        onUpdate(updatedCollection)
+        setShowShareMenu(true)
+        setTimeout(() => setShowShareMenu(false), 2000)
+        console.log('✅ Collection shared to community successfully!')
+      } else {
+        console.error('Failed to share collection to community')
+      }
+    } catch (error) {
+      console.error('Error sharing collection:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleTogglePrivacy = async () => {
@@ -230,34 +251,41 @@ export default function CollectionDetailModal({
         const updatedCollection = await response.json()
         onUpdate(updatedCollection)
         setShowOptionsMenu(false)
-        
-        // If making public, create community post
-        if (!collection.isPublic && updatedCollection.isPublic && userId) {
+
+        // Handle community post creation/removal via API
+        if (!collection.isPublic && updatedCollection.isPublic) {
+          // Making public - create community post
           try {
-            const { createPostForCollection } = await import("@/lib/database-service-v2")
-            await createPostForCollection(userId, {
-              id: collection.id,
-              name: collection.name,
-              description: collection.description,
-              itemIds: Array.isArray(collection.items) ? collection.items.map(item => item.id) : [],
-              color: collection.color || '#3b82f6',
-              createdAt: collection.createdAt || new Date().toISOString(),
-              isPublic: true
+            const postResponse = await fetch('/api/collections', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'shareToCommunity',
+                collectionId: collection.id
+              })
             })
-            console.log('✅ Collection shared to community successfully!')
+            if (postResponse.ok) {
+              console.log('✅ Collection shared to community successfully!')
+            }
           } catch (error) {
-            console.error('Error creating community post:', error)
+            console.error('Error sharing to community:', error)
           }
-        }
-        
-        // If making private, remove community post
-        if (collection.isPublic && !updatedCollection.isPublic && userId) {
+        } else if (collection.isPublic && !updatedCollection.isPublic) {
+          // Making private - remove community post
           try {
-            const { removePostForCollection } = await import("@/lib/database-service-v2")
-            await removePostForCollection(userId, collection.id)
-            console.log('✅ Collection removed from community successfully!')
+            const postResponse = await fetch('/api/collections', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                action: 'removeFromCommunity',
+                collectionId: collection.id
+              })
+            })
+            if (postResponse.ok) {
+              console.log('✅ Collection removed from community successfully!')
+            }
           } catch (error) {
-            console.error('Error removing community post:', error)
+            console.error('Error removing from community:', error)
           }
         }
       }
@@ -358,8 +386,13 @@ export default function CollectionDetailModal({
                     <div className="relative">
                       <button
                         onClick={() => setShowOptionsMenu(!showOptionsMenu)}
-                        className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors"
+                        className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-colors flex items-center space-x-1"
                       >
+                        {collection.isPublic ? (
+                          <Globe className="w-3 h-3 text-white" />
+                        ) : (
+                          <Lock className="w-3 h-3 text-white" />
+                        )}
                         <MoreHorizontal className="w-4 h-4 text-white" />
                       </button>
                       
@@ -378,7 +411,7 @@ export default function CollectionDetailModal({
                               </>
                             ) : (
                               <>
-                                <Globe className="w-4 h-4" />
+                                <Lock className="w-4 h-4" />
                                 <span>Make Public</span>
                               </>
                             )}
@@ -505,7 +538,7 @@ export default function CollectionDetailModal({
                         </button>
                         {showShareMenu && (
                           <div className="absolute top-full left-0 mt-2 bg-zinc-800 text-white px-3 py-2 rounded-lg shadow-lg text-sm whitespace-nowrap">
-                            Link copied to clipboard!
+                            Shared to community!
                           </div>
                         )}
                       </div>

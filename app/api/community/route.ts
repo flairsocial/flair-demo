@@ -164,7 +164,7 @@ export async function GET(request: NextRequest) {
                   name: collection.name,
                   color: collection.color,
                   description: collection.description,
-                  customBanner: collection.metadata?.customBanner,
+                  customBanner: collection.custom_banner_url,
                   isPublic: collection.is_public,
                   itemCount: (collection.item_ids || []).length,
                   products: collection.products || []

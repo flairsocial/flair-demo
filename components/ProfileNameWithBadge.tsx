@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { VerifiedBadge } from './VerifiedBadge';
 import { cn } from '@/lib/utils';
 
@@ -12,6 +13,8 @@ interface ProfileNameWithBadgeProps {
   badgeSize?: 'sm' | 'md' | 'lg';
   showTooltip?: boolean;
   onClick?: () => void;
+  href?: string;
+  clickable?: boolean;
 }
 
 export const ProfileNameWithBadge: React.FC<ProfileNameWithBadgeProps> = ({
@@ -23,11 +26,17 @@ export const ProfileNameWithBadge: React.FC<ProfileNameWithBadgeProps> = ({
   usernameClassName,
   badgeSize = 'sm',
   showTooltip = false,
-  onClick
+  onClick,
+  href,
+  clickable = false
 }) => {
-  return (
+  const content = (
     <div
-      className={cn('flex flex-col', className)}
+      className={cn(
+        'flex flex-col',
+        clickable && 'cursor-pointer hover:opacity-80 transition-opacity',
+        className
+      )}
       onClick={onClick}
     >
       <div className="flex items-center gap-1">
@@ -49,6 +58,16 @@ export const ProfileNameWithBadge: React.FC<ProfileNameWithBadgeProps> = ({
       )}
     </div>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="block">
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 };
 
 export default ProfileNameWithBadge;

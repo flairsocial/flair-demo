@@ -107,7 +107,7 @@ export default function CommunityPage() {
             }`}
           >
             <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-            {!isMobile && 'Post'}
+            {!isMobile}
           </button>
           
           {/* Tab Navigation - Center */}
@@ -525,20 +525,17 @@ function PostCard({
               height={32}
               className="rounded-full"
             />
-            <Link
-              href={`/profile/${username}`}
-              className="flex-1 hover:opacity-80 transition-opacity"
-            >
-              <ProfileNameWithBadge
-                displayName={displayName}
-                username={username}
-                isPro={author.is_pro}
-                className="flex-1"
-                nameClassName="text-sm font-medium text-white"
-                usernameClassName="text-xs text-zinc-400"
-                badgeSize="sm"
-              />
-            </Link>
+        <ProfileNameWithBadge
+          displayName={displayName}
+          username={username}
+          isPro={author.is_pro}
+          className="flex-1"
+          nameClassName="text-sm font-medium text-white"
+          usernameClassName="text-xs text-zinc-400"
+          badgeSize="sm"
+          href={`/profile/${username}`}
+          clickable={true}
+        />
 
             {/* Message button for collage layout */}
             <MessageUserButton
@@ -620,20 +617,17 @@ function PostCard({
           height={48}
           className="rounded-full"
         />
-        <Link
+        <ProfileNameWithBadge
+          displayName={displayName}
+          username={username}
+          isPro={author.is_pro}
+          className="flex-1"
+          nameClassName="text-lg font-semibold text-white"
+          usernameClassName="text-sm text-zinc-400"
+          badgeSize="md"
           href={`/profile/${username}`}
-          className="flex-1 hover:opacity-80 transition-opacity"
-        >
-          <ProfileNameWithBadge
-            displayName={displayName}
-            username={username}
-            isPro={author.is_pro}
-            className="flex-1"
-            nameClassName="text-lg font-semibold text-white"
-            usernameClassName="text-sm text-zinc-400"
-            badgeSize="md"
-          />
-        </Link>
+          clickable={true}
+        />
 
         <div className="flex items-center gap-2">
           <span className="text-xs text-zinc-500 bg-zinc-800 px-2 py-1 rounded-full">{formatTimeAgo(post.created_at)}</span>
@@ -777,11 +771,14 @@ function PostCard({
               <span className="text-xs text-zinc-400">
                 Click to view collection
               </span>
-              <button 
-                onClick={() => onViewCollection({
-                  ...post.collection,
-                  ownerId: post.author?.clerk_id // Pass the post author's ID as collection owner
-                })}
+              <button
+                onClick={() => {
+                  // Navigate to the collection owner's profile and open the collection
+                  const ownerUsername = post.author?.username || post.author?.clerk_id
+                  if (ownerUsername) {
+                    window.open(`/profile/${ownerUsername}?collection=${post.collection.id}`, '_blank')
+                  }
+                }}
                 className="text-xs bg-zinc-700 hover:bg-zinc-600 px-3 py-1.5 rounded-full text-zinc-300 transition-colors"
               >
                 View Full Collection

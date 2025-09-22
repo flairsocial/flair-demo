@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion"
 import { X, Plus, Check } from "lucide-react"
 import type { Product } from "@/lib/types"
 import type { Collection } from "@/lib/database-service-v2"
+import { useCollections } from "@/lib/react-query-hooks"
+import { useQueryClient } from "@tanstack/react-query"
 
 interface BulkAddToCollectionModalProps {
   isOpen: boolean
@@ -20,31 +22,14 @@ export default function BulkAddToCollectionModal({
   selectedItems, 
   onItemsAdded 
 }: BulkAddToCollectionModalProps) {
-  const [collections, setCollections] = useState<Collection[]>([])
+  const queryClient = useQueryClient()
+  
+  // Use React Query instead of local state
+  const { data: collections = [], isLoading: collectionsLoading, refetch: refetchCollections } = useCollections()
+  
   const [selectedCollections, setSelectedCollections] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchCollections()
-    }
-  }, [isOpen])
-
-  const fetchCollections = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/collections')
-      if (response.ok) {
-        const data = await response.json()
-        setCollections(data)
-      }
-    } catch (error) {
-      console.error('Error fetching collections:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const toggleCollectionSelection = (collectionId: string) => {
     setSelectedCollections(prev => 
@@ -87,6 +72,10 @@ export default function BulkAddToCollectionModal({
           )
         )
       )
+
+      // Invalidate and refetch collections to update counts
+      await queryClient.invalidateQueries({ queryKey: ['collections'] })
+      await refetchCollections()
 
       onItemsAdded()
       handleClose()
@@ -161,13 +150,13 @@ export default function BulkAddToCollectionModal({
 
               {/* Collections List */}
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {loading ? (
+                {collectionsLoading ? (
                   <div className="text-center py-4">
                     <div className="w-6 h-6 border-2 border-zinc-700 border-t-white rounded-full animate-spin mx-auto"></div>
                   </div>
                 ) : (
                   <>
-                    {collections.map((collection) => (
+                    {collections.map((collection: Collection) => (
                       <button
                         key={collection.id}
                         onClick={() => toggleCollectionSelection(collection.id)}

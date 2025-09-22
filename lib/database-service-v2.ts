@@ -424,11 +424,12 @@ export async function getCollections(clerkId: string): Promise<Collection[]> {
 
 function getDefaultCollections(userId?: string): Collection[] {
   const timestamp = Date.now()
+  const randomSuffix = Math.random().toString(36).substr(2, 9)
   const userSuffix = userId ? `-${userId.slice(-8)}` : ''
-  
+
   return [
     {
-      id: `col-${timestamp}-1${userSuffix}`,
+      id: `col-${timestamp}-${randomSuffix}-1${userSuffix}`,
       name: 'Summer Essentials',
       color: 'bg-amber-500',
       createdAt: new Date().toISOString(),
@@ -436,7 +437,7 @@ function getDefaultCollections(userId?: string): Collection[] {
       isPublic: true
     },
     {
-      id: `col-${timestamp}-2${userSuffix}`, 
+      id: `col-${timestamp}-${randomSuffix}-2${userSuffix}`,
       name: 'Work Outfits',
       color: 'bg-blue-500',
       createdAt: new Date().toISOString(),
@@ -444,7 +445,7 @@ function getDefaultCollections(userId?: string): Collection[] {
       isPublic: true
     },
     {
-      id: `col-${timestamp}-3${userSuffix}`,
+      id: `col-${timestamp}-${randomSuffix}-3${userSuffix}`,
       name: 'Casual Weekend',
       color: 'bg-green-500',
       createdAt: new Date().toISOString(),
@@ -452,7 +453,7 @@ function getDefaultCollections(userId?: string): Collection[] {
       isPublic: true
     },
     {
-      id: `col-${timestamp}-4${userSuffix}`,
+      id: `col-${timestamp}-${randomSuffix}-4${userSuffix}`,
       name: 'Evening Wear',
       color: 'bg-purple-500',
       createdAt: new Date().toISOString(),
@@ -460,7 +461,7 @@ function getDefaultCollections(userId?: string): Collection[] {
       isPublic: true
     },
     {
-      id: `col-${timestamp}-5${userSuffix}`,
+      id: `col-${timestamp}-${randomSuffix}-5${userSuffix}`,
       name: 'Wishlist',
       color: 'bg-pink-500',
       createdAt: new Date().toISOString(),
@@ -472,58 +473,82 @@ function getDefaultCollections(userId?: string): Collection[] {
 
 export async function setCollections(clerkId: string, collections: Collection[]): Promise<void> {
   if (!clerkId) return
-  
+
   try {
     console.log(`[Database] setCollections called for clerk_id: ${clerkId} with ${collections.length} collections`)
     const profileId = await getOrCreateProfile(clerkId)
     console.log(`[Database] Profile ID for setCollections: ${profileId}`)
     const supabase = getSupabaseClient()
-    
-    // Delete existing collections
-    console.log(`[Database] Deleting existing collections for profile_id: ${profileId}`)
-    const { error: deleteError } = await supabase
-      .from('collections')
-      .delete()
-      .eq('profile_id', profileId)
-    
-    if (deleteError) {
-      console.error('[Database] Error deleting existing collections:', deleteError)
-    } else {
-      console.log('[Database] Successfully deleted existing collections')
-    }
-    
-    // Insert new collections
-    if (collections.length > 0) {
-      const collectionsToInsert = collections.map(col => ({
-        id: col.id,
-        profile_id: profileId,
-        name: col.name,
-        color: col.color,
-        description: col.description,
-        item_ids: col.itemIds || [],
-        item_count: col.itemIds?.length || 0,
-        is_public: col.isPublic ?? true,
-        custom_banner_url: col.customBanner,
-        metadata: {}
-      }))
-      
-      console.log(`[Database] Inserting ${collectionsToInsert.length} collections:`, collectionsToInsert.map(c => ({ id: c.id, name: c.name })))
-      
-      const { error } = await supabase
-        .from('collections')
-        .insert(collectionsToInsert)
-      
-      if (error) {
-        console.error('[Database] Error setting collections:', error)
-        console.error('[Database] Failed collections data:', collectionsToInsert)
-      } else {
-        console.log(`[Database] Saved ${collections.length} collections for clerk_id: ${clerkId}`)
-        
-        // Auto-create community posts for public collections with items
-        for (const collection of collections) {
-          if (collection.itemIds && collection.itemIds.length > 0 && collection.isPublic !== false) {
-            await createPostForCollection(clerkId, collection)
+
+    // Insert new collections one by one to handle duplicates gracefully
+    const successfullyInsertedCollections: Collection[] = []
+
+    for (const collection of collections) {
+      try {
+        const collectionToInsert = {
+          id: collection.id,
+          profile_id: profileId,
+          name: collection.name,
+          color: collection.color,
+          description: collection.description,
+          item_ids: collection.itemIds || [],
+          item_count: collection.itemIds?.length || 0,
+          is_public: collection.isPublic ?? true,
+          custom_banner_url: collection.customBanner,
+          metadata: {}
+        }
+
+        console.log(`[Database] Inserting collection: ${collection.id} - ${collection.name}`)
+
+        const { error } = await supabase
+          .from('collections')
+          .insert(collectionToInsert)
+
+        if (error) {
+          if (error.code === '23505') {
+            console.log(`[Database] Collection ${collection.id} already exists, skipping...`)
+            // Check if it exists and update it instead
+            const { error: updateError } = await supabase
+              .from('collections')
+              .update({
+                name: collection.name,
+                color: collection.color,
+                description: collection.description,
+                item_ids: collection.itemIds || [],
+                item_count: collection.itemIds?.length || 0,
+                is_public: collection.isPublic ?? true,
+                custom_banner_url: collection.customBanner
+              })
+              .eq('id', collection.id)
+              .eq('profile_id', profileId)
+
+            if (!updateError) {
+              console.log(`[Database] Updated existing collection: ${collection.id}`)
+              successfullyInsertedCollections.push(collection)
+            } else {
+              console.error(`[Database] Error updating collection ${collection.id}:`, updateError)
+            }
+          } else {
+            console.error(`[Database] Error inserting collection ${collection.id}:`, error)
           }
+        } else {
+          console.log(`[Database] Successfully inserted collection: ${collection.id}`)
+          successfullyInsertedCollections.push(collection)
+        }
+      } catch (error) {
+        console.error(`[Database] Unexpected error with collection ${collection.id}:`, error)
+      }
+    }
+
+    console.log(`[Database] Successfully processed ${successfullyInsertedCollections.length} collections for clerk_id: ${clerkId}`)
+
+    // Auto-create community posts for successfully inserted public collections with items
+    for (const collection of successfullyInsertedCollections) {
+      if (collection.itemIds && collection.itemIds.length > 0 && collection.isPublic !== false) {
+        try {
+          await createPostForCollection(clerkId, collection)
+        } catch (error) {
+          console.error(`[Database] Error creating community post for collection ${collection.id}:`, error)
         }
       }
     }
@@ -1065,23 +1090,24 @@ export async function getUserProfile(clerkId: string): Promise<any> {
 
 export async function createPostForCollection(clerkId: string, collection: Collection): Promise<string | null> {
   if (!clerkId || !collection) return null
-  
+
   try {
     console.log(`[Database] Creating community post for collection: ${collection.name}`)
-    
+
     const profileId = await getOrCreateProfile(clerkId)
     const supabase = getSupabaseClient()
-    
-    // Check if there's already a community post for this collection
+
+    // Check if there's already a community post for this collection by this user
+    // Allow multiple users to post collections with the same name
     const { data: existingPost } = await supabase
       .from('community_posts')
       .select('id')
       .eq('collection_id', collection.id)
       .eq('profile_id', profileId)
       .single()
-    
+
     if (existingPost) {
-      console.log(`[Database] Community post already exists for collection: ${collection.id}`)
+      console.log(`[Database] Community post already exists for collection: ${collection.id} by user: ${profileId}`)
       return existingPost.id
     }
     

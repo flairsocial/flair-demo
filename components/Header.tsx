@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Info, Settings, Crown, ChevronDown } from "lucide-react"
 import { usePathname } from "next/navigation"
 import { SignedIn, SignedOut, SignInButton, UserButton, useUser } from "@clerk/nextjs"
@@ -23,6 +23,21 @@ export default function Header() {
   const { mode, setMode } = useShoppingMode()
   const { isSignedIn } = useUser()
   const { currentPlan } = useCredits()
+
+  // Show InfoPopup for first-time visitors who are NOT signed in
+  useEffect(() => {
+    if (pathname === "/" && !isSignedIn) {
+      const hasSeenInfo = localStorage.getItem('hasSeenInfoPopup')
+      if (!hasSeenInfo) {
+        // Small delay to ensure page is loaded
+        const timer = setTimeout(() => {
+          setShowInfo(true)
+          localStorage.setItem('hasSeenInfoPopup', 'true')
+        }, 1000)
+        return () => clearTimeout(timer)
+      }
+    }
+  }, [pathname, isSignedIn])
 
   if (pathname === "/chat") {
     return null

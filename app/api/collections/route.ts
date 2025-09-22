@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
-import { 
-  getCollections, 
-  addCollection, 
-  removeCollection, 
-  addItemToCollection, 
+import {
+  getCollections,
+  addCollection,
+  removeCollection,
+  addItemToCollection,
   removeItemFromCollection,
-  updateCollection 
+  updateCollection,
+  removePostForCollection
 } from "@/lib/database-service-v2"
 import type { Collection } from "@/lib/database-service-v2"
 
@@ -107,6 +108,26 @@ export async function POST(request: Request) {
         }
         break
 
+      case 'shareToCommunity':
+        if (collectionId) {
+          // Get the collection details
+          const collections = await getCollections(userId)
+          const collection = collections.find(col => col.id === collectionId)
+
+          if (collection) {
+            await addCollection(userId, collection) // This will create/update the community post
+            return NextResponse.json({ success: true, message: 'Collection shared to community' })
+          }
+        }
+        break
+
+      case 'removeFromCommunity':
+        if (collectionId) {
+          await removePostForCollection(userId, collectionId)
+          return NextResponse.json({ success: true, message: 'Collection removed from community' })
+        }
+        break
+
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 })
     }
@@ -140,6 +161,32 @@ export async function PUT(request: Request) {
     if (isPublic !== undefined) updates.isPublic = isPublic
 
     await updateCollection(userId, id, updates)
+
+    // If collection was updated, update community posts that reference this collection
+    if (customBanner !== undefined || name !== undefined || description !== undefined) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js')
+        const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+        const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+          auth: { autoRefreshToken: false, persistSession: false }
+        })
+
+        // Update community posts that reference this collection
+        await supabase
+          .from('community_posts')
+          .update({
+            updated_at: new Date().toISOString()
+          })
+          .eq('collection_id', id)
+          .eq('post_type', 'collection')
+
+        console.log(`✅ Updated community posts for collection: ${id}`)
+      } catch (error) {
+        console.error('Error updating community posts:', error)
+      }
+    }
 
     // Get the updated collection to return
     const collections = await getCollections(userId)

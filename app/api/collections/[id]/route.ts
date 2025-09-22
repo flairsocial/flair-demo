@@ -24,10 +24,37 @@ export async function GET(
       
       if (userCollection) {
         // User owns this collection, return full data with items
-        const savedItems = await getSavedItems(userId)
-        const collectionItems = savedItems.filter(item => 
-          userCollection.itemIds.includes(item.id)
-        )
+        // Get items directly from database to ensure consistency
+        const { createClient } = await import('@supabase/supabase-js')
+        const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!
+        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+        
+        const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+          auth: { autoRefreshToken: false, persistSession: false }
+        })
+
+        // Get the user's profile ID
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('clerk_id', userId)
+          .single()
+
+        let collectionItems = []
+        if (profile && userCollection.itemIds && userCollection.itemIds.length > 0) {
+          const { data: savedItems, error: itemsError } = await supabase
+            .from('saved_items')
+            .select('product_id, product_data')
+            .eq('profile_id', profile.id)
+            .in('product_id', userCollection.itemIds)
+
+          if (!itemsError && savedItems) {
+            collectionItems = savedItems.map(item => ({
+              ...item.product_data,
+              saved: true
+            }))
+          }
+        }
 
         console.log(`[Collection API] Found user's collection with ${collectionItems.length} items`)
 
@@ -71,14 +98,13 @@ export async function GET(
     // Get the collection owner's saved items that are in this collection
     const { data: savedItems, error: itemsError } = await supabase
       .from('saved_items')
-      .select('product_data')
+      .select('product_id, product_data')
       .eq('profile_id', collection.profile_id)
+      .in('product_id', collection.item_ids || [])
 
     let collectionItems = []
-    if (!itemsError && savedItems && collection.item_ids?.length > 0) {
-      collectionItems = savedItems
-        .filter(item => collection.item_ids.includes(item.product_data.id))
-        .map(item => item.product_data)
+    if (!itemsError && savedItems) {
+      collectionItems = savedItems.map(item => item.product_data)
     }
 
     console.log(`[Collection API] Found public collection with ${collectionItems.length} items`)
