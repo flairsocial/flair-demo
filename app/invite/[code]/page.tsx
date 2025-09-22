@@ -35,22 +35,10 @@ export default function InvitePage() {
           return
         }
 
-        // User is signed in, process the invite
-        const response = await fetch('/api/invite/process', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ inviteCode })
-        })
-
-        if (response.ok) {
-          const data = await response.json()
-          setStatus('success')
-          setMessage(data.message || "Welcome! You've been credited with bonus rewards.")
-        } else {
-          const error = await response.json()
-          setStatus('error')
-          setMessage(error.error || "Failed to process invite")
-        }
+        // User is signed in - redirect to home since they're already a member
+        // The invite processing happens via Clerk webhooks when they signed up
+        setStatus('success')
+        setMessage("Welcome! You're already a member of FlairSocial.")
       } catch (error) {
         console.error('Error processing invite:', error)
         setStatus('error')

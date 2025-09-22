@@ -21,52 +21,38 @@ export async function GET(
       )
     }
 
-    // Check if the invite code exists in the database
-    const { data: inviteData, error } = await supabase
-      .from('invites')
-      .select('id, referrer_id, created_at, used_at, expires_at')
-      .eq('code', code)
-      .single()
-
-    if (error || !inviteData) {
+    // Validate that the invite code is a valid Clerk user ID format
+    if (!code.startsWith('user_')) {
       return NextResponse.json({
         valid: false,
-        error: 'Invalid invite code'
+        error: 'Invalid invite code format'
       })
     }
 
-    // Check if invite has expired
-    if (inviteData.expires_at && new Date(inviteData.expires_at) < new Date()) {
-      return NextResponse.json({
-        valid: false,
-        error: 'Invite code has expired'
-      })
-    }
-
-    // Check if invite has already been used
-    if (inviteData.used_at) {
-      return NextResponse.json({
-        valid: false,
-        error: 'Invite code has already been used'
-      })
-    }
-
-    // Get referrer information
+    // Check if the user (referrer) exists in the profiles table
     const { data: referrerData, error: referrerError } = await supabase
       .from('profiles')
-      .select('username, display_name')
-      .eq('clerk_id', inviteData.referrer_id)
+      .select('username, display_name, clerk_id')
+      .eq('clerk_id', code)
       .single()
 
-    const inviterName = referrerData?.display_name || referrerData?.username || 'a friend'
+    if (referrerError || !referrerData) {
+      return NextResponse.json({
+        valid: false,
+        error: 'Invalid invite code - user not found'
+      })
+    }
+
+    // Invite is valid - return referrer information
+    const inviterName = referrerData.display_name || referrerData.username || 'a friend'
 
     return NextResponse.json({
       valid: true,
-      inviteId: inviteData.id,
-      referrerId: inviteData.referrer_id,
+      inviteId: code, // Use the user ID as the invite ID
+      referrerId: code,
       inviterName: inviterName,
-      createdAt: inviteData.created_at,
-      expiresAt: inviteData.expires_at
+      createdAt: new Date().toISOString(), // Current time as creation
+      expiresAt: null // No expiration for user-based invites
     })
 
   } catch (error) {

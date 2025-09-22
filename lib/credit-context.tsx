@@ -34,9 +34,9 @@ export function CreditProvider({ children }: { children: ReactNode }) {
     const savedCredits = localStorage.getItem('flair-credits')
     const savedPlan = localStorage.getItem('flair-plan') as 'free' | 'plus' | 'pro' | null
     const lastResetDate = localStorage.getItem('flair-last-reset')
-    
+
     const today = new Date().toDateString()
-    
+
     // Reset credits daily
     if (lastResetDate !== today) {
       const plan = savedPlan || 'free'
@@ -48,13 +48,70 @@ export function CreditProvider({ children }: { children: ReactNode }) {
       if (savedCredits) {
         setCredits(parseInt(savedCredits))
       }
-      
+
       if (savedPlan && PLAN_LIMITS[savedPlan]) {
         setCurrentPlan(savedPlan)
         setMaxCredits(PLAN_LIMITS[savedPlan])
       }
     }
   }, [])
+
+  // Check for referral credits when user logs in
+  useEffect(() => {
+    if (user?.id) {
+      checkAndAwardReferralCredits(user.id)
+    }
+  }, [user?.id])
+
+  const checkAndAwardReferralCredits = async (userId: string) => {
+    try {
+      // Check if we've already awarded referral credits to this user
+      const referralAwarded = localStorage.getItem(`flair-referral-awarded-${userId}`)
+      if (referralAwarded === 'true') {
+        return // Already awarded
+      }
+
+      // Fetch user profile to check for referrer
+      const response = await fetch('/api/profile')
+      if (response.ok) {
+        const profileData = await response.json()
+
+        if (profileData.referred_by) {
+          // User was referred! Award 100 bonus credits
+          console.log(`[Credits] Awarding 100 referral credits to new user ${userId}`)
+          addCredits(100)
+          localStorage.setItem(`flair-referral-awarded-${userId}`, 'true')
+
+          // Also award credits to referrer (this would be handled server-side in production)
+          // For now, we'll log this for tracking
+          console.log(`[Credits] Referrer ${profileData.referred_by} should also receive 100 credits`)
+        }
+      }
+    } catch (error) {
+      console.error('[Credits] Error checking referral credits:', error)
+    }
+
+    // Also check if this user has referred others and award them credits
+    try {
+      const referrerAwarded = localStorage.getItem(`flair-referrer-awarded-${userId}`)
+      if (referrerAwarded !== 'true') {
+        // Check if user has any referrals
+        const referralsResponse = await fetch('/api/profile/referrals')
+        if (referralsResponse.ok) {
+          const referralsData = await referralsResponse.json()
+          if (referralsData.referralCount > 0) {
+            // User has referrals! Award 100 credits per referral
+            const creditsToAward = referralsData.referralCount * 100
+            console.log(`[Credits] Awarding ${creditsToAward} referral credits to referrer ${userId} for ${referralsData.referralCount} referrals`)
+            addCredits(creditsToAward)
+            localStorage.setItem(`flair-referrer-awarded-${userId}`, 'true')
+          }
+        }
+      }
+    } catch (error) {
+      console.error('[Credits] Error checking referrer credits:', error)
+    }
+  }
 
   // Save credits to localStorage whenever they change
   useEffect(() => {

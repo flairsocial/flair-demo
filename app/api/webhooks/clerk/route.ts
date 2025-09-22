@@ -77,35 +77,37 @@ export async function POST(request: NextRequest) {
               auth: { autoRefreshToken: false, persistSession: false }
             })
 
-            // Find the invite
-            const { data: inviteData, error: inviteError } = await supabase
-              .from('invites')
-              .select('id, referrer_id, used_at')
-              .eq('code', pendingInviteCode)
-              .is('used_at', null) // Only unused invites
-              .single()
-
-            if (!inviteError && inviteData && inviteData.referrer_id !== profileId) {
-              // Mark invite as used
-              await supabase
-                .from('invites')
-                .update({
-                  used_at: new Date().toISOString(),
-                  used_by: profileId
-                })
-                .eq('id', inviteData.id)
-
-              // Update user's profile with referrer
-              await supabase
+            // For user-based invites, the invite code IS the referrer's user ID
+            // Validate that it's a valid user ID and exists
+            if (pendingInviteCode.startsWith('user_')) {
+              // Check if referrer exists
+              const { data: referrerData, error: referrerError } = await supabase
                 .from('profiles')
-                .update({ referred_by: inviteData.referrer_id })
-                .eq('id', profileId)
+                .select('id, clerk_id')
+                .eq('clerk_id', pendingInviteCode)
+                .single()
 
-              console.log(`[Clerk Webhook] Successfully processed invite: ${inviteData.referrer_id} referred ${profileId}`)
+              if (!referrerError && referrerData && referrerData.id !== profileId) {
+                // Update new user's profile with referrer
+                await supabase
+                  .from('profiles')
+                  .update({ referred_by: referrerData.id })
+                  .eq('id', profileId)
+
+              console.log(`[Clerk Webhook] Successfully processed invite: ${referrerData.id} referred ${profileId}`)
 
               // Award 100 credits to both referrer and new user
-              // Credits are handled client-side via credit context, but we log this for tracking
-              console.log(`[Clerk Webhook] Referral credits awarded: 100 to referrer ${inviteData.referrer_id} and 100 to new user ${profileId}`)
+              // Since this is server-side, we need to handle credits differently
+              // For now, we'll log this and the credits will be awarded client-side when users log in
+              console.log(`[Clerk Webhook] Referral relationship established: referrer ${referrerData.id} -> new user ${profileId}`)
+
+              // Note: Credits are awarded client-side via credit context when users access the app
+              // This ensures proper credit limits and plan-based maximums are respected
+              } else {
+                console.log(`[Clerk Webhook] Invalid referrer or self-referral: ${pendingInviteCode}`)
+              }
+            } else {
+              console.log(`[Clerk Webhook] Invalid invite code format: ${pendingInviteCode}`)
             }
           } catch (inviteError) {
             console.error('[Clerk Webhook] Error processing pending invite:', inviteError)
