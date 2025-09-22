@@ -60,6 +60,7 @@ export function CreditProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (user?.id) {
       checkAndAwardReferralCredits(user.id)
+      checkAndAwardReferrerCredits(user.id)
     }
   }, [user?.id])
 
@@ -90,22 +91,26 @@ export function CreditProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('[Credits] Error checking referral credits:', error)
     }
+  }
 
-    // Also check if this user has referred others and award them credits
+  const checkAndAwardReferrerCredits = async (userId: string) => {
     try {
-      const referrerAwarded = localStorage.getItem(`flair-referrer-awarded-${userId}`)
-      if (referrerAwarded !== 'true') {
-        // Check if user has any referrals
-        const referralsResponse = await fetch('/api/profile/referrals')
-        if (referralsResponse.ok) {
-          const referralsData = await referralsResponse.json()
-          if (referralsData.referralCount > 0) {
-            // User has referrals! Award 100 credits per referral
-            const creditsToAward = referralsData.referralCount * 100
-            console.log(`[Credits] Awarding ${creditsToAward} referral credits to referrer ${userId} for ${referralsData.referralCount} referrals`)
-            addCredits(creditsToAward)
-            localStorage.setItem(`flair-referrer-awarded-${userId}`, 'true')
-          }
+      // Check if we've already processed referrer credits for this user
+      const referrerProcessed = localStorage.getItem(`flair-referrer-processed-${userId}`)
+      if (referrerProcessed === 'true') {
+        return // Already processed
+      }
+
+      // Check if user has any referrals
+      const referralsResponse = await fetch('/api/profile/referrals')
+      if (referralsResponse.ok) {
+        const referralsData = await referralsResponse.json()
+        if (referralsData.referralCount > 0) {
+          // User has referrals! Award 100 credits per referral
+          const creditsToAward = referralsData.referralCount * 100
+          console.log(`[Credits] Awarding ${creditsToAward} referral credits to referrer ${userId} for ${referralsData.referralCount} referrals`)
+          addCredits(creditsToAward)
+          localStorage.setItem(`flair-referrer-processed-${userId}`, 'true')
         }
       }
     } catch (error) {

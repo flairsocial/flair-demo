@@ -49,20 +49,7 @@ export default function InvitePage() {
     }
   }
 
-  const generateNewLink = async () => {
-    try {
-      const response = await fetch('/api/invite/generate', {
-        method: 'POST'
-      })
 
-      if (response.ok) {
-        const data = await response.json()
-        setInviteLink(data.inviteLink)
-      }
-    } catch (error) {
-      console.error('Error generating new link:', error)
-    }
-  }
 
   return (
     <div className="min-h-screen bg-black text-white">

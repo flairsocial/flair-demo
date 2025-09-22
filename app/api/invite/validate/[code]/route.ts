@@ -22,14 +22,16 @@ export async function GET(
     }
 
     // Validate that the invite code is a valid Clerk user ID format
-    if (!code.startsWith('user_')) {
+    if (!code.startsWith('user_') || code.length < 20) {
       return NextResponse.json({
         valid: false,
         error: 'Invalid invite code format'
       })
     }
 
-    // Try to get referrer information from profiles table
+    // For user-based invites, we accept any valid user ID format
+    // The actual validation happens during signup via webhook
+    // Try to get referrer information if available
     let inviterName = 'a friend'
     try {
       const { data: referrerData, error: referrerError } = await supabase
@@ -41,10 +43,10 @@ export async function GET(
       if (!referrerError && referrerData) {
         inviterName = referrerData.display_name || referrerData.username || 'a friend'
       }
-      // If referrer doesn't exist in profiles yet, that's okay - they're still a valid referrer
+      // If referrer doesn't exist in profiles yet, that's okay - invite is still valid
     } catch (error) {
-      // Ignore errors - referrer info is optional
-      console.log('Could not fetch referrer info, using default:', error)
+      // Ignore errors - referrer info is optional for validation
+      console.log('Could not fetch referrer info, but invite is still valid:', error)
     }
 
     return NextResponse.json({

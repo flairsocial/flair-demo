@@ -25,6 +25,13 @@ export default function InvitePage() {
       }
 
       try {
+        // Track the invite click
+        await fetch('/api/invite/track', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ inviteCode })
+        })
+
         // Check if user is signed in
         if (!user) {
           // Store invite code in Clerk user metadata for webhook processing
@@ -35,10 +42,27 @@ export default function InvitePage() {
           return
         }
 
-        // User is signed in - redirect to home since they're already a member
-        // The invite processing happens via Clerk webhooks when they signed up
-        setStatus('success')
-        setMessage("Welcome! You're already a member of FlairSocial.")
+        // User is signed in - process the invite for the referrer
+        // Award credits to the referrer for this invite interaction
+        try {
+          const response = await fetch('/api/invite/process-existing-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ inviteCode })
+          })
+
+          if (response.ok) {
+            setStatus('success')
+            setMessage("Thanks for checking out the invite system! The referrer has been credited.")
+          } else {
+            setStatus('success')
+            setMessage("Welcome back! You're already a member of FlairSocial.")
+          }
+        } catch (error) {
+          console.error('Error processing invite for existing user:', error)
+          setStatus('success')
+          setMessage("Welcome back! You're already a member of FlairSocial.")
+        }
       } catch (error) {
         console.error('Error processing invite:', error)
         setStatus('error')
