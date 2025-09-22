@@ -18,31 +18,24 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Get the user's profile ID first
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('clerk_id', userId)
-      .single()
+    // Import the database service to get or create profile
+    const { getOrCreateProfile } = await import('@/lib/database-service-v2')
 
-    if (profileError || !profileData) {
-      return NextResponse.json(
-        { error: 'Profile not found', totalInvites: 0, successfulSignups: 0, creditsEarned: 0 },
-        { status: 404 }
-      )
-    }
+    // Get or create the user's profile ID
+    const profileId = await getOrCreateProfile(userId)
+    console.log(`[Invite Stats] Profile ID for ${userId}: ${profileId}`)
 
     // Count successful signups (users referred by this user)
-    const { data: referralsData, error: referralsError } = await supabase
+    const { count: referralsCount, error: referralsError } = await supabase
       .from('profiles')
-      .select('id', { count: 'exact' })
-      .eq('referred_by', profileData.id)
+      .select('*', { count: 'exact', head: true })
+      .eq('referred_by', profileId)
 
     if (referralsError) {
       console.error('Error counting referrals:', referralsError)
     }
 
-    const successfulSignups = referralsData?.length || 0
+    const successfulSignups = referralsCount || 0
     const creditsEarned = successfulSignups * 100 // 100 credits per successful referral
 
     // For now, we'll use successful signups as total invites
