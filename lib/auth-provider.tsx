@@ -20,6 +20,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           formFieldLabel: 'text-white',
           formFieldInput: 'bg-zinc-800 border-zinc-700 text-white',
           footerActionLink: 'text-white hover:text-zinc-200',
+          // Modal centering fixes for both desktop and mobile
+          modalBackdrop: 'backdrop-blur-sm',
+          modalContent: 'fixed inset-0 z-50 flex items-center justify-center p-4',
+          modal: 'w-full max-w-md mx-auto my-auto',
+          // Ensure proper mobile positioning
+          rootBox: 'flex items-center justify-center min-h-screen',
+          scrollBox: 'flex items-center justify-center min-h-screen p-4',
         },
       }}
     >

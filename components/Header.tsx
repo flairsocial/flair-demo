@@ -13,31 +13,33 @@ import PricingModal from "./PricingModal"
 import CreditCounter from "./CreditCounter"
 import Image from "next/image"
 import Link from "next/link"
+import { useRef } from "react"
 
 export default function Header() {
   const [showInfo, setShowInfo] = useState(false)
   const [showPricing, setShowPricing] = useState(false)
   const [showShoppingModeDropdown, setShowShoppingModeDropdown] = useState(false)
+  const signInButtonRef = useRef<HTMLButtonElement>(null)
   const pathname = usePathname()
   const isMobile = useMobile()
   const { mode, setMode } = useShoppingMode()
-  const { isSignedIn } = useUser()
+  const { isSignedIn, isLoaded } = useUser()
   const { currentPlan } = useCredits()
 
-  // Show InfoPopup for first-time visitors who are NOT signed in
+  // Show Clerk SignIn modal for first-time visitors who are NOT signed in
   useEffect(() => {
-    if (pathname === "/" && !isSignedIn) {
+    if (isLoaded && pathname === "/" && !isSignedIn) {
       const hasSeenInfo = localStorage.getItem('hasSeenInfoPopup')
       if (!hasSeenInfo) {
         // Small delay to ensure page is loaded
         const timer = setTimeout(() => {
-          setShowInfo(true)
+          signInButtonRef.current?.click()
           localStorage.setItem('hasSeenInfoPopup', 'true')
         }, 1000)
         return () => clearTimeout(timer)
       }
     }
-  }, [pathname, isSignedIn])
+  }, [pathname, isSignedIn, isLoaded])
 
   if (pathname === "/chat") {
     return null
@@ -144,7 +146,10 @@ export default function Header() {
           {/* Clerk Authentication */}
           <SignedOut>
             <SignInButton mode="modal">
-              <button className={`bg-white text-black text-sm rounded-full hover:bg-zinc-200 transition-colors font-medium ${isMobile ? 'px-2 py-1' : 'px-3 py-1.5'}`}>
+              <button 
+                ref={signInButtonRef}
+                className={`bg-white text-black text-sm rounded-full hover:bg-zinc-200 transition-colors font-medium ${isMobile ? 'px-2 py-1' : 'px-3 py-1.5'}`}
+              >
                 Sign In
               </button>
             </SignInButton>
