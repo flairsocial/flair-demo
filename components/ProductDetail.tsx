@@ -334,7 +334,28 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                 </button>
               )}
 
-              <AnalyzeWithAIButton onClick={handleAnalyzeWithAI} variant="primary" size="lg" className="w-full" />
+              {/* See Options button - uses Google Shopping redirect link */}
+              <button
+                onClick={() => {
+                  const productLink = product.link || (product as any).url
+                  if (productLink) {
+                    // Use the Google Shopping redirect link directly
+                    // This is the full redirect URL from Google Shopping API
+                    window.open(productLink, '_blank', 'noopener,noreferrer')
+                  } else {
+                    // Fallback: Create a Google Shopping search
+                    const searchQuery = `${product.brand || ''} ${product.title || ''}`.trim()
+                    const googleShoppingUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}&tbm=shop`
+                    window.open(googleShoppingUrl, '_blank', 'noopener,noreferrer')
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium text-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-200 flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                </svg>
+                See Options
+              </button>
             </div>
           </div>
         </motion.div>

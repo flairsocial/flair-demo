@@ -29,6 +29,9 @@ CREATE TABLE IF NOT EXISTS profiles (
     post_count INTEGER DEFAULT 0,
     collection_count INTEGER DEFAULT 0,
 
+    -- Referral system
+    referred_by UUID REFERENCES profiles(id), -- Who referred this user
+
     -- Subscription status
     is_pro BOOLEAN DEFAULT false,
     

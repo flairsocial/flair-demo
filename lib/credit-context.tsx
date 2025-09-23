@@ -70,6 +70,7 @@ export function CreditProvider({ children }: { children: ReactNode }) {
       // Check if we've already awarded referral credits to this user
       const referralAwarded = localStorage.getItem(`flair-referral-awarded-${userId}`)
       if (referralAwarded === 'true') {
+        console.log(`[Credits] Referral credits already awarded to user ${userId}`)
         return // Already awarded
       }
 
@@ -80,14 +81,15 @@ export function CreditProvider({ children }: { children: ReactNode }) {
 
         if (profileData.referred_by) {
           // User was referred! Award 100 bonus credits
-          console.log(`[Credits] Awarding 100 referral credits to new user ${userId}`)
+          console.log(`[Credits] Awarding 100 referral credits to new user ${userId} (referred by ${profileData.referred_by})`)
           addCredits(100)
           localStorage.setItem(`flair-referral-awarded-${userId}`, 'true')
-
-          // Also award credits to referrer (this would be handled server-side in production)
-          // For now, we'll log this for tracking
-          console.log(`[Credits] Referrer ${profileData.referred_by} should also receive 100 credits`)
+          console.log(`[Credits] Successfully awarded 100 credits to referred user ${userId}`)
+        } else {
+          console.log(`[Credits] User ${userId} has no referrer`)
         }
+      } else {
+        console.error(`[Credits] Failed to fetch profile for user ${userId}:`, response.status)
       }
     } catch (error) {
       console.error('[Credits] Error checking referral credits:', error)
@@ -109,10 +111,15 @@ export function CreditProvider({ children }: { children: ReactNode }) {
           // User has new referrals! Award 100 credits per new referral
           const newReferrals = currentReferralCount - awardedCount
           const creditsToAward = newReferrals * 100
-          console.log(`[Credits] Awarding ${creditsToAward} referral credits to referrer ${userId} for ${newReferrals} new referrals`)
+          console.log(`[Credits] Awarding ${creditsToAward} referral credits to referrer ${userId} for ${newReferrals} new referrals (${currentReferralCount} total)`)
           addCredits(creditsToAward)
           localStorage.setItem(`flair-referrer-awarded-count-${userId}`, currentReferralCount.toString())
+          console.log(`[Credits] Successfully awarded ${creditsToAward} credits to referrer ${userId}`)
+        } else {
+          console.log(`[Credits] Referrer ${userId} has ${currentReferralCount} referrals, ${awardedCount} already awarded`)
         }
+      } else {
+        console.error(`[Credits] Failed to fetch referrals for user ${userId}:`, referralsResponse.status)
       }
     } catch (error) {
       console.error('[Credits] Error checking referrer credits:', error)

@@ -124,21 +124,45 @@ export default function Home() {
 
   const buildQueryForDiscovery = useCallback((query: string, category: string, isRefresh: boolean = false) => {
     let enhancedQuery = query
-    
-    // For "All" category with no search query, use profile-enhanced discovery
+
+    // For "All" category with no search query, use HIGH-QUALITY designer products by default
     if (!query && category === "All") {
-      // Use profile-enhanced query with rotation on refresh
-      enhancedQuery = getDiscoverQuery(isRefresh)
-      
-      console.log('[Discover] Using profile-enhanced query:', enhancedQuery, {
-        isRefresh,
-        currentStyle,
-        isProfileConfigured
-      })
+      // Premium, high-end fashion keywords - no trending/fast fashion
+      const highQualityQueries = [
+        "designer fashion couture high-end",
+        "luxury boutique fashion exclusive",
+        "premium designer clothing collection",
+        "high-end fashion designer pieces",
+        "couture fashion limited run",
+        "heritage fashion brand iconic",
+        "signature designer collection timeless",
+        "exclusive luxury fashion boutique"
+      ]
+
+      // Use profile-enhanced query only if user has configured preferences
+      if (isProfileConfigured && profileLoaded && profile) {
+        enhancedQuery = getDiscoverQuery(isRefresh)
+        console.log('[Discover] Using profile-enhanced query:', enhancedQuery, {
+          isRefresh,
+          currentStyle,
+          isProfileConfigured,
+          profileLoaded
+        })
+      } else {
+        // Default to high-quality products for new users
+        const queryIndex = isRefresh ? Math.floor(Math.random() * highQualityQueries.length) : 0
+        enhancedQuery = highQualityQueries[queryIndex]
+        console.log('[Discover] Using high-quality default query:', enhancedQuery, {
+          isRefresh,
+          isProfileConfigured,
+          profileLoaded,
+          hasProfile: !!profile
+        })
+      }
     }
-    
+
     return enhancedQuery
-  }, [getDiscoverQuery, currentStyle, isProfileConfigured])
+  }, [getDiscoverQuery, currentStyle, isProfileConfigured, profileLoaded, profile])
 
   const fetchProducts = useCallback(async (
     query = "", 
@@ -190,14 +214,14 @@ export default function Home() {
       params.append("limit", limit.toString())
       params.append("page", pageNum.toString())
       
-      // Add variety to subsequent pages by slightly modifying the query
+      // Add variety to subsequent pages by slightly modifying the query (no trending)
       if (pageNum > 1 && enhancedQuery) {
         const variations = [
-          enhancedQuery + " trending",
-          enhancedQuery + " popular",
-          enhancedQuery + " new",
-          enhancedQuery + " style",
-          enhancedQuery + " collection"
+          enhancedQuery + " collection",
+          enhancedQuery + " pieces",
+          enhancedQuery + " exclusive",
+          enhancedQuery + " premium",
+          enhancedQuery + " designer"
         ]
         const variation = variations[(pageNum - 2) % variations.length]
         params.set("query", variation)
@@ -265,7 +289,10 @@ export default function Home() {
   }, [buildQueryForDiscovery, checkCreditsAvailable, shoppingMode, cachedProducts])
 
   const fetchInitialProducts = useCallback(() => {
-    fetchProducts("", "All", 1, true)
+    // Force high-quality query for initial load
+    const highQualityQuery = "luxury designer fashion boutique exclusive"
+    console.log('[Discover] Initial load with high-quality query:', highQualityQuery)
+    fetchProducts(highQualityQuery, "All", 1, true)
   }, [fetchProducts])
 
   const loadMoreProducts = useCallback(() => {

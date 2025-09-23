@@ -220,10 +220,8 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
       features: [
         "500 Daily Credits",
         "Deep link generation",
-        "Competitive Pricing Analysis",
-        "Exclusive AI Deal Discovery",
-        "Fraud / Product Scam Detection",
-        "Search Multi-Marketplace Mode"
+        "Competitive Product Analysis",
+        "Search By Marketplace"
       ],
       buttonText: currentPlan === "plus" ? "Current Plan" : "Upgrade to Plus",
       buttonDisabled: false,
@@ -240,7 +238,6 @@ export default function PricingModal({ isOpen, onClose }: PricingModalProps) {
         "5,000 Daily Credits",
         "Everything in Plus",
         "Become a Verified Seller",
-        "Advanced Resale Analytics",
         "ROI and Listings Dashboard",
         "24/7 Customer Support",
  

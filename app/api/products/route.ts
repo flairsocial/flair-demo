@@ -93,9 +93,25 @@ export async function GET(request: Request) {
 
       console.log(`LOG: Marketplace search completed - ${products.length} products from ${marketplaceResult.successfulProviders.length} providers`)
     } else {
-      // Use regular product search for default mode
+      // Use regular product search for default mode with category + premium keyword
+      let finalQuery = searchQuery
+      if (!searchQuery) {
+        // Premium keywords to combine with categories
+        const premiumKeywords = [
+          "designer", "high-quality", "high-end", "luxury", "premium",
+          "exclusive", "trending", "timeless", "classy", "boutique", "chic", "elegant",
+        ]
+
+        // Use category + random premium keyword
+        const categoryKeyword = categoryParam || "fashion"
+        const randomPremium = premiumKeywords[Math.floor(Math.random() * premiumKeywords.length)]
+        finalQuery = `${categoryKeyword} ${randomPremium}`
+
+        console.log(`[Products API] Using category + premium query: "${finalQuery}" (category: ${categoryKeyword}, premium: ${randomPremium})`)
+      }
+
       products = await searchForProducts(
-        searchQuery || `${categoryParam || 'fashion'} trending`,
+        finalQuery || 'fashion',
         effectiveLimit,
         userId || undefined,
         !!imageAnalysis

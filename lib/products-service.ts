@@ -291,7 +291,7 @@ export async function searchForProducts(
     const products: Product[] = rawShoppingResults
       .map((item: any, index: number) => {
         const price = parsePrice(item.price)
-        
+
         // Basic filtering - only remove obviously irrelevant items
         if (price < 5) {
           priceFilteredCount++
@@ -306,6 +306,42 @@ export async function searchForProducts(
 
         const brandName = extractBrand(item.title, item.source)
 
+       
+
+        // Extract store information from source
+        const source = item.source || ''
+        let storeLink = item.link || undefined
+        let storeName = source
+
+        // Try to create direct store links for known retailers
+        if (source) {
+          const sourceLower = source.toLowerCase()
+
+          // For major retailers, try to create direct search links
+          if (sourceLower.includes('amazon')) {
+            storeName = 'Amazon'
+            // Keep the Google Shopping link as Amazon links are complex
+          } else if (sourceLower.includes('target')) {
+            storeName = 'Target'
+            // Keep Google Shopping link for Target too
+          } else if (sourceLower.includes('walmart')) {
+            storeName = 'Walmart'
+            // Keep Google Shopping link
+          } else if (sourceLower.includes('etsy')) {
+            storeName = 'Etsy'
+            // Keep Google Shopping link
+          } else if (sourceLower.includes('ebay')) {
+            storeName = 'eBay'
+            // Keep Google Shopping link
+          } else {
+            // For other stores, try to extract domain
+            const domainMatch = source.match(/https?:\/\/([^\/]+)/)
+            if (domainMatch) {
+              storeName = domainMatch[1].replace('www.', '')
+            }
+          }
+        }
+
         return {
           id: item.productId || item.link || `product-${index}`,
           image: imageUrl,
@@ -316,7 +352,8 @@ export async function searchForProducts(
           description: item.snippet || `${item.title} from ${brandName}`,
           hasAiInsights: false,
           saved: false,
-          link: item.link || undefined,
+          link: storeLink,
+          source: storeName, // Store the source/store name
         }
       })
       .filter((product: Product | null): product is Product => product !== null)

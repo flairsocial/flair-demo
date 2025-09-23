@@ -19,7 +19,8 @@ export interface Product {
     celebrity: boolean
     avatar: string
   }
-  link?: string // Add this for chat product recommendations
+  link?: string // Shopping link
+  source?: string // Store/retailer name
   marketplace?: {
     provider: string
     condition?: 'new' | 'used' | 'refurbished'

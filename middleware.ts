@@ -16,8 +16,9 @@ export default clerkMiddleware(async (auth, req) => {
   if (userId && isProtectedRoute(req)) {
     try {
       console.log(`[Middleware] Ensuring profile exists for user: ${userId}`);
+      // Use direct database call to avoid Redis import issues in middleware
       await getOrCreateProfile(userId);
-      console.log(`[Middleware] Profile verified/created for user: ${userId}`);
+      console.log(`[Middleware] Profile verified for user: ${userId}`);
     } catch (error) {
       console.error(`[Middleware] Failed to create profile for user ${userId}:`, error);
       // Don't block the request, just log the error

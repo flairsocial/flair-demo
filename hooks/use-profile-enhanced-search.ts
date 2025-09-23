@@ -180,7 +180,7 @@ export function useProfileEnhancedSearch() {
     // Manual rotation control
     rotateToNextStyle,
     
-    // Utility
-    isProfileConfigured: profileLoaded && (profile.gender || (profile.style && profile.style.length > 0))
+    // Utility - only consider configured if they have detailed preferences beyond basic gender
+    isProfileConfigured: profileLoaded && (profile.style && profile.style.length > 0)
   }
 }
