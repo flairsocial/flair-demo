@@ -98,8 +98,11 @@ export default function EditProfileModal({ isOpen, onClose, profileData, onSave 
             console.log('[EditProfileModal] Large image detected, downscaling before upload')
             dataUrl = await reduceDataUrlSize(dataUrl, MAX_BASE64_LENGTH)
           }
-          profilePicturePayload = (dataUrl.split(',')[1] || '')
+          // Send the full data URL (including the data:image/...;base64, prefix)
+          // so the server can detect and handle uploads correctly.
+          profilePicturePayload = dataUrl
         } else if (formData.profilePicture) {
+          // Already a URL (not a data URL): send as-is
           profilePicturePayload = formData.profilePicture
         }
 
