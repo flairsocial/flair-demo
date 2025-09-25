@@ -15,6 +15,15 @@ import { useUnreadMessages } from "@/hooks/use-unread-messages"
 import { useCommunityPosts } from "@/lib/react-query-hooks"
 import { ProfileNameWithBadge } from "@/components/ProfileNameWithBadge"
 
+// Top-level helpers so they are available to PostCard and other components in this file
+const bannerUrlFor = (collection: any) => collection?.customBanner || collection?.custom_banner || collection?.custom_banner_url || collection?.banner_url || null
+const productImageFor = (product: any) => product?.image || product?.imageUrl || product?.image_url || product?.thumbnail || '/placeholder.svg'
+const stableKeyFor = (item: any, idx: number, prefix = 'item', collectionId?: string) => {
+  const id = item && (item.id || item.id === 0) ? String(item.id).trim() : ''
+  if (id) return id
+  return `${prefix}-${collectionId || 'col'}-${idx}-${(item && (item.title || item.name)) || 'unknown'}`
+}
+
 export default function CommunityPage() {
   const [viewMode, setViewMode] = useState<'vertical' | 'collage'>('vertical')
   const [showCreatePost, setShowCreatePost] = useState(false)
@@ -26,6 +35,7 @@ export default function CommunityPage() {
   const [showCollectionModal, setShowCollectionModal] = useState(false)
   const isMobile = useMobile()
   const { user } = useUser()
+ 
   
   // Use real community data (original hooks preserved)
   const { posts, followingPosts, loading, loadingFollowing, createPost, deletePost, creating } = useCommunity()
@@ -398,36 +408,15 @@ function PostCard({
   onDelete: (postId: string) => Promise<boolean>,
   onViewCollection: (collection: any) => void
 }) {
-  const [isLiked, setIsLiked] = useState(false)
+  const [likeCount, setLikeCount] = useState(post.likes || post.like_count || 0)
+  const [commentCount, setCommentCount] = useState(post.comment_count || 0)
+  const [isLiked, setIsLiked] = useState(post.userLiked || false)
   const [isSaved, setIsSaved] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [showCommentModal, setShowCommentModal] = useState(false)
-  const [likeCount, setLikeCount] = useState(post.like_count || 0)
-  const [commentCount, setCommentCount] = useState(post.comment_count || 0)
-  const [loadingLikeStatus, setLoadingLikeStatus] = useState(true)
 
-  // Load like status when component mounts
-  useEffect(() => {
-    const loadLikeStatus = async () => {
-      if (!currentUser || !post.id) return
-
-      try {
-        const response = await fetch(`/api/community/likes?postId=${post.id}`)
-        if (response.ok) {
-          const data = await response.json()
-          setIsLiked(data.liked)
-          setLikeCount(data.likeCount)
-        }
-      } catch (error) {
-        console.error('Error loading like status:', error)
-      } finally {
-        setLoadingLikeStatus(false)
-      }
-    }
-
-    loadLikeStatus()
-  }, [currentUser, post.id])
+  // No need to load like status - it's already included in the post data from the API
 
   // Check if current user is the author of this post
   const isAuthor = currentUser && post.author && 
@@ -715,10 +704,10 @@ function PostCard({
           <div className="border border-zinc-800 rounded-xl overflow-hidden bg-zinc-800/30 backdrop-blur-sm mt-4">
             {/* Collection Banner - Match profile page styling */}
             <div className="h-32 bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
-              {post.collection.customBanner ? (
-                // Show custom banner if available
+              {bannerUrlFor(post.collection) ? (
+                // Show custom banner if available (normalized)
                 <Image
-                  src={post.collection.customBanner}
+                  src={bannerUrlFor(post.collection)}
                   alt={post.collection.name}
                   fill
                   className="object-cover"
@@ -726,18 +715,16 @@ function PostCard({
               ) : post.collection.products && post.collection.products.length > 0 ? (
                 // Show product images as fallback
                 <div className="grid grid-cols-2 h-full">
-                  {post.collection.products
-                    .slice(0, 4)
-                    .map((product: any, index: number) => (
-                      <div key={product.id} className="relative">
-                        <Image
-                          src={product.image || "/placeholder.svg"}
-                          alt={product.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                    ))}
+                  {post.collection.products.slice(0, 4).map((product: any, index: number) => (
+                    <div key={stableKeyFor(product, index, 'product', post.collection.id)} className="relative">
+                      <Image
+                        src={productImageFor(product)}
+                        alt={product.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
                 </div>
               ) : (
                 // Show default icon if no banner and no items

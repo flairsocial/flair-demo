@@ -5,6 +5,20 @@ import {
   removeCollection,
   getSavedItems
 } from "@/lib/database-service-v2"
+import { downloadJsonFromStorage } from "@/lib/storage-helpers"
+
+// Define a helper function to minimize item data and preserve image fields (support image_url and imageUrl)
+function minimalItem(item: any) {
+  const imageUrl = item.imageUrl || item.image_url || item.image || ''
+  return {
+    id: item.id,
+    name: item.name || item.title || "Unknown",
+    price: item.price || 0,
+    // Provide both common field forms so front-end components can read either
+    imageUrl,
+    image_url: imageUrl
+  };
+}
 
 export async function GET(
   request: Request,
@@ -24,35 +38,30 @@ export async function GET(
       
       if (userCollection) {
         // User owns this collection, return full data with items
-        // Get items directly from database to ensure consistency
-        const { createClient } = await import('@supabase/supabase-js')
-        const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!
-        const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+        let collectionItems: Array<{ id: string; name: string; price: number; imageUrl: string }> = []
         
-        const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-          auth: { autoRefreshToken: false, persistSession: false }
-        })
+        if (userCollection.items_storage_url) {
+          try {
+            // Parse the storage URL to extract bucket and fileName
+            const urlParts = userCollection.items_storage_url.split('/storage/v1/object/public/')
+            if (urlParts.length === 2) {
+              const pathParts = urlParts[1].split('/')
+              const bucket = pathParts[0]
+              const fileName = pathParts.slice(1).join('/')
 
-        // Get the user's profile ID
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('clerk_id', userId)
-          .single()
-
-        let collectionItems = []
-        if (profile && userCollection.itemIds && userCollection.itemIds.length > 0) {
-          const { data: savedItems, error: itemsError } = await supabase
-            .from('saved_items')
-            .select('product_id, product_data')
-            .eq('profile_id', profile.id)
-            .in('product_id', userCollection.itemIds)
-
-          if (!itemsError && savedItems) {
-            collectionItems = savedItems.map(item => ({
-              ...item.product_data,
-              saved: true
-            }))
+              const itemIds = await downloadJsonFromStorage(bucket, fileName)
+              if (Array.isArray(itemIds) && itemIds.length > 0) {
+                // Fetch full product data from saved_items
+                const savedItems = await getSavedItems(userId)
+                collectionItems = itemIds.map(itemId => {
+                  const fullItem = savedItems.find(item => item.id === itemId);
+                  return fullItem ? minimalItem(fullItem) : null;
+                }).filter((item): item is { id: string; name: string; price: number; imageUrl: string; image_url: string } => item !== null)
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching items for collection ${collectionId}:`, error)
+            collectionItems = []
           }
         }
 
@@ -96,15 +105,31 @@ export async function GET(
     }
 
     // Get the collection owner's saved items that are in this collection
-    const { data: savedItems, error: itemsError } = await supabase
-      .from('saved_items')
-      .select('product_id, product_data')
-      .eq('profile_id', collection.profile_id)
-      .in('product_id', collection.item_ids || [])
+    let collectionItems: any[] = []
+    
+    if (collection.items_storage_url) {
+      try {
+        // Parse the storage URL to extract bucket and fileName
+        const urlParts = collection.items_storage_url.split('/storage/v1/object/public/')
+        if (urlParts.length === 2) {
+          const pathParts = urlParts[1].split('/')
+          const bucket = pathParts[0]
+          const fileName = pathParts.slice(1).join('/')
 
-    let collectionItems = []
-    if (!itemsError && savedItems) {
-      collectionItems = savedItems.map(item => item.product_data)
+          const itemIds = await downloadJsonFromStorage(bucket, fileName)
+          if (Array.isArray(itemIds) && itemIds.length > 0) {
+            // Fetch full product data from the collection owner's saved items
+            const ownerSavedItems = await getSavedItems(collection.profile.clerk_id)
+            collectionItems = itemIds.map(itemId => {
+              const fullItem = ownerSavedItems.find(item => item.id === itemId);
+              return fullItem ? minimalItem(fullItem) : null;
+            }).filter((item): item is { id: string; name: string; price: number; imageUrl: string; image_url: string } => item !== null)
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching items for public collection ${collectionId}:`, error)
+        collectionItems = []
+      }
     }
 
     console.log(`[Collection API] Found public collection with ${collectionItems.length} items`)
@@ -114,7 +139,7 @@ export async function GET(
       name: collection.name,
       description: collection.description,
       color: collection.color,
-      itemIds: collection.item_ids || [],
+      itemIds: collection.item_ids || [], // Keep for backward compatibility
       items: collectionItems,
       created_at: collection.created_at,
       is_public: collection.is_public,

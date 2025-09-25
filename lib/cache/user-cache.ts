@@ -59,26 +59,59 @@ export class UserCache {
    * Get cached user collections
    */
   static async getUserCollections(userId: string) {
-    const cacheKey = CACHE_KEYS.userCollections(userId)
-
-    // Try cache first
-    const cached = await CacheManager.get(cacheKey)
-    if (cached) {
-      console.log(`[UserCache] Cache hit for user collections: ${userId}`)
-      return cached
+    const idListKey = CACHE_KEYS.userCollections(userId) + ':ids';
+    // Try cache for ID list first
+    const cachedIds = await CacheManager.get(idListKey);
+    let collections = [];
+    if (Array.isArray(cachedIds) && cachedIds.length > 0) {
+      // Try to get each collection chunk
+      for (const id of cachedIds) {
+        const chunk = await CacheManager.get(`user:${userId}:collection:${id}`);
+        if (chunk) collections.push(chunk);
+      }
+      if (collections.length === cachedIds.length) {
+        console.log(`[UserCache] Chunked cache hit for user collections: ${userId}`);
+        return collections;
+      }
+      // If partial, fall through to DB fetch
     }
 
-    // Cache miss - fetch from database
-    console.log(`[UserCache] Cache miss for user collections: ${userId}`)
-    const collections = await getCollections(userId)
-
-    if (collections) {
-      // Cache for 1 hour
-      await CacheManager.set(cacheKey, collections, CACHE_TTL.USER_COLLECTIONS)
-      console.log(`[UserCache] Cached user collections: ${userId} (${collections.length} collections)`)
+    // Cache miss or partial - fetch from database
+    console.log(`[UserCache] Cache miss for user collections: ${userId}`);
+    const dbCollections = await getCollections(userId);
+    // Prune and cache each collection as a chunk
+    const minimalCollections = (dbCollections || []).map((col: any) => {
+      // Only cache a preview of up to 6 items, never the full array
+      let previewItems = [];
+      if (Array.isArray(col.items)) {
+        previewItems = col.items.slice(0, 6).map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          image_url: (typeof item.image_url === 'string' && item.image_url.length < 500 && !item.image_url.includes('data:image')) ? item.image_url : null
+        }));
+      }
+      // Truncate description if too long
+      let desc = typeof col.description === 'string' ? col.description.slice(0, 300) : '';
+      return {
+        id: col.id,
+        name: col.name,
+        color: col.color,
+        createdAt: col.createdAt,
+        description: desc,
+        customBanner: col.customBanner,
+        isPublic: !!col.isPublic,
+        itemCount: Array.isArray(col.itemIds) ? col.itemIds.length : 0,
+        items: previewItems
+      };
+    });
+    // Cache each collection chunk and the ID list
+    const ids = minimalCollections.map((c: any) => c.id);
+    await CacheManager.set(idListKey, ids, CACHE_TTL.USER_COLLECTIONS);
+    for (const col of minimalCollections) {
+      await CacheManager.set(`user:${userId}:collection:${col.id}`, col, CACHE_TTL.USER_COLLECTIONS);
     }
-
-    return collections
+    console.log(`[UserCache] Cached user collections in chunks: ${userId} (${minimalCollections.length} collections)`);
+    return minimalCollections;
   }
 
   /**

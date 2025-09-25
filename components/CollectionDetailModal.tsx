@@ -70,6 +70,21 @@ export default function CollectionDetailModal({
 
   if (!collection) return null
 
+  // Normalize banner field (support multiple possible server field names)
+  const bannerUrl = (collection as any).customBanner || (collection as any).custom_banner || (collection as any).banner_url || (collection as any).customBannerUrl || null
+
+  // Helper to pick product image from multiple possible keys
+  const productImage = (item: any) => item.image || item.imageUrl || item.image_url || item.thumbnail || "/placeholder.svg"
+
+  // Helper to build stable keys for mapped items
+  const stableItemKey = (item: any, idx: number, prefix = 'item') => {
+    const raw = (item && (item.id || item.id === 0)) ? String(item.id).trim() : ''
+    if (raw) return `${raw}`
+    // Make sure we never return an empty string - include collection id or name as fallback
+    const collectionIdent = collection && (collection.id || collection.name) ? String(collection.id || collection.name).replace(/\s+/g, '-') : 'col-unknown'
+    return `${prefix}-${collectionIdent}-${idx}-${((item && (item.title || item.name)) || 'unknown').toString().replace(/\s+/g, '-')}`
+  }
+
   const handleSave = async () => {
     if (!editName.trim()) return
 
@@ -149,38 +164,94 @@ export default function CollectionDetailModal({
     if (!file) return
 
     setUploadingBanner(true)
-    const reader = new FileReader()
 
-    reader.onload = async (e) => {
-      const base64String = e.target?.result as string
-
+    // Downscale image in browser to a reasonable size before uploading
+    const downscaleAndUpload = async (file: File) => {
       try {
-        // Update collection with new banner
-        const response = await fetch('/api/collections', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: collection.id,
-            customBanner: base64String
-          })
+        const img = document.createElement('img') as HTMLImageElement
+        const dataUrl = await new Promise<string>((resolve, reject) => {
+          const r = new FileReader()
+          r.onload = () => resolve(r.result as string)
+          r.onerror = reject
+          r.readAsDataURL(file)
         })
 
-        if (response.ok) {
-          const updatedCollection = await response.json()
-          // Immediately update the collection state for real-time visual feedback
-          onUpdate(updatedCollection)
-          console.log('✅ Collection banner updated successfully!')
-        } else {
-          console.error('Failed to update collection banner')
+        img.src = dataUrl
+        await new Promise<void>((res) => { img.onload = () => res() })
+
+        // Use a canvas to resize to max width 1200 while preserving aspect ratio
+        const maxDim = 1200
+        let { width, height } = img
+        if (width > maxDim || height > maxDim) {
+          const ratio = Math.min(maxDim / width, maxDim / height)
+          width = Math.round(width * ratio)
+          height = Math.round(height * ratio)
         }
-      } catch (error) {
-        console.error('Error uploading banner:', error)
-      } finally {
-        setUploadingBanner(false)
+
+        const canvas = document.createElement('canvas')
+        canvas.width = width
+        canvas.height = height
+        const ctx = canvas.getContext('2d')!
+        ctx.drawImage(img, 0, 0, width, height)
+
+        // Convert to JPEG with quality 0.85
+        let outDataUrl = canvas.toDataURL('image/jpeg', 0.85)
+
+        // If still large, reduce quality iteratively
+        let base64Part = outDataUrl.split(',')[1] || ''
+        let quality = 0.85
+        while (base64Part.length > 250 * 1024 && quality > 0.4) {
+          quality -= 0.1
+          outDataUrl = canvas.toDataURL('image/jpeg', quality)
+          base64Part = outDataUrl.split(',')[1] || ''
+        }
+
+        // Upload using uploads API which calls the sanitizer/storage
+        const uploadResp = await fetch('/api/uploads/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64: outDataUrl, bucket: 'collection-banners' })
+        })
+
+        if (!uploadResp.ok) {
+          console.error('Upload API failed', await uploadResp.text())
+          return null
+        }
+
+        const json = await uploadResp.json()
+        return json.url as string | null
+      } catch (err) {
+        console.error('Error downscaling/uploading banner:', err)
+        return null
       }
     }
 
-    reader.readAsDataURL(file)
+    ;(async () => {
+      const uploadedUrl = await downscaleAndUpload(file)
+      try {
+        if (uploadedUrl) {
+          const response = await fetch('/api/collections', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: collection.id, customBanner: uploadedUrl })
+          })
+
+          if (response.ok) {
+            const updatedCollection = await response.json()
+            onUpdate(updatedCollection)
+            console.log('\u2705 Collection banner updated successfully!')
+          } else {
+            console.error('Failed to update collection banner')
+          }
+        } else {
+          console.error('Failed to upload banner')
+        }
+      } catch (error) {
+        console.error('Error updating collection with banner URL:', error)
+      } finally {
+        setUploadingBanner(false)
+      }
+    })()
   }
 
   const handleRemoveBanner = async () => {
@@ -327,6 +398,7 @@ export default function CollectionDetailModal({
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          key={`collection-modal-${collection.id || collection.name || 'unknown'}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -344,10 +416,10 @@ export default function CollectionDetailModal({
             <div className="relative">
               {/* Collection Banner - Updated to match user profile */}
               <div className="h-48 bg-gradient-to-br from-zinc-800 to-zinc-900 relative overflow-hidden">
-                {collection.customBanner ? (
-                  // Show custom banner if available
+                {bannerUrl ? (
+                  // Show custom banner if available (normalized)
                   <Image
-                    src={collection.customBanner}
+                    src={bannerUrl}
                     alt={collection.name}
                     fill
                     className="object-cover"
@@ -355,18 +427,16 @@ export default function CollectionDetailModal({
                 ) : Array.isArray(collection.items) && collection.items.length > 0 ? (
                   // Show product images as fallback
                   <div className="grid grid-cols-2 h-full">
-                    {(Array.isArray(collection.items) ? collection.items : [])
-                      .slice(0, 4)
-                      .map((item, index) => (
-                        <div key={item.id} className="relative">
-                          <Image
-                            src={item.image || "/placeholder.svg"}
-                            alt={item.title}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                      ))}
+                    {(Array.isArray(collection.items) ? collection.items : []).slice(0, 4).map((item, index) => (
+                      <div key={stableItemKey(item, index, 'banner')} className="relative">
+                        <Image
+                          src={productImage(item)}
+                          alt={item.title || (item as any).name || 'Product image'}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
                   </div>
                 ) : (
                   // Show default icon if no banner and no items
@@ -568,15 +638,15 @@ export default function CollectionDetailModal({
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                  {collection.items.map((item) => (
-                    <div key={item.id} className="group relative">
+                  {collection.items.map((item, index) => (
+                    <div key={stableItemKey(item, index, 'griditem')} className="group relative">
                       <div 
                         className="aspect-[3/4] bg-zinc-800 rounded-lg overflow-hidden relative cursor-pointer"
                         onClick={() => setSelectedProduct(item)}
                       >
                         <Image
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.title}
+                          src={productImage(item)}
+                          alt={item.title || (item as any).name || 'Product image'}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-200"
                         />
@@ -615,6 +685,7 @@ export default function CollectionDetailModal({
             <AnimatePresence>
               {showDeleteConfirm && (
                 <motion.div
+                  key={`collection-delete-${collection.id || collection.name || 'unknown'}`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}

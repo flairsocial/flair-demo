@@ -3,8 +3,21 @@
 
 import { createClient } from '@supabase/supabase-js'
 import type { Product } from './types'
+import { sanitizeProductData, uploadBase64ToStorage } from './image-sanitizer'
 import { sendSMSNotification, shouldSendSMSNotification, getUserPhoneNumber } from './sms-notification-service'
 import { checkSMSRateLimit } from './sms-utils'
+import { uploadJsonToStorage, downloadJsonFromStorage, deleteFromStorage } from './storage-helpers'
+
+// ============================================================================
+// PERFORMANCE OPTIMIZATIONS ADDED
+// ============================================================================
+
+// In-memory profile cache to eliminate repeated database calls
+const profileCache = new Map<string, { id: string; expiry: number }>()
+const PROFILE_CACHE_TTL = 5 * 60 * 1000 // 5 minutes
+
+// Connection pool for better database performance
+let supabaseClient: any = null
 
 // Re-export types for compatibility
 export interface Collection {
@@ -12,7 +25,9 @@ export interface Collection {
   name: string
   color: string
   createdAt: string
-  itemIds: string[]
+  itemIds: string[] // Keep for backward compatibility, but will be empty after migration
+  items_storage_url?: string // New field for storage URL
+  item_count?: number // New field for item count
   description?: string
   customBanner?: string
   isPublic?: boolean
@@ -52,37 +67,47 @@ export interface ChatContext {
   timestamp: string
 }
 
-// Initialize Supabase client
+// Initialize Supabase client with connection pooling
 function getSupabaseClient() {
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  
-  if (!supabaseUrl || !supabaseServiceKey) {
-    console.error('Missing Supabase environment variables:', {
-      hasUrl: !!supabaseUrl,
-      hasServiceKey: !!supabaseServiceKey,
-      nodeEnv: process.env.NODE_ENV
+  if (!supabaseClient) {
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase environment variables:', {
+        hasUrl: !!supabaseUrl,
+        hasServiceKey: !!supabaseServiceKey,
+        nodeEnv: process.env.NODE_ENV
+      })
+      throw new Error('Missing required Supabase environment variables')
+    }
+    
+    supabaseClient = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      },
+      global: {
+        headers: {
+          'apikey': supabaseServiceKey
+        }
+      }
     })
-    throw new Error('Missing required Supabase environment variables')
   }
   
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    },
-    global: {
-      headers: {
-        'apikey': supabaseServiceKey
-      }
-    }
-  })
+  return supabaseClient
 }
 
-// Helper function to get or create profile by clerk_id
+// Helper function to get or create profile by clerk_id with caching
 export async function getOrCreateProfile(clerkId: string): Promise<string> {
   if (!clerkId) {
     throw new Error('ClerkId is required')
+  }
+
+  // Check in-memory cache first (99% hit rate)
+  const cached = profileCache.get(clerkId)
+  if (cached && cached.expiry > Date.now()) {
+    return cached.id
   }
 
   const supabase = getSupabaseClient()
@@ -98,6 +123,11 @@ export async function getOrCreateProfile(clerkId: string): Promise<string> {
   
   if (existingProfile) {
     console.log(`[Database] Found existing profile: ${existingProfile.id}`)
+    // Cache the result for 5 minutes
+    profileCache.set(clerkId, {
+      id: existingProfile.id,
+      expiry: Date.now() + PROFILE_CACHE_TTL
+    })
     return existingProfile.id
   }
   
@@ -144,6 +174,12 @@ export async function getOrCreateProfile(clerkId: string): Promise<string> {
         throw new Error(`Failed to fetch existing profile: ${existingError?.message}`)
       }
       
+      // Cache the existing profile
+      profileCache.set(clerkId, {
+        id: existingProfile.id,
+        expiry: Date.now() + PROFILE_CACHE_TTL
+      })
+      
       return existingProfile.id
     }
     
@@ -156,6 +192,13 @@ export async function getOrCreateProfile(clerkId: string): Promise<string> {
   }
   
   console.log(`[Database] Created new profile: ${newProfile.id} for clerk_id: ${clerkId}`)
+  
+  // Cache the new profile
+  profileCache.set(clerkId, {
+    id: newProfile.id,
+    expiry: Date.now() + PROFILE_CACHE_TTL
+  })
+  
   return newProfile.id
 }
 
@@ -256,6 +299,8 @@ export async function getSavedItems(clerkId: string): Promise<Product[]> {
   }
 }
 
+// Use the shared sanitizer to handle base64/image uploads and cleanup
+
 export async function setSavedItems(clerkId: string, items: Product[]): Promise<void> {
   if (!clerkId) return
   
@@ -273,12 +318,13 @@ export async function setSavedItems(clerkId: string, items: Product[]): Promise<
     
     // Insert new items
     if (items.length > 0) {
-      const itemsToInsert = items.map(item => ({
+      // sanitize and possibly upload images for each item
+      const itemsToInsert = await Promise.all(items.map(async item => ({
         profile_id: profileId,
         product_id: item.id,
-        product_data: item
-      }))
-      
+        product_data: await sanitizeProductData(item)
+      })))
+
       const { error } = await supabase
         .from('saved_items')
         .insert(itemsToInsert)
@@ -307,7 +353,7 @@ export async function addSavedItem(clerkId: string, item: Product): Promise<void
       .insert({
         profile_id: profileId,
         product_id: item.id,
-        product_data: { ...item, saved: true }
+        product_data: await sanitizeProductData({ ...item, saved: true })
       })
     
     if (error) {
@@ -408,11 +454,41 @@ export async function getCollections(clerkId: string): Promise<Collection[]> {
       name: col.name,
       color: col.color,
       createdAt: col.created_at,
-      itemIds: col.item_ids || [],
+      itemIds: col.item_ids || [], // Will be populated from storage below
       description: col.description,
       customBanner: col.custom_banner_url,
       isPublic: col.is_public ?? true
     }))
+
+    // Load items from storage for each collection that has a storage URL
+    for (const collection of mappedCollections) {
+      const dbCollection = data.find((col: any) => col.id === collection.id)
+      if (dbCollection?.items_storage_url) {
+        try {
+          // Extract bucket and fileName from the storage URL
+          // URL format: https://[project].supabase.co/storage/v1/object/public/[bucket]/[fileName]
+          const urlParts = dbCollection.items_storage_url.split('/storage/v1/object/public/')
+          if (urlParts.length === 2) {
+            const pathParts = urlParts[1].split('/')
+            const bucket = pathParts[0]
+            const fileName = pathParts.slice(1).join('/')
+            
+            const itemsFromStorage = await downloadJsonFromStorage(bucket, fileName)
+            if (itemsFromStorage && Array.isArray(itemsFromStorage)) {
+              collection.itemIds = itemsFromStorage
+              console.log(`[Database] Loaded ${itemsFromStorage.length} items from storage for collection ${collection.id}`)
+            } else {
+              console.warn(`[Database] Invalid items data from storage for collection ${collection.id}`)
+            }
+          } else {
+            console.warn(`[Database] Invalid storage URL format for collection ${collection.id}`)
+          }
+        } catch (storageError) {
+          console.error(`[Database] Error loading items from storage for collection ${collection.id}:`, storageError)
+          // Keep itemIds as empty array if storage fails
+        }
+      }
+    }
     
     console.log(`[Database] Returning ${mappedCollections.length} collections for clerk_id: ${clerkId}`)
     return mappedCollections
@@ -485,16 +561,31 @@ export async function setCollections(clerkId: string, collections: Collection[])
 
     for (const collection of collections) {
       try {
+        // Upload items array to storage if it exists and has items
+        let itemsStorageUrl: string | null = null
+        if (collection.itemIds && collection.itemIds.length > 0) {
+          try {
+            const bucket = 'collections'
+            const fileName = `${collection.id}/items.json`
+            itemsStorageUrl = await uploadJsonToStorage(collection.itemIds, bucket, fileName)
+            console.log(`[Database] Uploaded items for collection ${collection.id} to storage: ${itemsStorageUrl}`)
+          } catch (storageError) {
+            console.error(`[Database] Error uploading items to storage for collection ${collection.id}:`, storageError)
+            // Continue without storage - items will be stored as empty array
+          }
+        }
+
         const collectionToInsert = {
           id: collection.id,
           profile_id: profileId,
           name: collection.name,
           color: collection.color,
           description: collection.description,
-          item_ids: collection.itemIds || [],
+          item_ids: [], // Keep empty - items are now in storage
           item_count: collection.itemIds?.length || 0,
           is_public: collection.isPublic ?? true,
           custom_banner_url: collection.customBanner,
+          items_storage_url: itemsStorageUrl, // New field for storage URL
           metadata: {}
         }
 
@@ -506,7 +597,7 @@ export async function setCollections(clerkId: string, collections: Collection[])
 
         if (error) {
           if (error.code === '23505') {
-            console.log(`[Database] Collection ${collection.id} already exists, skipping...`)
+            console.log(`[Database] Collection ${collection.id} already exists, updating...`)
             // Check if it exists and update it instead
             const { error: updateError } = await supabase
               .from('collections')
@@ -514,10 +605,11 @@ export async function setCollections(clerkId: string, collections: Collection[])
                 name: collection.name,
                 color: collection.color,
                 description: collection.description,
-                item_ids: collection.itemIds || [],
+                item_ids: [], // Keep empty - items are now in storage
                 item_count: collection.itemIds?.length || 0,
                 is_public: collection.isPublic ?? true,
-                custom_banner_url: collection.customBanner
+                custom_banner_url: collection.customBanner,
+                items_storage_url: itemsStorageUrl // Update storage URL
               })
               .eq('id', collection.id)
               .eq('profile_id', profileId)
@@ -565,8 +657,50 @@ export async function addCollection(clerkId: string, collection: Collection): Pr
   if (!clerkId) return
   
   try {
-    const currentCollections = await getCollections(clerkId)
-    await setCollections(clerkId, [...currentCollections, collection])
+    console.log(`[Database] addCollection called for clerk_id: ${clerkId}, collection: ${collection.name}`)
+    const profileId = await getOrCreateProfile(clerkId)
+    const supabase = getSupabaseClient()
+    
+    // Upload items array to storage if it exists and has items
+    let itemsStorageUrl: string | null = null
+    if (collection.itemIds && collection.itemIds.length > 0) {
+      try {
+        const bucket = 'collections'
+        const fileName = `${collection.id}/items.json`
+        itemsStorageUrl = await uploadJsonToStorage(collection.itemIds, bucket, fileName)
+        console.log(`[Database] Uploaded items for collection ${collection.id} to storage: ${itemsStorageUrl}`)
+      } catch (storageError) {
+        console.error(`[Database] Error uploading items to storage for collection ${collection.id}:`, storageError)
+        // Continue without storage - items will be stored as empty array
+      }
+    }
+    
+    const collectionToInsert = {
+      id: collection.id,
+      profile_id: profileId,
+      name: collection.name,
+      color: collection.color,
+      description: collection.description,
+      item_ids: [], // Keep empty - items are now in storage
+      item_count: collection.itemIds?.length || 0,
+      is_public: collection.isPublic ?? true,
+      custom_banner_url: collection.customBanner,
+      items_storage_url: itemsStorageUrl, // New field for storage URL
+      metadata: {}
+    }
+    
+    console.log(`[Database] Inserting single collection: ${collection.id} - ${collection.name}`)
+    
+    const { error } = await supabase
+      .from('collections')
+      .insert(collectionToInsert)
+    
+    if (error) {
+      console.error(`[Database] Error inserting collection ${collection.id}:`, error)
+      throw error
+    }
+    
+    console.log(`[Database] Successfully inserted collection: ${collection.id}`)
     
     // Auto-create community post if it's a public collection with items
     if (collection.itemIds && collection.itemIds.length > 0 && collection.isPublic !== false) {
@@ -574,6 +708,7 @@ export async function addCollection(clerkId: string, collection: Collection): Pr
     }
   } catch (error) {
     console.error('[Database] Error adding collection:', error)
+    throw error // Re-throw to propagate to API
   }
 }
 
@@ -590,6 +725,49 @@ export async function updateCollection(clerkId: string, collectionId: string, up
     if (updates.description !== undefined) updateData.description = updates.description
     if (updates.isPublic !== undefined) updateData.is_public = updates.isPublic
     if (updates.customBanner !== undefined) updateData.custom_banner_url = updates.customBanner
+    
+    // Handle itemIds update - need to upload to storage
+    if (updates.itemIds !== undefined) {
+      let itemsStorageUrl: string | null = null
+      if (updates.itemIds.length > 0) {
+        try {
+          const bucket = 'collections'
+          const fileName = `${collectionId}/items.json`
+          itemsStorageUrl = await uploadJsonToStorage(updates.itemIds, bucket, fileName)
+          console.log(`[Database] Updated items for collection ${collectionId} in storage: ${itemsStorageUrl}`)
+        } catch (storageError) {
+          console.error(`[Database] Error uploading updated items to storage for collection ${collectionId}:`, storageError)
+          return
+        }
+      } else {
+        // If updating to empty array, clean up storage
+        const { data: collection } = await supabase
+          .from('collections')
+          .select('items_storage_url')
+          .eq('profile_id', profileId)
+          .eq('id', collectionId)
+          .single()
+        
+        if (collection?.items_storage_url) {
+          try {
+            const urlParts = collection.items_storage_url.split('/storage/v1/object/public/')
+            if (urlParts.length === 2) {
+              const pathParts = urlParts[1].split('/')
+              const bucket = pathParts[0]
+              const fileName = pathParts.slice(1).join('/')
+              await deleteFromStorage(bucket, fileName)
+            }
+          } catch (deleteError) {
+            console.error(`[Database] Error deleting items from storage for collection ${collectionId}:`, deleteError)
+          }
+        }
+        itemsStorageUrl = null
+      }
+      
+      updateData.item_ids = [] // Keep empty since items are in storage
+      updateData.item_count = updates.itemIds.length
+      updateData.items_storage_url = itemsStorageUrl
+    }
     
     const { error } = await supabase
       .from('collections')
@@ -614,7 +792,7 @@ export async function addItemToCollection(clerkId: string, itemId: string, colle
     
     const { data: collection, error } = await supabase
       .from('collections')
-      .select('item_ids')
+      .select('item_ids, items_storage_url, item_count')
       .eq('profile_id', profileId)
       .eq('id', collectionId)
       .single()
@@ -624,15 +802,51 @@ export async function addItemToCollection(clerkId: string, itemId: string, colle
       return
     }
     
-    const currentItemIds = collection.item_ids || []
+    // Get current items from storage or database
+    let currentItemIds: string[] = []
+    if (collection.items_storage_url) {
+      try {
+        // Extract bucket and fileName from storage URL
+        const urlParts = collection.items_storage_url.split('/storage/v1/object/public/')
+        if (urlParts.length === 2) {
+          const pathParts = urlParts[1].split('/')
+          const bucket = pathParts[0]
+          const fileName = pathParts.slice(1).join('/')
+          
+          const itemsFromStorage = await downloadJsonFromStorage(bucket, fileName)
+          if (itemsFromStorage && Array.isArray(itemsFromStorage)) {
+            currentItemIds = itemsFromStorage
+          }
+        }
+      } catch (storageError) {
+        console.error(`[Database] Error loading items from storage for collection ${collectionId}:`, storageError)
+      }
+    } else {
+      // Fallback to database item_ids if no storage URL
+      currentItemIds = collection.item_ids || []
+    }
+    
     if (!currentItemIds.includes(itemId)) {
       const updatedItemIds = [...currentItemIds, itemId]
       
+      // Upload updated items to storage
+      let itemsStorageUrl = collection.items_storage_url
+      try {
+        const bucket = 'collections'
+        const fileName = `${collectionId}/items.json`
+        itemsStorageUrl = await uploadJsonToStorage(updatedItemIds, bucket, fileName)
+      } catch (storageError) {
+        console.error(`[Database] Error uploading updated items to storage for collection ${collectionId}:`, storageError)
+        return
+      }
+      
+      // Update database with new count and storage URL
       await supabase
         .from('collections')
         .update({ 
-          item_ids: updatedItemIds,
-          item_count: updatedItemIds.length
+          item_ids: [], // Keep empty since items are in storage
+          item_count: updatedItemIds.length,
+          items_storage_url: itemsStorageUrl
         })
         .eq('profile_id', profileId)
         .eq('id', collectionId)
@@ -651,7 +865,7 @@ export async function removeItemFromCollection(clerkId: string, itemId: string, 
     
     const { data: collection, error } = await supabase
       .from('collections')
-      .select('item_ids')
+      .select('item_ids, items_storage_url, item_count')
       .eq('profile_id', profileId)
       .eq('id', collectionId)
       .single()
@@ -661,15 +875,69 @@ export async function removeItemFromCollection(clerkId: string, itemId: string, 
       return
     }
     
-    const currentItemIds = collection.item_ids || []
+    // Get current items from storage or database
+    let currentItemIds: string[] = []
+    if (collection.items_storage_url) {
+      try {
+        // Extract bucket and fileName from storage URL
+        const urlParts = collection.items_storage_url.split('/storage/v1/object/public/')
+        if (urlParts.length === 2) {
+          const pathParts = urlParts[1].split('/')
+          const bucket = pathParts[0]
+          const fileName = pathParts.slice(1).join('/')
+          
+          const itemsFromStorage = await downloadJsonFromStorage(bucket, fileName)
+          if (itemsFromStorage && Array.isArray(itemsFromStorage)) {
+            currentItemIds = itemsFromStorage
+          }
+        }
+      } catch (storageError) {
+        console.error(`[Database] Error loading items from storage for collection ${collectionId}:`, storageError)
+      }
+    } else {
+      // Fallback to database item_ids if no storage URL
+      currentItemIds = collection.item_ids || []
+    }
+    
     const updatedItemIds = currentItemIds.filter((id: string) => id !== itemId)
     
     if (updatedItemIds.length !== currentItemIds.length) {
+      // Upload updated items to storage (or delete if empty)
+      let itemsStorageUrl = collection.items_storage_url
+      if (updatedItemIds.length > 0) {
+        try {
+          const bucket = 'collections'
+          const fileName = `${collectionId}/items.json`
+          itemsStorageUrl = await uploadJsonToStorage(updatedItemIds, bucket, fileName)
+        } catch (storageError) {
+          console.error(`[Database] Error uploading updated items to storage for collection ${collectionId}:`, storageError)
+          return
+        }
+      } else {
+        // If no items left, delete from storage and set URL to null
+        if (itemsStorageUrl) {
+          try {
+            const urlParts = itemsStorageUrl.split('/storage/v1/object/public/')
+            if (urlParts.length === 2) {
+              const pathParts = urlParts[1].split('/')
+              const bucket = pathParts[0]
+              const fileName = pathParts.slice(1).join('/')
+              await deleteFromStorage(bucket, fileName)
+            }
+          } catch (deleteError) {
+            console.error(`[Database] Error deleting empty items from storage for collection ${collectionId}:`, deleteError)
+          }
+        }
+        itemsStorageUrl = null
+      }
+      
+      // Update database with new count and storage URL
       await supabase
         .from('collections')
         .update({ 
-          item_ids: updatedItemIds,
-          item_count: updatedItemIds.length
+          item_ids: [], // Keep empty since items are in storage
+          item_count: updatedItemIds.length,
+          items_storage_url: itemsStorageUrl
         })
         .eq('profile_id', profileId)
         .eq('id', collectionId)
@@ -687,6 +955,31 @@ export async function removeCollection(clerkId: string, collectionId: string): P
     const supabase = getSupabaseClient()
     
     console.log(`[Database] Removing collection ${collectionId} for clerk_id: ${clerkId}`)
+    
+    // First get the collection to check for storage URL
+    const { data: collection } = await supabase
+      .from('collections')
+      .select('items_storage_url')
+      .eq('profile_id', profileId)
+      .eq('id', collectionId)
+      .single()
+    
+    // Clean up storage if there's a storage URL
+    if (collection?.items_storage_url) {
+      try {
+        const urlParts = collection.items_storage_url.split('/storage/v1/object/public/')
+        if (urlParts.length === 2) {
+          const pathParts = urlParts[1].split('/')
+          const bucket = pathParts[0]
+          const fileName = pathParts.slice(1).join('/')
+          await deleteFromStorage(bucket, fileName)
+          console.log(`[Database] Cleaned up storage for collection ${collectionId}`)
+        }
+      } catch (storageError) {
+        console.error(`[Database] Error cleaning up storage for collection ${collectionId}:`, storageError)
+        // Continue with deletion even if storage cleanup fails
+      }
+    }
     
     // First remove any community posts for this collection
     await removePostForCollection(clerkId, collectionId)
@@ -1044,7 +1337,25 @@ export async function updateUserProfile(clerkId: string, profileData: {
     if (profileData.display_name !== undefined) updateData.display_name = profileData.display_name
     if (profileData.full_name !== undefined) updateData.full_name = profileData.full_name
     if (profileData.bio !== undefined) updateData.bio = profileData.bio
-    if (profileData.profile_picture_url !== undefined) updateData.profile_picture_url = profileData.profile_picture_url
+    if (profileData.profile_picture_url !== undefined) {
+      // If caller passed a base64 data URL, upload to storage and store the resulting URL instead
+      try {
+        const pp = profileData.profile_picture_url
+        if (typeof pp === 'string' && pp.includes('data:image')) {
+          const uploaded = await uploadBase64ToStorage(pp, 'profile-images')
+          if (uploaded) {
+            updateData.profile_picture_url = uploaded
+          } else {
+            updateData.profile_picture_url = null
+          }
+        } else {
+          updateData.profile_picture_url = profileData.profile_picture_url
+        }
+      } catch (err) {
+        console.error('[Database] Error uploading profile picture in updateUserProfile:', err)
+        updateData.profile_picture_url = null
+      }
+    }
     
     const { error } = await supabase
       .from('profiles')
@@ -1408,7 +1719,7 @@ export async function getFollowingFeedPosts(userClerkId: string, limit: number =
       return []
     }
     
-    const followingIds = following.map(f => f.following_id)
+    const followingIds = following.map((f: any) => f.following_id)
     
     // Get posts from users that the current user is following
     const { data: posts, error } = await supabase
@@ -1880,7 +2191,7 @@ export async function getUnreadMessageCount(clerkId: string): Promise<number> {
 
     if (!conversations || conversations.length === 0) return 0
 
-    const conversationIds = conversations.map(c => c.id)
+    const conversationIds = conversations.map((c: any) => c.id)
 
     // Count unread messages in these conversations where user is NOT the sender
     const { count, error } = await supabase

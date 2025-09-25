@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@clerk/nextjs/server"
+import { createClient } from '@supabase/supabase-js'
 import {
   getCollections,
   addCollection,
@@ -7,34 +8,42 @@ import {
   addItemToCollection,
   removeItemFromCollection,
   updateCollection,
-  removePostForCollection
+  removePostForCollection,
+  getOrCreateProfile
 } from "@/lib/database-service-v2"
+import { getCachedUserCollections, invalidateUserCache } from "@/lib/cache/user-cache"
+import { downloadJsonFromStorage } from "@/lib/storage-helpers"
 import type { Collection } from "@/lib/database-service-v2"
 
 export async function GET() {
   try {
     const { userId } = await auth()
-    
+
     // Require authentication for database access
     if (!userId) {
       console.log('[Collections API] No user ID provided')
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
     }
-    
+
     console.log(`[Collections API] GET request - User ID: ${userId}`)
-    
-    // Get user's collections from storage
-    const collections = await getCollections(userId)
-    
-    console.log(`[Collections API] Found ${collections.length} collections for user ${userId}`)
-    console.log(`[Collections API] Collection IDs:`, collections.map(c => ({ id: c.id, name: c.name })))
+
+    // Get user's collections from cache (with database fallback)
+    const collections = await getCachedUserCollections(userId)
+
+    // Ensure we have an array
+    const collectionsArray = Array.isArray(collections) ? collections : []
+
+    // Collections are returned as cached minimal previews by getCachedUserCollections
+    // which avoids downloading items and does chunked caching. We assume it returns
+    // items preview already populated. Use the cached/minimal result directly.
+    const minimalCollections = collectionsArray
 
     // Add cache prevention headers
-    const response = NextResponse.json(collections)
+    const response = NextResponse.json(minimalCollections)
     response.headers.set('Cache-Control', 'no-cache, no-store, must-revalidate')
     response.headers.set('Pragma', 'no-cache')
     response.headers.set('Expires', '0')
-    
+
     return response
   } catch (error) {
     console.error("[Collections API] Error fetching collections:", error)

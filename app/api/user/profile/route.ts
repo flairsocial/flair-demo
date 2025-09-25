@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { auth, clerkClient } from "@clerk/nextjs/server"
-import { getUserProfile, updateUserProfile } from "@/lib/database-service-v2"
+import { getUserProfile, updateUserProfile } from "../../../../lib/database-service-v2"
+import { CacheManager, CACHE_TTL } from '@/lib/redis'
+import { uploadBase64ToStorage } from '../../../../lib/image-sanitizer'
 
 export async function GET() {
   try {
@@ -11,6 +13,14 @@ export async function GET() {
 
     console.log(`[Profile API] GET request - User ID: ${userId}`)
 
+    const cacheKey = `user:${userId}:profile`
+    // Try cache first
+    const cached = await CacheManager.get<any>(cacheKey)
+    if (cached) {
+      console.log(`[Profile API] Returning cached profile for user: ${userId}`)
+      return NextResponse.json(cached)
+    }
+
     // Get user's community profile using database service v2
     const profile = await getUserProfile(userId)
 
@@ -19,6 +29,12 @@ export async function GET() {
     }
 
     console.log(`[Profile API] Found profile for user: ${userId}`)
+    // Cache the profile for faster subsequent reads
+    try {
+      await CacheManager.set(cacheKey, profile, CACHE_TTL.USER_PROFILE)
+    } catch (e) {
+      // ignore caching errors
+    }
     return NextResponse.json(profile)
   } catch (error) {
     console.error('[Profile API] Error:', error)
@@ -122,21 +138,24 @@ export async function PUT(request: Request) {
       }
     }
     
-    // Handle profile picture update - use a more efficient approach
-    let profilePictureUrl = profilePicture
+    // Handle profile picture update - upload base64 to storage and store URL only
+    let profilePictureUrl = undefined
     if (profilePicture) {
-      // If it's base64 data, convert to data URL for storage in our database only
-      // Don't store large images in Clerk metadata due to size limits
-      if (!profilePicture.startsWith('data:')) {
-        profilePictureUrl = `data:image/jpeg;base64,${profilePicture}`
+      if (profilePicture.startsWith('data:')) {
+        // Upload to storage and get public URL
+        const uploaded = await uploadBase64ToStorage(profilePicture, 'profile-images')
+        if (uploaded) profilePictureUrl = uploaded
+      } else {
+        // Might already be a URL
+        profilePictureUrl = profilePicture
       }
-      
-      console.log(`[User Profile API] Processing profile picture - size: ${(profilePictureUrl.length / 1024).toFixed(1)}KB`)
-      
-      // Only store a reference or small thumbnail in Clerk metadata, not the full image
-      updateData.publicMetadata = { 
-        ...updateData.publicMetadata, 
-        hasCustomProfilePicture: true // Just a flag, not the actual image
+
+      console.log(`[User Profile API] Processed profile picture - final URL present: ${!!profilePictureUrl}`)
+
+      // Only store a flag in Clerk public metadata, not the full image
+      updateData.publicMetadata = {
+        ...updateData.publicMetadata,
+        hasCustomProfilePicture: !!profilePictureUrl
       }
     }
     

@@ -84,6 +84,13 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
     if (!newCollectionName.trim()) return
 
     try {
+      setLoading(true)
+      console.log('[CollectionModal] Creating collection:', {
+        name: newCollectionName,
+        color: selectedColor,
+        isPublic: isPublic
+      })
+
       const response = await fetch('/api/collections', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -97,8 +104,12 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
         })
       })
 
+      console.log('[CollectionModal] Response status:', response.status)
+      
       if (response.ok) {
         const result = await response.json()
+        console.log('[CollectionModal] API Response:', result)
+        
         if (result.collection) {
           // Invalidate and refetch collections to get the new collection
           await queryClient.invalidateQueries({ queryKey: ['collections'] })
@@ -114,10 +125,17 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
           setShowCreateForm(false)
           
           console.log(`✅ Created collection "${newCollectionName}"`)
+        } else {
+          console.error('[CollectionModal] No collection returned in response')
         }
+      } else {
+        const errorText = await response.text()
+        console.error('[CollectionModal] API Error:', response.status, errorText)
       }
     } catch (error) {
       console.error('Error creating collection:', error)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -227,10 +245,10 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
                 <div className="flex space-x-2">
                   <button
                     onClick={handleCreateCollection}
-                    disabled={!newCollectionName.trim()}
+                    disabled={!newCollectionName.trim() || loading}
                     className="flex-1 bg-white text-black rounded-lg px-3 py-2 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Create
+                    {loading ? 'Creating...' : 'Create'}
                   </button>
                   <button
                     onClick={() => setShowCreateForm(false)}

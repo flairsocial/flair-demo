@@ -24,56 +24,121 @@ export default function EditProfileModal({ isOpen, onClose, profileData, onSave 
   const [saving, setSaving] = useState(false)
   const [processingImage, setProcessingImage] = useState(false)
 
+  // Maximum allowed base64 length (conservative). ~200KB of base64 is ~=150KB binary.
+  const MAX_BASE64_LENGTH = 200 * 1024
+
+  // Utility: downscale a dataURL using an offscreen canvas until it meets the maxBase64Length
+  const reduceDataUrlSize = async (dataUrl: string, maxBase64Length: number) => {
+    return new Promise<string>((resolve, reject) => {
+      try {
+        const img = document.createElement('img') as HTMLImageElement
+        img.onload = () => {
+          try {
+            let canvas = document.createElement('canvas')
+            let ctx = canvas.getContext('2d')!
+            let width = img.width
+            let height = img.height
+            canvas.width = width
+            canvas.height = height
+            ctx.drawImage(img, 0, 0, width, height)
+
+            // Check current size
+            let out = canvas.toDataURL('image/jpeg', 0.9)
+            let base64 = out.split(',')[1] || ''
+            let quality = 0.9
+
+            // Iteratively reduce quality and dimensions until under threshold or minimum quality reached
+            while (base64.length > maxBase64Length && quality > 0.3) {
+              quality = Math.max(quality - 0.1, 0.3)
+              out = canvas.toDataURL('image/jpeg', quality)
+              base64 = out.split(',')[1] || ''
+              if (base64.length <= maxBase64Length) break
+
+              // If still large, reduce dimensions by 90%
+              width = Math.round(width * 0.9)
+              height = Math.round(height * 0.9)
+              canvas.width = width
+              canvas.height = height
+              ctx.drawImage(img, 0, 0, width, height)
+              out = canvas.toDataURL('image/jpeg', quality)
+              base64 = out.split(',')[1] || ''
+            }
+
+            resolve(out)
+          } catch (err) {
+            // Fallback: return original
+            resolve(dataUrl)
+          }
+        }
+        img.onerror = () => resolve(dataUrl)
+        img.src = dataUrl
+      } catch (err) {
+        resolve(dataUrl)
+      }
+    })
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    // Optimistically update UI and close modal immediately for responsiveness
     setSaving(true)
-    
-    try {
-      // Prepare data for submission
-      const submitData = {
-        ...formData,
-        // Convert data URL to base64 for API if it's a data URL
-        profilePicture: formData.profilePicture.startsWith('data:') 
-          ? formData.profilePicture.split(',')[1] // Extract base64 part
-          : formData.profilePicture // Keep URL as is
+    onSave(formData)
+    onClose()
+
+    // Send update in the background (fire-and-forget). We'll log errors but won't block UI.
+    ;(async () => {
+      try {
+        // Prepare data for submission
+        let profilePicturePayload: string | null = null
+        if (formData.profilePicture && formData.profilePicture.startsWith('data:')) {
+          // Ensure the dataURL is not excessively large; downscale if needed
+          let dataUrl = formData.profilePicture
+          const base64Part = dataUrl.split(',')[1] || ''
+          if (base64Part.length > MAX_BASE64_LENGTH) {
+            console.log('[EditProfileModal] Large image detected, downscaling before upload')
+            dataUrl = await reduceDataUrlSize(dataUrl, MAX_BASE64_LENGTH)
+          }
+          profilePicturePayload = (dataUrl.split(',')[1] || '')
+        } else if (formData.profilePicture) {
+          profilePicturePayload = formData.profilePicture
+        }
+
+        const submitData = {
+          displayName: formData.displayName,
+          username: formData.username,
+          bio: formData.bio,
+          profilePicture: profilePicturePayload
+        }
+
+        console.log('Sending profile update (background):', {
+          displayName: submitData.displayName,
+          username: submitData.username,
+          bio: submitData.bio,
+          profilePicture: submitData.profilePicture ? 'base64 data provided' : 'no image',
+          profilePictureLength: submitData.profilePicture?.length
+        })
+
+        const response = await fetch('/api/user/profile', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(submitData)
+        })
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          console.error('[EditProfileModal] Background profile update failed:', errorData)
+        } else {
+          const result = await response.json().catch(() => ({}))
+          console.log('[EditProfileModal] Background profile update succeeded:', result)
+        }
+      } catch (error) {
+        console.error('[EditProfileModal] Error in background profile update:', error)
+      } finally {
+        setSaving(false)
       }
-      
-      console.log('Submitting profile data:', {
-        displayName: submitData.displayName,
-        username: submitData.username,
-        bio: submitData.bio,
-        profilePicture: submitData.profilePicture ? 'base64 data provided' : 'no image',
-        profilePictureLength: submitData.profilePicture?.length
-      })
-      
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData)
-      })
-      
-      if (!response.ok) {
-        const errorData = await response.json()
-        console.error('Profile update failed:', errorData)
-        const errorMessage = errorData.details || errorData.error || response.statusText || 'Unknown error'
-        throw new Error(`Failed to update profile: ${errorMessage}`)
-      }
-      
-      const result = await response.json()
-      console.log('Profile updated successfully:', result)
-      
-      // Update profile data locally
-      onSave(formData)
-      onClose()
-    } catch (error) {
-      console.error('Error saving profile:', error)
-      // Show error to user (you might want to add a toast notification here)
-      alert(`Error updating profile: ${error instanceof Error ? error.message : 'Unknown error'}`)
-    } finally {
-      setSaving(false)
-    }
+    })()
   }
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {

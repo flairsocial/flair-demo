@@ -1,65 +1,9 @@
-import Redis from 'ioredis'
+import { Redis } from '@upstash/redis'
 
-// Redis client with connection pooling and error handling
+// Redis client with Upstash REST API
 let redis: Redis | null = null
 let redisEnabled = false
-
-// Only initialize Redis if URL is provided
-if (process.env.REDIS_URL) {
-  try {
-    redis = new Redis(process.env.REDIS_URL, {
-      maxRetriesPerRequest: 3,
-      retryDelayOnFailover: 100,
-      enableReadyCheck: false,
-      lazyConnect: true,
-      connectTimeout: 5000,
-      commandTimeout: 3000,
-      enableOfflineQueue: false,
-      // Performance optimizations
-      keepAlive: true,
-      keyPrefix: 'flair:',
-    })
-
-    // Error handling
-    redis.on('error', (err: any) => {
-      console.error('[Redis] Connection error:', err.message)
-      redisEnabled = false
-    })
-
-    redis.on('connect', () => {
-      console.log('[Redis] Connected successfully')
-      redisEnabled = true
-    })
-
-    redis.on('ready', () => {
-      console.log('[Redis] Ready to receive commands')
-      redisEnabled = true
-    })
-
-    redis.on('close', () => {
-      console.log('[Redis] Connection closed')
-      redisEnabled = false
-    })
-  } catch (error) {
-    console.error('[Redis] Failed to initialize:', error)
-    redis = null
-    redisEnabled = false
-  }
-} else {
-  console.log('[Redis] No REDIS_URL provided - caching disabled')
-  redisEnabled = false
-}
-
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('[Redis] Closing connection...')
-  await redis.quit()
-})
-
-process.on('SIGINT', async () => {
-  console.log('[Redis] Closing connection...')
-  await redis.quit()
-})
+let redisConnected = false
 
 // Cache TTL constants (in seconds)
 export const CACHE_TTL = {
@@ -85,15 +29,65 @@ export const CACHE_KEYS = {
 
 // Cache operations
 export class CacheManager {
+  // Lazy initialization of Redis
+  private static async ensureRedis(): Promise<boolean> {
+    if (redis && redisConnected) {
+      return true
+    }
+
+    if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+      console.log('[Cache] Redis environment variables not available')
+      return false
+    }
+
+    try {
+      if (!redis) {
+        redis = new Redis({
+          url: process.env.UPSTASH_REDIS_REST_URL,
+          token: process.env.UPSTASH_REDIS_REST_TOKEN,
+        })
+        console.log('[Cache] Redis client created')
+      }
+
+      // Test connection
+      const pingResult = await redis.ping()
+      if (pingResult === 'PONG') {
+        redisEnabled = true
+        redisConnected = true
+        console.log('[Cache] Redis connection verified')
+        return true
+      } else {
+        console.error('[Cache] Redis ping failed:', pingResult)
+        redis = null
+        redisConnected = false
+        return false
+      }
+    } catch (error) {
+      console.error('[Cache] Redis initialization failed:', error)
+      redis = null
+      redisConnected = false
+      return false
+    }
+  }
+
   static async get<T>(key: string): Promise<T | null> {
-    if (!redis || !redisEnabled) {
+    if (!(await this.ensureRedis())) {
       console.log(`[Cache] Redis not available, skipping get for ${key}`)
       return null
     }
 
     try {
-      const data = await redis.get(key)
-      return data ? JSON.parse(data) : null
+      const data = await redis!.get(key)
+      if (data === null || data === undefined) {
+        return null
+      }
+      if (typeof data === 'object') {
+        return data as T
+      }
+      if (typeof data === 'string') {
+        return JSON.parse(data) as T
+      }
+      return data as T
     } catch (error) {
       console.error(`[Cache] Error getting ${key}:`, error)
       return null
@@ -101,45 +95,62 @@ export class CacheManager {
   }
 
   static async set(key: string, value: any, ttl: number = 300): Promise<void> {
-    if (!redis || !redisEnabled) {
+    if (!(await this.ensureRedis())) {
       console.log(`[Cache] Redis not available, skipping set for ${key}`)
       return
     }
 
     try {
-      await redis.setex(key, ttl, JSON.stringify(value))
+      const serialized = JSON.stringify(value)
+
+      // Measure byte-length (UTF-8) instead of character count
+      const byteLength = Buffer.byteLength(serialized, 'utf8')
+
+  // Use a safer/default size limit: 256KB for community feeds, 1MB for others
+  const sizeLimit = key.startsWith('community:feed:') ? 256 * 1024 : 1024 * 1024
+      if (byteLength > sizeLimit) {
+        console.log(`[Cache] Data too large to cache (${(byteLength / 1024).toFixed(1)}KB > ${(sizeLimit / 1024).toFixed(1)}KB), skipping ${key}`)
+        return
+      }
+
+      await redis!.setex(key, ttl, serialized)
+      console.log(`[Cache] Successfully cached ${key} (${(byteLength / 1024).toFixed(1)}KB)`)    
     } catch (error) {
       console.error(`[Cache] Error setting ${key}:`, error)
+      // If there's an error, mark Redis as unavailable
+      redisConnected = false
     }
   }
 
   static async del(key: string): Promise<void> {
-    if (!redis || !redisEnabled) {
+    if (!(await this.ensureRedis())) {
       console.log(`[Cache] Redis not available, skipping del for ${key}`)
       return
     }
 
     try {
-      await redis.del(key)
+      await redis!.del(key)
     } catch (error) {
       console.error(`[Cache] Error deleting ${key}:`, error)
+      redisConnected = false
     }
   }
 
   static async invalidatePattern(pattern: string): Promise<void> {
-    if (!redis || !redisEnabled) {
+    if (!(await this.ensureRedis())) {
       console.log(`[Cache] Redis not available, skipping invalidate for ${pattern}`)
       return
     }
 
     try {
-      const keys = await redis.keys(`flair:${pattern}`)
+      const keys = await redis!.keys(`flair:${pattern}`)
       if (keys.length > 0) {
-        await redis.del(...keys)
+        await redis!.del(...keys)
         console.log(`[Cache] Invalidated ${keys.length} keys matching ${pattern}`)
       }
     } catch (error) {
       console.error(`[Cache] Error invalidating pattern ${pattern}:`, error)
+      redisConnected = false
     }
   }
 
@@ -157,41 +168,42 @@ export class CacheManager {
 
   // Health check
   static async ping(): Promise<boolean> {
-    if (!redis || !redisEnabled) {
-      return false
+    if (await this.ensureRedis()) {
+      try {
+        const result = await redis!.ping()
+        return result === 'PONG'
+      } catch (error) {
+        console.error('[Cache] Health check failed:', error)
+        redisConnected = false
+        return false
+      }
     }
-
-    try {
-      const result = await redis.ping()
-      return result === 'PONG'
-    } catch (error) {
-      console.error('[Cache] Health check failed:', error)
-      return false
-    }
+    return false
   }
 
   // Get cache stats
   static async getStats(): Promise<any> {
-    if (!redis || !redisEnabled) {
-      return {
-        connected: false,
-        error: 'Redis not configured'
+    if (await this.ensureRedis()) {
+      try {
+        // Test connection with ping
+        const pingResult = await redis!.ping()
+        const connected = pingResult === 'PONG'
+
+        return {
+          connected,
+          provider: 'Upstash',
+          restApi: true,
+        }
+      } catch (error) {
+        return {
+          connected: false,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        }
       }
     }
-
-    try {
-      const info = await redis.info()
-      const dbsize = await redis.dbsize()
-      return {
-        connected: true,
-        dbsize,
-        info: info.split('\n').slice(0, 10).join('\n'), // First 10 lines
-      }
-    } catch (error) {
-      return {
-        connected: false,
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
+    return {
+      connected: false,
+      error: 'Redis not configured'
     }
   }
 }

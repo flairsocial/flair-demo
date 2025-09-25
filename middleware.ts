@@ -17,8 +17,13 @@ export default clerkMiddleware(async (auth, req) => {
     try {
       console.log(`[Middleware] Ensuring profile exists for user: ${userId}`);
       // Use direct database call to avoid Redis import issues in middleware
-      await getOrCreateProfile(userId);
-      console.log(`[Middleware] Profile verified for user: ${userId}`);
+      // Do NOT await here because this can block every request and slow the UI.
+      // Fire-and-forget profile creation/check so requests proceed immediately.
+      getOrCreateProfile(userId).then(() => {
+        console.log(`[Middleware] Profile verified for user: ${userId}`);
+      }).catch(err => {
+        console.error(`[Middleware] Failed to ensure profile for user ${userId}:`, err);
+      })
     } catch (error) {
       console.error(`[Middleware] Failed to create profile for user ${userId}:`, error);
       // Don't block the request, just log the error

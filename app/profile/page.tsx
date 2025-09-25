@@ -99,7 +99,8 @@ export default function ProfilePage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([])
   const [showBulkActions, setShowBulkActions] = useState(false)
   const [selectedCollection, setSelectedCollection] = useState<(Collection & { items: Product[] }) | null>(null)
-  const [showCollectionModal, setShowCollectionModal] = useState(false)
+  const [showAddToCollectionModal, setShowAddToCollectionModal] = useState(false)
+  const [showCollectionDetail, setShowCollectionDetail] = useState(false)
   const [currentProduct, setCurrentProduct] = useState<Product | null>(null)
   const [showCreateCollection, setShowCreateCollection] = useState(false)
   const [showBulkAddModal, setShowBulkAddModal] = useState(false)
@@ -501,31 +502,46 @@ export default function ProfilePage() {
 
   // Handle clicking on a collection to view its contents
   const handleCollectionClick = async (collection: Collection) => {
-    try {
-      const response = await fetch(`/api/collections/${collection.id}`)
-      if (response.ok) {
-        const collectionData = await response.json()
-        setSelectedCollection({
-          ...collection,
-          items: collectionData.items || []
-        })
-      } else {
-        console.error('Failed to load collection items')
+    // Optimistically open the collection modal immediately to keep the UI snappy.
+    setSelectedCollection({
+      ...collection,
+      items: []
+    })
+  // Ensure modal open flag is set so the collection detail modal shows reliably
+  setShowCollectionDetail(true)
+
+    // Fetch items in the background and update the modal when ready.
+    ;(async () => {
+      try {
+        const response = await fetch(`/api/collections/${collection.id}`)
+        if (response.ok) {
+          const collectionData = await response.json()
+          setSelectedCollection((prev) => {
+            if (!prev || prev.id !== collection.id) return prev
+            return {
+              ...collection,
+              items: collectionData.items || []
+            }
+          })
+        } else {
+          console.error('Failed to load collection items')
+        }
+      } catch (error) {
+        console.error('Error loading collection items:', error)
       }
-    } catch (error) {
-      console.error('Error loading collection items:', error)
-    }
+    })()
   }
 
   // Close collection view
   const handleCloseCollection = () => {
     setSelectedCollection(null)
+    setShowCollectionDetail(false)
   }
 
   // Handle adding item to collection
   const handleAddToCollection = (product: Product) => {
     setCurrentProduct(product)
-    setShowCollectionModal(true)
+    setShowAddToCollectionModal(true)
   }
 
   // Handle creating new collection
@@ -598,7 +614,7 @@ export default function ProfilePage() {
           </div>
           <div className="flex gap-1 sm:gap-2">
             <button
-              onClick={() => setShowEditProfile(true)}
+              onClick={() => { console.log('[Profile] Open Edit Profile modal'); setShowEditProfile(true) }}
               className="p-1.5 sm:p-2 rounded-full bg-zinc-900 hover:bg-zinc-800 transition-colors ml-1 sm:ml-2 touch-manipulation flex items-center justify-center"
               aria-label="Edit Profile"
             >
@@ -758,7 +774,7 @@ export default function ProfilePage() {
                   >
                     All Items ({savedItems.length})
                   </button>
-                  {collections.map((collection) => (
+                  {collections.map((collection: any) => (
                     <button
                       key={collection.id}
                       className={`flex-shrink-0 px-3 py-1 rounded-full text-xs bg-zinc-900 text-zinc-300 flex items-center touch-manipulation`}
@@ -826,7 +842,7 @@ export default function ProfilePage() {
                 // Grid View - Mobile Optimized
                 <div className="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                   {sortedItems.map((item, index) => (
-                    <div key={item.id || `grid-item-${index}`} className="relative group">
+                    <div key={item.id && item.id.trim() ? item.id : `grid-item-${index}`} className="relative group">
                       <div
                         className={`absolute top-2 left-2 z-10 w-5 h-5 rounded-full border touch-manipulation ${
                           selectedItems.includes(item.id)
@@ -883,7 +899,7 @@ export default function ProfilePage() {
                           </div>
                           {item.collectionIds && item.collectionIds.length > 0 && (
                             <div className="flex gap-1 mt-2 flex-wrap">
-                              {item.collectionIds.slice(0, 2).map((colId) => (
+                              {item.collectionIds.slice(0, 2).map((colId: any) => (
                                 <div
                                   key={colId}
                                   className={`w-2 h-2 rounded-full ${getCollectionColor(colId)}`}
@@ -916,7 +932,7 @@ export default function ProfilePage() {
                 <div className="p-4 space-y-3">
                   {sortedItems.map((item, index) => (
                     <div
-                      key={item.id || `list-item-${index}`}
+                      key={item.id && item.id.trim() ? item.id : `list-item-${index}`}
                       className="bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors"
                     >
                       <div className="flex">
@@ -960,7 +976,7 @@ export default function ProfilePage() {
                             </div>
                             {item.collectionIds && item.collectionIds.length > 0 && (
                               <div className="flex flex-wrap gap-1 mt-2">
-                                {item.collectionIds.slice(0, isMobile ? 1 : 3).map((colId) => (
+                                {item.collectionIds.slice(0, isMobile ? 1 : 3).map((colId: any) => (
                                   <div
                                     key={colId}
                                     className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[8px] sm:text-[10px] ${getCollectionColor(
@@ -1008,7 +1024,7 @@ export default function ProfilePage() {
               </div>
 
               <div className="space-y-4">
-                {purchases.map((order) => (
+                {purchases.map((order: any) => (
                   <div key={order.id} className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800">
                     <div className="p-3 sm:p-4 border-b border-zinc-800 flex justify-between items-center">
                       <div>
@@ -1034,7 +1050,7 @@ export default function ProfilePage() {
 
                     <div className="p-3 sm:p-4">
                       <div className="space-y-3">
-                        {order.items.map((item) => (
+                        {order.items.map((item: any) => (
                           <div key={item.id} className="flex items-center">
                             <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-800 rounded-lg overflow-hidden relative mr-2 sm:mr-3">
                               <Image
@@ -1112,7 +1128,7 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {collections.map((collection) => (
+                  {collections.map((collection: any) => (
                     <div
                       key={collection.id}
                       className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800 hover:border-zinc-700 transition-colors cursor-pointer touch-manipulation group"
@@ -1132,9 +1148,9 @@ export default function ProfilePage() {
                           // Show product images as fallback
                           <div className="grid grid-cols-2 h-full">
                             {savedItems
-                              .filter((item) => collection.itemIds.includes(item.id))
+                              .filter((item: any) => collection.itemIds.includes(item.id))
                               .slice(0, 4)
-                              .map((item, index) => (
+                              .map((item: any, index: any) => (
                                 <div key={item.id} className="relative">
                                   <Image
                                     src={item.image || "/placeholder.svg"}
@@ -1185,8 +1201,8 @@ export default function ProfilePage() {
                                 description: "",
                                 totalItems: collection.itemIds.length,
                                 items: savedItems
-                                  .filter(item => collection.itemIds.includes(item.id))
-                                  .map(item => ({
+                                  .filter((item: any) => collection.itemIds.includes(item.id))
+                                  .map((item: any) => ({
                                     id: item.id,
                                     title: item.title,
                                     brand: item.brand,
@@ -1242,14 +1258,14 @@ export default function ProfilePage() {
       />
 
       <CollectionModal
-        isOpen={showCollectionModal}
-        onClose={() => setShowCollectionModal(false)}
+        isOpen={showAddToCollectionModal}
+        onClose={() => setShowAddToCollectionModal(false)}
         product={currentProduct!}
       />
 
       <CollectionDetailModal
         collection={selectedCollection}
-        isOpen={!!selectedCollection}
+        isOpen={showCollectionDetail && !!selectedCollection}
         onClose={handleCloseCollection}
         onUpdate={(collection) => {
           // React Query handles cache updates automatically
