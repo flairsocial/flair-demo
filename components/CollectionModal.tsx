@@ -288,7 +288,7 @@ export default function CollectionModal({ isOpen, onClose, product }: Collection
                     <div className={`w-8 h-8 rounded-full ${collection.color}`}></div>
                     <div className="flex-1 text-left">
                       <p className="text-sm font-medium">{collection.name}</p>
-                      <p className="text-xs text-zinc-400">{collection.itemIds.length} items</p>
+                      <p className="text-xs text-zinc-400">{Array.isArray(collection.itemIds) ? collection.itemIds.length : 0} items</p>
                     </div>
                   </button>
                 ))

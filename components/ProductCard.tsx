@@ -90,7 +90,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           }}
         />
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/70 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 rounded-xl">
+  <div className="absolute inset-0 bg-gradient-to-b from-black/0 via-black/0 to-black/70 opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 rounded-xl pointer-events-none sm:group-hover:pointer-events-auto">
           <div className="absolute bottom-0 left-0 right-0 p-3">
             <p className="text-white text-sm font-medium truncate">{product.title}</p>
             <div className="flex justify-between items-center mt-1">
@@ -107,7 +107,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           </div>
         </div>
 
-        <div className="absolute top-2 right-2 flex flex-col space-y-1.5 sm:space-y-2 opacity-0 group-hover:opacity-100 transition-opacity">
+  <div className="absolute top-2 right-2 flex flex-col space-y-1.5 sm:space-y-2 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none group-hover:pointer-events-auto">
           <button
             className="p-1 sm:p-1.5 rounded-full bg-black/40 backdrop-blur-sm hover:bg-white hover:text-black transition-colors shadow-md flex items-center justify-center"
             onClick={handleSaveToSaved}
