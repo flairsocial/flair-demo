@@ -22,13 +22,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Check authentication before allowing search
-    if (!isSignedIn && isLoaded) {
-      setShowSignInPrompt(true)
-      return
-    }
-
     // Check credits before allowing search
     if (isOutOfCredits || !checkCreditsAvailable(1)) {
       setShowPricingModal(true)
@@ -42,12 +35,6 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
 
   const handleInputFocus = () => {
     setIsFocused(true)
-    // Check authentication when user tries to interact with search
-    if (!isSignedIn && isLoaded) {
-      setShowSignInPrompt(true)
-      return
-    }
-
     // Check credits when user tries to interact with search
     if (isOutOfCredits || !checkCreditsAvailable(1)) {
       setShowPricingModal(true)
@@ -61,12 +48,12 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
   }
 
   const getPlaceholder = () => {
-    if (!isSignedIn) return "Sign in to search..."
     if (isOutOfCredits) return "No credits - upgrade to search..."
     return "Search for items..."
   }
 
-  const isDisabled = (!isSignedIn && isLoaded) || isOutOfCredits
+  // Allow guests to search; only disable when out of credits
+  const isDisabled = isOutOfCredits
 
   return (
     <>
@@ -89,7 +76,7 @@ export default function SearchBar({ onSearch }: SearchBarProps) {
             isDisabled ? 'cursor-pointer' : ''
           }`}
         />
-        {query && isSignedIn && !isOutOfCredits && (
+        {query && !isOutOfCredits && (
           <button type="button" onClick={clearSearch} className="p-2 text-zinc-400" aria-label="Clear search">
             <X className="w-4 h-4" strokeWidth={2} />
           </button>

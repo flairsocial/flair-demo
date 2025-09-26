@@ -118,8 +118,7 @@ export async function POST(request: Request) {
           ? `Recent products discussed in this conversation: ${recentProducts.map((p: any) => `"${p.title}" by ${p.brand}`).join(', ')}`
           : ''
         
-        const optimizationResult = await generateText({
-          model: model,
+        const optimizationResult = await import('@/lib/ai-model').then(m => m.callAzureChatCompletion({
           messages: [{
             role: "user", 
             content: `
@@ -140,9 +139,9 @@ Examples: "blue jeans men", "white sneakers women", "black leather jacket"
 
 Just return the search query, nothing else:`
           }]
-        })
+        }))
         
-        const cleaned = optimizationResult.text.trim().replace(/['"]/g, '').toLowerCase()
+        const cleaned = optimizationResult.trim().replace(/['"]/g, '').toLowerCase()
         if (cleaned.length > 0 && cleaned.length < 50) {
           optimizedSearchQuery = cleaned
           hasOptimizedIntent = true
@@ -153,10 +152,15 @@ Just return the search query, nothing else:`
       }
     }
 
-    // Check if API key is available
-    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    // Check if an AI provider API key is available. Accept either Google or
+    // OpenAI/Azure API keys. Previously this route returned early when the
+    // Google key was missing; we now allow usage of AZURE/OPENAI keys so the
+    // app can be migrated to Azure OpenAI.
+    const hasGoogleKey = !!process.env.GOOGLE_GENERATIVE_AI_API_KEY
+    const hasOpenAIKey = !!process.env.OPENAI_API_KEY || !!process.env.AZURE_OPENAI_API_KEY
+    if (!hasGoogleKey && !hasOpenAIKey) {
       return NextResponse.json({ 
-        message: "I'm temporarily unavailable due to API configuration. Please try again later!",
+        message: "I'm temporarily unavailable due to AI configuration. Please try again later!",
         products: [],
         suggestions: ["What are you looking for?", "Tell me about your preferences", "How can I help you today?"]
       }, { status: 200 })
@@ -168,7 +172,8 @@ Just return the search query, nothing else:`
       getUserSavedItems(userId || undefined)
     ])
 
-    if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    // If neither provider is configured at this point, return an error.
+    if (!hasGoogleKey && !hasOpenAIKey) {
       return NextResponse.json({ error: "AI service unavailable" }, { status: 500 })
     }
 
@@ -307,29 +312,11 @@ Just return the search query, nothing else:`
               } else {
                 console.log(`[Chat] Visual similarity search failed, falling back to standard analysis`)
                 // Fall back to standard Gemini Vision analysis
-                const imageAnalysisResult = await generateText({
-                  model,
-                  messages: [
-                    {
-                      role: "user",
-                      content: [
-                        {
-                          type: "text",
-                          text: "Analyze this image and identify what product or item is shown. Describe the object's visual characteristics: shape, color, material, texture, design elements, brand markings, and any unique features. Focus on visual features that would help identify and find similar items online. Be specific about what the object actually is and its visual appearance. This could be any type of product - electronics, furniture, accessories, tools, home goods, etc."
-                        },
-                        {
-                          type: "image",
-                          image: file.content || file.url
-                        }
-                      ]
-                    }
-                  ]
-                })
-                
-                if (imageAnalysisResult?.text) {
-                  imageAnalysisQuery = imageAnalysisResult.text.trim()
-                  fileDescriptions[fileDescriptions.length - 1] = `Image Analysis: ${imageAnalysisQuery} - Analyzed from uploaded image`
-                }
+                // Note: Azure OpenAI vision support would require updating the helper
+                // For now, skip image analysis when using Azure
+                console.log(`[Chat] Skipping image analysis for Azure deployment (vision not yet implemented)`)
+                const fallbackProduct = file.metadata
+                imageAnalysisQuery = `${fallbackProduct.category || 'product'} similar to ${fallbackProduct.title || ''}`
               }
             } catch (error) {
               console.error('[Chat] Visual search for uploaded image failed:', error)
@@ -518,12 +505,55 @@ STRICT FILTERING RULES:
 
 Keep the conversation flowing naturally while being their knowledgeable, well-informed personal shopping assistant who can help them find any type of product they need.`
 
-    // Generate response using Google AI
-    const { text } = await generateText({
-      model: model,
-      system: systemPrompt,
-      messages: conversationHistory,
-    })
+    // Generate response using Azure OpenAI if configured, otherwise fall
+    // back to the existing `generateText` provider (Google/OpenAI SDK).
+    let text: string
+    if (process.env.AZURE_OPENAI_ENDPOINT && process.env.AZURE_OPENAI_DEPLOYMENT && process.env.AZURE_OPENAI_API_KEY) {
+      try {
+        // Build the Azure-compatible payload. We send messages in the chat
+        // format and pass the deployment name as the model identifier.
+        const azurePayload = {
+          // model field in Azure is the deployment name
+          model: process.env.AZURE_OPENAI_DEPLOYMENT,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            ...conversationHistory
+          ],
+          // safety: keep token usage modest for now
+          max_tokens: 1024,
+          temperature: 0.7,
+        }
+
+        const azureResp = await import('@/lib/ai-model').then(m => m.callAzureChatCompletion(azurePayload))
+
+        // Azure returns a response body similar to OpenAI responses. Try to
+        // extract the assistant text from common response shapes.
+        if (azureResp && azureResp.choices && azureResp.choices[0]) {
+          // chat/completions shape
+          text = azureResp.choices[0].message?.content || azureResp.choices[0].text || ''
+        } else if (azureResp && azureResp.output && Array.isArray(azureResp.output)) {
+          // some SDKs wrap a responses.output array
+          const first = azureResp.output[0]
+          text = first?.content?.map?.((c: any) => c?.text || c?.markdown || '').join('\n') || first?.text || ''
+        } else if (typeof azureResp === 'string') {
+          text = azureResp
+        } else {
+          text = JSON.stringify(azureResp)
+        }
+      } catch (azureErr: any) {
+        console.error('[Chat] Azure OpenAI call failed:', azureErr)
+        // Re-throw to let outer catch handle user-friendly messaging
+        throw azureErr
+      }
+    } else {
+      // Generate response using Google AI or other configured provider
+      const gen = await generateText({
+        model: model,
+        system: systemPrompt,
+        messages: conversationHistory,
+      })
+      text = gen.text
+    }
 
     console.log(`[Chat] Generated response length: ${text.length}`)
 

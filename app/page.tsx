@@ -129,14 +129,13 @@ export default function Home() {
     if (!query && category === "All") {
       // Premium, high-end fashion keywords - no trending/fast fashion
       const highQualityQueries = [
-        "designer fashion couture high-end",
-        "luxury boutique fashion exclusive",
-        "premium designer clothing collection",
+        "designer fashion high-end",
+        "best old money fashion",
+        "premium designer clothing",
         "high-end fashion designer pieces",
-        "couture fashion limited run",
-        "heritage fashion brand iconic",
+        "fashion limited run",
         "signature designer collection timeless",
-        "exclusive luxury fashion boutique"
+        "high quality fashion"
       ]
 
       // Use profile-enhanced query only if user has configured preferences

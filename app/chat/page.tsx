@@ -697,20 +697,31 @@ export default function ChatPage() {
                 <div className="flex-1 relative">
                   
 
-                  {/* Access restriction message for users with 0 credits */}
-                  {isSignedIn && credits <= 0 && (
+                  {/* Out-of-credits message (shows to guests too). Guests see a sign-in CTA; signed-in users see upgrade CTA. */}
+                  {credits <= 0 && (
                     <div className="mb-2 p-3 bg-zinc-900/50 border border-zinc-700 rounded-lg flex items-center gap-2">
                       <Lock className="w-4 h-4 text-zinc-400 flex-shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-zinc-300 font-medium">Out of credits</p>
-                        <p className="text-xs text-zinc-400">Upgrade your plan to continue chatting with Flair</p>
+                        <p className="text-xs text-zinc-400">
+                          {isSignedIn ? 'Upgrade your plan to continue chatting with Flair' : 'You are out of credits. Sign in or upgrade for more access.'}
+                        </p>
                       </div>
-                      <button
-                        onClick={() => setShowPricing(true)}
-                        className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-medium rounded-full hover:from-blue-700 hover:to-purple-700 transition-colors"
-                      >
-                        Upgrade
-                      </button>
+                      {isSignedIn ? (
+                        <button
+                          onClick={() => setShowPricing(true)}
+                          className="px-3 py-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-medium rounded-full hover:from-blue-700 hover:to-purple-700 transition-colors"
+                        >
+                          Upgrade
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => (window.location.href = '/sign-up')}
+                          className="px-3 py-1 bg-white text-black text-xs font-medium rounded-full hover:opacity-90 transition-colors"
+                        >
+                          Sign in
+                        </button>
+                      )}
                     </div>
                   )}
 
@@ -719,23 +730,21 @@ export default function ChatPage() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder={
-                      !isSignedIn
-                        ? "Sign in to chat with Flair..."
-                        : credits <= 0
-                        ? "Upgrade to continue chatting..."
+                      credits <= 0
+                        ? 'Upgrade to continue chatting...'
                         : isMobile
-                        ? "Ask about styles..."
-                        : "Ask about styles, outfits, trends..."
+                        ? 'Ask about styles...'
+                        : 'Ask about styles, outfits, trends...'
                     }
                     className={`w-full ${isMobile ? 'py-3 px-3' : 'py-3.5 px-4'} ${credits <= 0 ? 'pr-4' : 'pr-12'} bg-zinc-800 rounded-full text-white placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-white/20 text-sm ${
-                      !isSignedIn || credits <= 0 ? 'opacity-50 cursor-not-allowed' : ''
+                      credits <= 0 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
-                    disabled={isLoading || !isSignedIn || credits <= 0}
+                    disabled={isLoading || credits <= 0}
                   />
                   {credits > 0 && (
                     <button
                       type="submit"
-                      disabled={(!input.trim() && attachedFiles.length === 0) || isLoading || !isSignedIn || credits <= 0}
+                      disabled={(!input.trim() && attachedFiles.length === 0) || isLoading}
                       className="absolute right-1.5 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-white text-black disabled:opacity-50 disabled:bg-zinc-700 transition-colors"
                       aria-label="Send message"
                     >
