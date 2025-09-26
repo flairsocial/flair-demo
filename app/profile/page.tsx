@@ -1023,80 +1023,97 @@ export default function ProfilePage() {
                 <p className="text-xs sm:text-sm text-zinc-400">View and track your recent purchases</p>
               </div>
 
-              <div className="space-y-4">
-                {purchases.map((order: any) => (
-                  <div key={order.id} className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800">
-                    <div className="p-3 sm:p-4 border-b border-zinc-800 flex justify-between items-center">
-                      <div>
-                        <div className="flex items-center">
-                          <Calendar className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-zinc-400 mr-1.5 sm:mr-2" />
-                          <span className="text-xs sm:text-sm text-zinc-300">{order.date}</span>
-                        </div>
-                        <div className="flex items-center mt-1">
-                          <Package className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-zinc-400 mr-1.5 sm:mr-2" />
-                          <span className="text-[10px] sm:text-xs text-zinc-400">Order #{order.id}</span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-center">
-                          {getStatusIcon(order.status)}
-                          <span className={`text-xs sm:text-sm ml-1.5 ${getStatusColor(order.status)}`}>
-                            {order.status}
-                          </span>
-                        </div>
-                        <span className="text-xs sm:text-sm font-medium mt-1">${order.total.toFixed(2)}</span>
-                      </div>
-                    </div>
-
-                    <div className="p-3 sm:p-4">
-                      <div className="space-y-3">
-                        {order.items.map((item: any) => (
-                          <div key={item.id} className="flex items-center">
-                            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-800 rounded-lg overflow-hidden relative mr-2 sm:mr-3">
-                              <Image
-                                src={item.image || "/placeholder.svg"}
-                                alt={item.name}
-                                fill
-                                className="object-cover"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h4 className="text-xs sm:text-sm font-medium truncate">{item.name}</h4>
-                              <p className="text-[10px] sm:text-xs text-zinc-400">Qty: {item.quantity}</p>
-                              <p className="text-xs sm:text-sm">${item.price.toFixed(2)}</p>
-                            </div>
-                            <div className="flex space-x-2">
-                              <button className="text-[10px] sm:text-xs text-zinc-400 hover:text-white transition-colors touch-manipulation">
-                                Buy Again
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="p-3 sm:p-4 bg-zinc-800/50 flex flex-wrap gap-2 justify-between items-center">
-                      <button className="text-xs sm:text-sm text-zinc-300 hover:text-white transition-colors touch-manipulation">
-                        View Details
-                      </button>
-                      <div className="flex space-x-2">
-                        <button className="text-[10px] sm:text-xs bg-zinc-800 hover:bg-zinc-700 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-colors touch-manipulation">
-                          Track Order
-                        </button>
-                        <button className="text-[10px] sm:text-xs bg-white text-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg touch-manipulation">
-                          Leave Review
-                        </button>
-                      </div>
-                    </div>
+              {purchasesLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="w-8 h-8 border-2 border-zinc-800 border-t-white rounded-full animate-spin"></div>
+                </div>
+              ) : purchases.length === 0 ? (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-8 h-8 text-zinc-700" />
                   </div>
-                ))}
-              </div>
+                  <h3 className="text-xl font-medium mb-2">No orders yet</h3>
+                  <p className="text-zinc-400 mb-6">Your purchase history will appear here</p>
+                  
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {purchases.map((order: any) => (
+                    <div key={order.id} className="bg-zinc-900 rounded-xl overflow-hidden border border-zinc-800">
+                      <div className="p-3 sm:p-4 border-b border-zinc-800 flex justify-between items-center">
+                        <div>
+                          <div className="flex items-center">
+                            <Calendar className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-zinc-400 mr-1.5 sm:mr-2" />
+                            <span className="text-xs sm:text-sm text-zinc-300">{order.date}</span>
+                          </div>
+                          <div className="flex items-center mt-1">
+                            <Package className="w-3.5 sm:w-4 h-3.5 sm:h-4 text-zinc-400 mr-1.5 sm:mr-2" />
+                            <span className="text-[10px] sm:text-xs text-zinc-400">Order #{order.id}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <div className="flex items-center">
+                            {getStatusIcon(order.status)}
+                            <span className={`text-xs sm:text-sm ml-1.5 ${getStatusColor(order.status)}`}>
+                              {order.status}
+                            </span>
+                          </div>
+                          <span className="text-xs sm:text-sm font-medium mt-1">${order.total.toFixed(2)}</span>
+                        </div>
+                      </div>
 
-              <div className="mt-6 text-center">
-                <button className="text-xs sm:text-sm text-zinc-400 hover:text-white transition-colors touch-manipulation">
-                  View All Orders
-                </button>
-              </div>
+                      <div className="p-3 sm:p-4">
+                        <div className="space-y-3">
+                          {order.items.map((item: any) => (
+                            <div key={item.id} className="flex items-center">
+                              <div className="w-12 h-12 sm:w-16 sm:h-16 bg-zinc-800 rounded-lg overflow-hidden relative mr-2 sm:mr-3">
+                                <Image
+                                  src={item.image || "/placeholder.svg"}
+                                  alt={item.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-xs sm:text-sm font-medium truncate">{item.name}</h4>
+                                <p className="text-[10px] sm:text-xs text-zinc-400">Qty: {item.quantity}</p>
+                                <p className="text-xs sm:text-sm">${item.price.toFixed(2)}</p>
+                              </div>
+                              <div className="flex space-x-2">
+                                <button className="text-[10px] sm:text-xs text-zinc-400 hover:text-white transition-colors touch-manipulation">
+                                  Buy Again
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="p-3 sm:p-4 bg-zinc-800/50 flex flex-wrap gap-2 justify-between items-center">
+                        <button className="text-xs sm:text-sm text-zinc-300 hover:text-white transition-colors touch-manipulation">
+                          View Details
+                        </button>
+                        <div className="flex space-x-2">
+                          <button className="text-[10px] sm:text-xs bg-zinc-800 hover:bg-zinc-700 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg transition-colors touch-manipulation">
+                            Track Order
+                          </button>
+                          <button className="text-[10px] sm:text-xs bg-white text-black px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg touch-manipulation">
+                            Leave Review
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {!purchasesLoading && purchases.length > 0 && (
+                <div className="mt-6 text-center">
+                  <button className="text-xs sm:text-sm text-zinc-400 hover:text-white transition-colors touch-manipulation">
+                    View All Orders
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
@@ -1107,12 +1124,17 @@ export default function ProfilePage() {
                 <button 
                   onClick={() => handleCreateNewCollection()}
                   className="bg-zinc-900 hover:bg-zinc-800 text-sm px-3 py-1.5 rounded-lg transition-colors touch-manipulation"
+                  disabled={collectionsLoading}
                 >
                   + New Collection
                 </button>
               </div>
 
-              {collections.length === 0 ? (
+              {collectionsLoading ? (
+                <div className="flex justify-center items-center py-12">
+                  <div className="w-8 h-8 border-2 border-zinc-800 border-t-white rounded-full animate-spin"></div>
+                </div>
+              ) : collections.length === 0 ? (
                 <div className="p-8 text-center">
                   <div className="w-16 h-16 bg-zinc-900 rounded-full flex items-center justify-center mx-auto mb-4">
                     <FolderPlus className="w-8 h-8 text-zinc-700" />
@@ -1144,7 +1166,7 @@ export default function ProfilePage() {
                             fill
                             className="object-cover"
                           />
-                        ) : collection.itemIds.length > 0 ? (
+                        ) : collection.itemIds && collection.itemIds.length > 0 ? (
                           // Show product images as fallback
                           <div className="grid grid-cols-2 h-full">
                             {savedItems
@@ -1164,7 +1186,7 @@ export default function ProfilePage() {
                         ) : (
                           // Show default icon if no banner and no items
                           <div className="flex items-center justify-center h-full">
-                            <div className={`w-12 h-12 rounded-full ${collection.color} flex items-center justify-center`}>
+                            <div className={`w-12 h-12 rounded-full ${collection.color || 'bg-blue-500'} flex items-center justify-center`}>
                               <FolderPlus className="w-6 h-6 text-white" />
                             </div>
                           </div>
@@ -1176,11 +1198,11 @@ export default function ProfilePage() {
                         {/* Collection info */}
                         <div className="absolute bottom-2 left-2 right-2">
                           <div className="flex items-center mb-1">
-                            <div className={`w-2 h-2 rounded-full ${collection.color} mr-2`} />
+                            <div className={`w-2 h-2 rounded-full ${collection.color || 'bg-blue-500'} mr-2`} />
                             <h4 className="text-sm font-medium text-white truncate">{collection.name}</h4>
                           </div>
                           <p className="text-xs text-zinc-300">
-                            {collection.itemIds.length} item{collection.itemIds.length !== 1 ? 's' : ''}
+                            {collection.itemIds ? collection.itemIds.length : 0} item{(collection.itemIds ? collection.itemIds.length : 0) !== 1 ? 's' : ''}
                           </p>
                         </div>
                       </div>
@@ -1199,9 +1221,9 @@ export default function ProfilePage() {
                               const collectionSummary = {
                                 name: collection.name,
                                 description: "",
-                                totalItems: collection.itemIds.length,
+                                totalItems: collection.itemIds ? collection.itemIds.length : 0,
                                 items: savedItems
-                                  .filter((item: any) => collection.itemIds.includes(item.id))
+                                  .filter((item: any) => collection.itemIds && collection.itemIds.includes(item.id))
                                   .map((item: any) => ({
                                     id: item.id,
                                     title: item.title,
@@ -1240,6 +1262,7 @@ export default function ProfilePage() {
                 <button 
                   onClick={() => handleCreateNewCollection()}
                   className="text-xs bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg transition-colors touch-manipulation"
+                  disabled={collectionsLoading}
                 >
                   Get Started
                 </button>

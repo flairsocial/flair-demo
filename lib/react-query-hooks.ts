@@ -10,12 +10,12 @@ export function useProducts(searchQuery: string = '', category: string = 'All', 
     queryKey: ['products', searchQuery, category, page],
     queryFn: async () => {
       const params = new URLSearchParams()
-      
+
       if (searchQuery) params.append('query', searchQuery)
       if (category && category !== 'All') params.append('category', category)
       params.append('page', page.toString())
       params.append('limit', '20')
-      
+
       const response = await fetch(`/api/products?${params}`)
       if (!response.ok) throw new Error('Failed to fetch products')
       return response.json()
@@ -26,7 +26,7 @@ export function useProducts(searchQuery: string = '', category: string = 'All', 
   })
 }
 
-// 2. Community Posts - mirrors the working /api/community calls  
+// 2. Community Posts - mirrors the working /api/community calls
 export function useCommunityPosts(options: { limit?: number, offset?: number } = {}) {
   return useQuery({
     queryKey: ['community-posts', options],
@@ -34,7 +34,7 @@ export function useCommunityPosts(options: { limit?: number, offset?: number } =
       const params = new URLSearchParams()
       params.append('limit', (options.limit || 20).toString())
       params.append('offset', (options.offset || 0).toString())
-      
+
       const response = await fetch(`/api/community?${params}`)
       if (!response.ok) throw new Error('Failed to fetch community posts')
       return response.json()
@@ -48,7 +48,7 @@ export function useCommunityPosts(options: { limit?: number, offset?: number } =
 // 3. Direct Messages - mirrors the working /api/direct-messages calls
 export function useDirectMessages() {
   const { user } = useUser()
-  
+
   return useQuery({
     queryKey: ['direct-messages', user?.id],
     queryFn: async () => {
@@ -66,7 +66,7 @@ export function useDirectMessages() {
 // 4. Chat History - mirrors the working /api/chat-history calls
 export function useChatHistory() {
   const { user } = useUser()
-  
+
   return useQuery({
     queryKey: ['chat-history', user?.id],
     queryFn: async () => {
@@ -83,15 +83,21 @@ export function useChatHistory() {
 // 5. Saved Items - mirrors the working /api/saved calls
 export function useSavedItems() {
   const { user } = useUser()
-  
+
   return useQuery({
     queryKey: ['saved-items', user?.id],
     queryFn: async () => {
       const response = await fetch('/api/saved')
-      if (!response.ok) throw new Error('Failed to fetch saved items')
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Return empty array for unauthenticated users
+          return []
+        }
+        throw new Error('Failed to fetch saved items')
+      }
       return response.json()
     },
-    enabled: !!user?.id,
+    enabled: true, // Always enabled to show loading state immediately
     staleTime: 2 * 60 * 1000, // Cache for 2 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   })
@@ -100,15 +106,21 @@ export function useSavedItems() {
 // 6. Collections - mirrors the working /api/collections calls
 export function useCollections() {
   const { user } = useUser()
-  
+
   return useQuery({
     queryKey: ['collections', user?.id],
     queryFn: async () => {
       const response = await fetch('/api/collections')
-      if (!response.ok) throw new Error('Failed to fetch collections')
+      if (!response.ok) {
+        if (response.status === 401) {
+          // Return empty array for unauthenticated users
+          return []
+        }
+        throw new Error('Failed to fetch collections')
+      }
       return response.json()
     },
-    enabled: !!user?.id,
+    enabled: true, // Always enabled to show loading state immediately
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
   })
@@ -117,7 +129,7 @@ export function useCollections() {
 // 7. User Profile - mirrors the working /api/profile calls
 export function useProfile() {
   const { user } = useUser()
-  
+
   return useQuery({
     queryKey: ['profile', user?.id],
     queryFn: async () => {
@@ -134,14 +146,14 @@ export function useProfile() {
 // 8. User Purchases - DISABLED (no API endpoint exists)
 export function useUserPurchases() {
   const { user } = useUser()
-  
+
   return useQuery({
     queryKey: ['user-purchases', user?.id],
     queryFn: async () => {
-      // This endpoint doesn't exist yet
+      // This endpoint doesn't exist yet, return empty array
       return []
     },
-    enabled: false, // Disabled until API endpoint is created
+    enabled: true, // Always enabled to show loading state immediately
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   })
@@ -152,7 +164,7 @@ export function useUserPurchases() {
 export function useAddToSaved() {
   const queryClient = useQueryClient()
   const { user } = useUser()
-  
+
   return useMutation({
     mutationFn: async (item: any) => {
       const response = await fetch('/api/saved', {
@@ -173,7 +185,7 @@ export function useAddToSaved() {
 export function useRemoveFromSaved() {
   const queryClient = useQueryClient()
   const { user } = useUser()
-  
+
   return useMutation({
     mutationFn: async (itemId: string) => {
       const response = await fetch('/api/saved', {
@@ -194,7 +206,7 @@ export function useRemoveFromSaved() {
 export function useCreateCollection() {
   const queryClient = useQueryClient()
   const { user } = useUser()
-  
+
   return useMutation({
     mutationFn: async (collection: any) => {
       const response = await fetch('/api/collections', {
@@ -217,7 +229,7 @@ export function useCreateCollection() {
 export function useSendMessage() {
   const queryClient = useQueryClient()
   const { user } = useUser()
-  
+
   return useMutation({
     mutationFn: async ({ conversationId, content }: { conversationId: string, content: string }) => {
       const response = await fetch('/api/direct-messages', {
@@ -244,7 +256,7 @@ export function useSendMessage() {
 export function useMarkAsRead() {
   const queryClient = useQueryClient()
   const { user } = useUser()
-  
+
   return useMutation({
     mutationFn: async (conversationId: string) => {
       const response = await fetch(`/api/direct-messages/${conversationId}`, {
@@ -263,107 +275,11 @@ export function useMarkAsRead() {
   })
 }
 
-// ============= MESSAGING MUTATIONS =============
-
-// DISABLED: API endpoints don't exist yet
-/*
-export function useSendMessage() {
-  const queryClient = useQueryClient()
-  const { user } = useUser()
-  
-  return useMutation({
-    mutationFn: async ({ conversationId, content }: { conversationId: string, content: string }) => {
-      const response = await fetch('/api/messages/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId, content }),
-      })
-      if (!response.ok) throw new Error('Failed to send message')
-      return response.json()
-    },
-    onSuccess: (_, { conversationId }) => {
-      // Update conversation and messages cache
-      queryClient.invalidateQueries({ queryKey: queryKeys.conversation(conversationId) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.directMessages(user?.id) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.unreadCount(user?.id) })
-    },
-  })
-}
-
-export function useMarkAsRead() {
-  const queryClient = useQueryClient()
-  const { user } = useUser()
-  
-  return useMutation({
-    mutationFn: async (conversationId: string) => {
-      const response = await fetch('/api/messages/mark-read', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ conversationId }),
-      })
-      if (!response.ok) throw new Error('Failed to mark as read')
-      return response.json()
-    },
-    onSuccess: (_, conversationId) => {
-      // Update relevant caches
-      queryClient.invalidateQueries({ queryKey: queryKeys.conversation(conversationId) })
-      queryClient.invalidateQueries({ queryKey: queryKeys.unreadCount(user?.id) })
-    },
-  })
-}
-*/
-
-// ============= COMMUNITY MUTATIONS =============
-
-// DISABLED: API endpoints don't exist yet
-/*
-export function useCreatePost() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async (post: any) => {
-      const response = await fetch('/api/community/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(post),
-      })
-      if (!response.ok) throw new Error('Failed to create post')
-      return response.json()
-    },
-    onSuccess: () => {
-      // Refresh community posts
-      queryClient.invalidateQueries({ queryKey: ['community-posts'] })
-    },
-  })
-}
-
-export function useLikePost() {
-  const queryClient = useQueryClient()
-  
-  return useMutation({
-    mutationFn: async ({ postId, liked }: { postId: string, liked: boolean }) => {
-      const response = await fetch('/api/community/like', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ postId, liked }),
-      })
-      if (!response.ok) throw new Error('Failed to like/unlike post')
-      return response.json()
-    },
-    onSuccess: (_, { postId }) => {
-      // Update specific post and posts list
-      queryClient.invalidateQueries({ queryKey: queryKeys.communityPost(postId) })
-      queryClient.invalidateQueries({ queryKey: ['community-posts'] })
-    },
-  })
-}
-*/
-
 // ============= COMMUNITY MUTATIONS =============
 
 export function useCreateCommunityPost() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async (postData: any) => {
       const response = await fetch('/api/community', {
@@ -383,7 +299,7 @@ export function useCreateCommunityPost() {
 
 export function useDeleteCommunityPost() {
   const queryClient = useQueryClient()
-  
+
   return useMutation({
     mutationFn: async (postId: string) => {
       const response = await fetch('/api/community', {
