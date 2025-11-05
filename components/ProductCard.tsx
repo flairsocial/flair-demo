@@ -8,6 +8,7 @@ import { Heart, Plus, Share2 } from "lucide-react"
 import type { Product } from "@/lib/types"
 import CollectionModal from "./CollectionModal"
 import { useSavedItems } from "@/lib/saved-items-context"
+import { useAnalytics } from "@/lib/hooks/useAnalytics"
 
 interface ProductCardProps {
   product: Product
@@ -16,6 +17,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
   const { checkIfSaved, addSavedItem, removeSavedItem } = useSavedItems()
+  const { trackClick, trackSave, trackUnsave } = useAnalytics()
   const [isImageLoading, setIsImageLoading] = useState(true)
   const [isHovered, setIsHovered] = useState(false)
   const [showCollectionModal, setShowCollectionModal] = useState(false)
@@ -35,12 +37,17 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
 
   const handleSaveToSaved = async (e: React.MouseEvent) => {
     e.stopPropagation()
+    console.log('[ProductCard] Save clicked:', product.id)
     
     try {
       if (isSaved) {
+        console.log('[ProductCard] Unsaving product:', product.id)
         await removeSavedItem(product.id)
+        trackUnsave(product.id)
       } else {
+        console.log('[ProductCard] Saving product:', product.id)
         await addSavedItem(product)
+        trackSave(product.id, product)
       }
     } catch (error) {
       console.error('Error updating saved status:', error)
@@ -63,10 +70,16 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
     }
   }
 
+  const handleCardClick = () => {
+    console.log('[ProductCard] Clicked:', product.id)
+    trackClick(product.id)
+    onClick()
+  }
+
   return (
     <div
       className="relative rounded-xl overflow-hidden cursor-pointer group h-full"
-      onClick={onClick}
+      onClick={handleCardClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

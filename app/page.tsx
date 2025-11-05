@@ -11,6 +11,8 @@ import { useShoppingMode } from "@/lib/shopping-mode-context"
 import { showOutOfCreditsModal } from "@/components/CreditGuard"
 import { useProducts } from "@/lib/react-query-hooks"
 import type { Product } from "@/lib/types"
+import { useFeed } from "@/lib/hooks/useFeed"
+import { useAnalytics } from "@/lib/hooks/useAnalytics"
 
 export default function Home() {
   // UI State
@@ -52,6 +54,10 @@ export default function Home() {
   // Disabled until API endpoints exist:
   // const { data: trending } = useTrendingProducts()
   // const { data: categories } = useCategories()
+  
+  // Phase 1 Recommendation System hooks
+  const { impression_id, session_id, items: feedItems, generateFeed, loading: feedLoading } = useFeed()
+  const { trackClick, trackSave, trackUnsave, trackChatOpen } = useAnalytics()
 
   // Track sticky header state
   useEffect(() => {
@@ -69,6 +75,12 @@ export default function Home() {
   useEffect(() => {
     window.scrollTo(0, 0)
     fetchInitialProducts()
+    
+    // Generate feed for Phase 1 recommendation system
+    console.log('[Discovery] Generating recommendation feed')
+    generateFeed('discovery', 20).catch((error) => {
+      console.error('[Discovery] Feed generation failed:', error)
+    })
 
     const urlParams = new URLSearchParams(window.location.search)
     const productId = urlParams.get("product")
@@ -330,6 +342,10 @@ export default function Home() {
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product)
+    
+    // Track product click for Phase 1
+    console.log('[Discovery] Product clicked:', { product_id: product.id, impression_id, session_id })
+    trackClick(product.id, impression_id, session_id)
   }
 
   const handleCloseDetail = () => {

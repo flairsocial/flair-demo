@@ -11,6 +11,7 @@ import AnalyzeWithAIButton from "./AnalyzeWithAIButton"
 import AIAnalysis from "./AIAnalysis"
 import CollectionModal from "./CollectionModal"
 import { useFiles } from "@/lib/file-context"
+import { useAnalytics } from "@/lib/hooks/useAnalytics"
 
 interface ProductDetailProps {
   product: Product
@@ -27,6 +28,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
   const [isFromUrlOrImage, setIsFromUrlOrImage] = useState(false)
   const router = useRouter()
   const { addProductAsFile } = useFiles()
+  const { trackChatOpen } = useAnalytics()
 
   const additionalImages = [
     product.image,
@@ -123,6 +125,10 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
   const handleAskAIAboutItem = () => {
     console.log('[ProductDetail] Ask AI about item clicked - adding product to files')
+    // Track chat open for Phase 1
+    console.log('[ProductDetail] Chat opened for product:', product.id)
+    trackChatOpen(product.id)
+    
     // Add product as file attachment first
     addProductAsFile(product)
     
@@ -138,6 +144,10 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
   const handleAskAIAnalysis = () => {
     console.log('[ProductDetail] Ask AI analysis clicked - adding product to files')
+    // Track chat open for Phase 1
+    console.log('[ProductDetail] Chat opened for product:', product.id)
+    trackChatOpen(product.id)
+    
     // Add product as file attachment first
     addProductAsFile(product)
     
